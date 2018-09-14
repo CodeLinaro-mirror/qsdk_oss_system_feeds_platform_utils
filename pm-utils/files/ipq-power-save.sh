@@ -563,19 +563,20 @@ ipq8074_battery_power()
 	local emmcblock="$(find_mmc_part "rootfs")"
 
 	if [ -z "$emmcblock" ]; then
-		if [ -d /sys/block/mmcblk0 ]
-		then
-			sd_drvname=`readlink /sys/block/mmcblk0 | grep -o "[0-9]*.sdhci"`
-			echo "$sd_drvname" > /tmp/sysinfo/sd_drvname
-			echo $sd_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
+		for device in /sys/block/mmcblk0 /sys/block/mmcblk1
+		do
+		if [ -d $device ]; then
+			sd1_drvname=`readlink $device | grep -o "[0-9]*.sdhci"`
+			echo "$sd1_drvname" > /tmp/sysinfo/sd1_drvname
+			echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
 		fi
-	fi
-
-	if [ -d /sys/block/mmcblk1 ]
-	then
-		sd1_drvname=`readlink /sys/block/mmcblk1 | grep -o "[0-9]*.sdhci"`
-		echo "$sd1_drvname" > /tmp/sysinfo/sd1_drvname
-		echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
+		done
+	else
+		if [ -z "${emmcblock##*mmcblk1*}" ] ;then
+			sd1_drvname=`readlink /sys/block/mmcblk0 | grep -o "[0-9]*.sdhci"`
+			echo "$sd1_drvname" > /tmp/sysinfo/sd1_drvname
+			echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
+		fi
 	fi
 
 # LAN interface down
