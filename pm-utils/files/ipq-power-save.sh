@@ -1,4 +1,4 @@
-#!/bin/sh Test
+#!/bin/sh
 
 #
 # Copyright (c) 2015-2016, The Linux Foundation. All rights reserved.
