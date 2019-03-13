@@ -449,9 +449,6 @@ ipq8074_ac_power()
 
 	sleep 1
 
-# Wifi Power-up Sequence
-	wifi load
-
 # USB Power-UP Sequence
 	if ! [ -d /sys/module/dwc3_of_simple ]
 	then
@@ -468,6 +465,9 @@ ipq8074_ac_power()
 
 # LAN interface up
 	ifup lan
+
+# Wifi Power-up Sequence
+	wifi load
 
 # SD/MMC Power-UP sequence
 	local emmcblock="$(find_mmc_part "rootfs")"
