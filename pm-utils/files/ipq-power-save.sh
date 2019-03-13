@@ -426,6 +426,145 @@ ipq4019_ap_dk04_1_battery_power()
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
 
+ipq6018_ac_power()
+{
+	echo "Entering AC-Power Mode"
+# Cortex Power-UP Sequence
+	/etc/init.d/powerctl restart
+
+# PCIe Power-UP Sequence
+	sleep 1
+	echo 1 > /sys/bus/pci/rcrescan
+	sleep 2
+	echo 1 > /sys/bus/pci/rescan
+
+	sleep 1
+
+# USB Power-UP Sequence
+	if ! [ -d /sys/module/dwc3_of_simple ]
+	then
+		insmod phy-msm-ssusb-qmp.ko
+		insmod phy-msm-qusb.ko
+		insmod dwc3-of-simple.ko
+		insmod dwc3.ko
+	fi
+
+	if [ -d config/usb_gadget/g1 ]
+	then
+		echo "8a00000.dwc3" > /config/usb_gadget/g1/UDC
+	fi
+
+# SD/MMC Power-UP sequence
+	local emmcblock="$(find_mmc_part "rootfs")"
+
+	if [ -z "$emmcblock" ]; then
+		for sd_drvname in $(cat /tmp/sysinfo/sd_drvname)
+		do
+			echo $sd_drvname > /sys/bus/platform/drivers/sdhci_msm/bind
+		done
+	fi
+
+	if [ -f /tmp/sysinfo/sd1_drvname ]
+	then
+		sd1_drvname=$(cat /tmp/sysinfo/sd1_drvname)
+		echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/bind
+	fi
+
+	sleep 1
+
+	exit 0
+}
+
+ipq6018_battery_power()
+{
+	echo "Entering Battery Mode..."
+
+# PCIe Power-Down Sequence
+
+# Remove devices
+	sleep 2
+	for i in `ls /sys/bus/pci/devices/`; do
+		d=/sys/bus/pci/devices/${i}
+		v=`cat ${d}/vendor`
+		[ "xx${v}" != "xx0x17cb" ] && echo 1 > ${d}/remove
+	done
+
+# Remove Buses
+	sleep 2
+	for i in `ls /sys/bus/pci/devices/`; do
+		d=/sys/bus/pci/devices/${i}
+		echo 1 > ${d}/remove
+	done
+
+# Remove RC
+	sleep 2
+
+	[ -f /sys/bus/pci/rcremove ] && {
+		echo 1 > /sys/bus/pci/rcremove
+	}
+	[ -f /sys/devices/pci0000:00/pci_bus/0000:00/rcremove ] && {
+		echo 1 > /sys/devices/pci0000:00/pci_bus/0000:00/rcremove
+	}
+	sleep 1
+
+# Find scsi devices and remove it
+	partition=`cat /proc/partitions | awk -F " " '{print $4}'`
+
+	for entry in $partition; do
+		sd_entry=$(echo $entry | head -c 2)
+
+		if [ "$sd_entry" = "sd" ]; then
+			[ -f /sys/block/$entry/device/delete ] && {
+				echo 1 > /sys/block/$entry/device/delete
+			}
+		fi
+	done
+
+# USB Power-down Sequence
+	if [ -d config/usb_gadget/g1 ]
+	then
+		echo "" > /config/usb_gadget/g1/UDC
+	fi
+
+	if [ -d /sys/module/dwc3_of_simple ]
+	then
+		rmmod dwc3
+		rmmod dwc3-of-simple
+		rmmod phy_msm_qusb
+		rmmod phy_msm_ssusb_qmp
+	fi
+	sleep 2
+
+#SD/MMC Power-down Sequence
+	local emmcblock="$(find_mmc_part "rootfs")"
+
+	if [ -z "$emmcblock" ]; then
+		rm /tmp/sysinfo/sd_drvname
+		for device in /sys/block/mmcblk0 /sys/block/mmcblk1
+		do
+		if [ -d $device ]; then
+			sd_drvname=`readlink $device | grep -o "[0-9]*.sdhci"`
+			echo "$sd_drvname" >> /tmp/sysinfo/sd_drvname
+			echo $sd_drvname >> /sys/bus/platform/drivers/sdhci_msm/unbind
+		fi
+		done
+	else
+		rm /tmp/sysinfo/sd1_drvname
+		if [ -z "${emmcblock##*mmcblk1*}" ] ;then
+			sd1_drvname=`readlink /sys/block/mmcblk0 | grep -o "[0-9]*.sdhci"`
+			echo "$sd1_drvname" > /tmp/sysinfo/sd1_drvname
+			echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
+		else
+			sd1_drvname=`readlink /sys/block/mmcblk1 | grep -o "[0-9]*.sdhci"`
+			echo "$sd1_drvname" > /tmp/sysinfo/sd1_drvname
+			echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
+		fi
+	fi
+
+# Cortex Power-down Sequence
+	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+}
+
 ipq8074_ac_power()
 {
 	echo "Entering AC-Power Mode"
@@ -613,6 +752,8 @@ case "$1" in
 			ipq4019_ap_dk04_1_ac_power ;;
 		ap-hk01-c1 | ap-hk01-c2 | ap-hk01-c3 | ap-hk01-c4 | ap-hk02 | ap-hk05 | ap-hk06 | ap-hk07 | ap-hk08 | ap-hk09 | ap-hk10 | ap-ac01 | ap-ac02 | ap-ac03 | ap-ac04 | ap-oak01 | ap-oak02 | ap-oak03 | db-hk01 | db-hk02)
 			ipq8074_ac_power ;;
+		ap-cp01-c1 | ap-cp02-c1 | ap-cp03-c1)
+			ipq6018_ac_power ;;
 		esac ;;
 	true)
 		case "$board" in
@@ -624,5 +765,7 @@ case "$1" in
 			ipq4019_ap_dk04_1_battery_power ;;
 		ap-hk01-c1 | ap-hk01-c2 | ap-hk01-c3 | ap-hk01-c4 | ap-hk02 | ap-hk05 | ap-hk06 | ap-hk07 | ap-hk08 | ap-hk09 | ap-hk10 | ap-ac01 | ap-ac02 | ap-ac03 | ap-ac04 | ap-oak01 | ap-oak02 | ap-oak03 | db-hk01 | db-hk02)
 			ipq8074_battery_power ;;
+		ap-cp01-c1 | ap-cp02-c1 | ap-cp03-c1)
+			ipq6018_battery_power ;;
 		esac ;;
 esac
