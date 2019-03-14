@@ -454,8 +454,11 @@ ipq8074_ac_power()
 	then
 		insmod phy-msm-ssusb-qmp.ko
 		insmod phy-msm-qusb.ko
+		insmod dbm
 		insmod dwc3-of-simple.ko
 		insmod dwc3.ko
+	        insmod u_qdss
+	        insmod usb_f_qdss
 	fi
 
 	if [ -d config/usb_gadget/g1 ]
@@ -554,8 +557,11 @@ ipq8074_battery_power()
 
 	if [ -d /sys/module/dwc3_of_simple ]
 	then
+		rmmod usb_f_qdss
+		rmmod u_qdss
 		rmmod dwc3
 		rmmod dwc3-of-simple
+		rmmod dbm
 		rmmod phy_msm_qusb
 		rmmod phy_msm_ssusb_qmp
 	fi
