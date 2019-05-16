@@ -739,7 +739,16 @@ ipq8074_battery_power()
 	echo 0 > /proc/sys/dev/nss/clock/auto_scale
 
 # Scaling Down UBI Cores
-	echo 748800000 > /proc/sys/dev/nss/clock/current_freq
+	local board=$(ipq806x_board_name)
+	case "$board" in
+
+		ap-ac*)
+			echo 187200000 > /proc/sys/dev/nss/clock/current_freq;
+			;;
+		*)
+			echo 748800000 > /proc/sys/dev/nss/clock/current_freq;
+			;;
+	esac
 
 # Cortex Power-down Sequence
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
