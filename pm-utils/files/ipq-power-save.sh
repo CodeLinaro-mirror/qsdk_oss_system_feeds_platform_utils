@@ -609,7 +609,12 @@ ipq8074_ac_power()
 	ifup lan
 
 # Wifi Power-up Sequence
-	wifi load
+	lsmod | grep ath11k > /dev/null
+	if [ $? -eq 0 ]; then
+		wifi up
+	else
+		wifi load
+	fi
 
 # SD/MMC Power-UP sequence
 	local emmcblock="$(find_mmc_part "rootfs")"
@@ -666,7 +671,12 @@ ipq8074_battery_power()
 	sleep 1
 
 # Wifi Power-down Sequence
-	wifi unload
+	lsmod | grep ath11k > /dev/null
+	if [ $? -eq 0 ]; then
+		wifi down
+	else
+		wifi unload
+	fi
 
 # Find scsi devices and remove it
 	partition=`cat /proc/partitions | awk -F " " '{print $4}'`
