@@ -432,6 +432,12 @@ ipq6018_ac_power()
 # Cortex Power-UP Sequence
 	/etc/init.d/powerctl restart
 
+# Power on PHYs of LAN ports
+	ssdk_sh port poweron set 2
+	ssdk_sh port poweron set 3
+	ssdk_sh port poweron set 4
+	ssdk_sh port poweron set 5
+
 # PCIe Power-UP Sequence
 	sleep 1
 	echo 1 > /sys/bus/pci/rcrescan
@@ -464,6 +470,8 @@ ipq6018_ac_power()
 	then
 		echo "8a00000.dwc3" > /config/usb_gadget/g1/UDC
 	fi
+# LAN interface up
+	ifup lan
 
 # SD/MMC Power-UP sequence
 	local emmcblock="$(find_mmc_part "rootfs")"
@@ -539,6 +547,12 @@ ipq6018_battery_power()
 		fi
 	done
 
+# Power off PHYs of LAN ports
+	ssdk_sh port poweroff set 2
+	ssdk_sh port poweroff set 3
+	ssdk_sh port poweroff set 4
+	ssdk_sh port poweroff set 5
+
 # USB Power-down Sequence
 	if [ -d config/usb_gadget/g1 ]
 	then
@@ -582,6 +596,8 @@ ipq6018_battery_power()
 			echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
 		fi
 	fi
+# LAN interface down
+	ifdown lan
 
 # Cortex Power-down Sequence
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
