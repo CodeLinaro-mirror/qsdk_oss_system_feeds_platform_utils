@@ -440,6 +440,14 @@ ipq6018_ac_power()
 
 	sleep 1
 
+# Wifi Power-up Sequence
+	lsmod | grep ath11k > /dev/null
+	if [ $? -eq 0 ]; then
+		wifi up
+	else
+		wifi load
+	fi
+
 # USB Power-UP Sequence
 	if ! [ -d /sys/module/dwc3_of_simple ]
 	then
@@ -509,6 +517,14 @@ ipq6018_battery_power()
 		echo 1 > /sys/devices/pci0000:00/pci_bus/0000:00/rcremove
 	}
 	sleep 1
+
+# Wifi Power-down Sequence
+	lsmod | grep ath11k > /dev/null
+	if [ $? -eq 0 ]; then
+		wifi down
+	else
+		wifi unload
+	fi
 
 # Find scsi devices and remove it
 	partition=`cat /proc/partitions | awk -F " " '{print $4}'`
