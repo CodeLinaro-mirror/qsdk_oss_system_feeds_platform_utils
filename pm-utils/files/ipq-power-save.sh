@@ -475,12 +475,6 @@ ipq6018_ac_power()
 		done
 	fi
 
-	if [ -f /tmp/sysinfo/sd1_drvname ]
-	then
-		sd1_drvname=$(cat /tmp/sysinfo/sd1_drvname)
-		echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/bind
-	fi
-
 	sleep 1
 
 	exit 0
@@ -562,24 +556,10 @@ ipq6018_battery_power()
 
 	if [ -z "$emmcblock" ]; then
 		rm /tmp/sysinfo/sd_drvname
-		for device in /sys/block/mmcblk0 /sys/block/mmcblk1
-		do
-		if [ -d $device ]; then
-			sd_drvname=`readlink $device | grep -o "[0-9]*.sdhci"`
+		if [ -d /sys/block/mmcblk0 ]; then
+			sd_drvname=`readlink /sys/block/mmcblk0 | grep -o "[0-9]*.sdhci[^/]*"`
 			echo "$sd_drvname" >> /tmp/sysinfo/sd_drvname
 			echo $sd_drvname >> /sys/bus/platform/drivers/sdhci_msm/unbind
-		fi
-		done
-	else
-		rm /tmp/sysinfo/sd1_drvname
-		if [ -z "${emmcblock##*mmcblk1*}" ] ;then
-			sd1_drvname=`readlink /sys/block/mmcblk0 | grep -o "[0-9]*.sdhci"`
-			echo "$sd1_drvname" > /tmp/sysinfo/sd1_drvname
-			echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
-		else
-			sd1_drvname=`readlink /sys/block/mmcblk1 | grep -o "[0-9]*.sdhci"`
-			echo "$sd1_drvname" > /tmp/sysinfo/sd1_drvname
-			echo $sd1_drvname > /sys/bus/platform/drivers/sdhci_msm/unbind
 		fi
 	fi
 
