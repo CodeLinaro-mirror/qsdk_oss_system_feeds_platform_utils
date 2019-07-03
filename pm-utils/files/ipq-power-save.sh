@@ -614,6 +614,68 @@ ipq6018_battery_power()
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
 
+ipq8074_phy_power_on()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-hk01-c1 | ap-hk01-c3 | ap-hk01-c4 | ap-hk01-c5 | ap-hk07 |\
+		ap-hk09 | ap-ac01 | ap-ac02 | ap-oak03 | db-hk01 | db-hk02)
+		ssdk_sh port poweron set 2
+		ssdk_sh port poweron set 3
+		ssdk_sh port poweron set 4
+		ssdk_sh port poweron set 5
+		ssdk_sh port poweron set 6
+		;;
+		ap-hk01-c2 | ap-oak02)
+		ssdk_sh port poweron set 2
+		ssdk_sh port poweron set 3
+		ssdk_sh port poweron set 4
+		ssdk_sh port poweron set 6
+		;;
+		ap-hk02 | ap-hk08)
+		ssdk_sh port poweron set 5
+		ssdk_sh port poweron set 6
+		;;
+		ap-ac03 | ap-ac04)
+		ssdk_sh port poweron set 2
+		ssdk_sh port poweron set 3
+		ssdk_sh port poweron set 4
+		ssdk_sh port poweron set 5
+		;;
+	esac
+}
+
+ipq8074_phy_power_off()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-hk01-c1 | ap-hk01-c3 | ap-hk01-c4 | ap-hk01-c5 | ap-hk07 |\
+		ap-hk09 | ap-ac01 | ap-ac02 | ap-oak03 | db-hk01 | db-hk02)
+		ssdk_sh port poweroff set 2
+		ssdk_sh port poweroff set 3
+		ssdk_sh port poweroff set 4
+		ssdk_sh port poweroff set 5
+		ssdk_sh port poweroff set 6
+		;;
+		ap-hk01-c2 | ap-oak02)
+		ssdk_sh port poweroff set 2
+		ssdk_sh port poweroff set 3
+		ssdk_sh port poweroff set 4
+		ssdk_sh port poweroff set 6
+		;;
+		ap-hk02 | ap-hk08)
+		ssdk_sh port poweroff set 5
+		ssdk_sh port poweroff set 6
+		;;
+		ap-ac03 | ap-ac04)
+		ssdk_sh port poweroff set 2
+		ssdk_sh port poweroff set 3
+		ssdk_sh port poweroff set 4
+		ssdk_sh port poweroff set 5
+		;;
+	esac
+}
+
 ipq8074_ac_power()
 {
 	echo "Entering AC-Power Mode"
@@ -624,11 +686,7 @@ ipq8074_ac_power()
 	echo 1 > /proc/sys/dev/nss/clock/auto_scale
 
 # Power on Malibu PHY of LAN ports
-	ssdk_sh port poweron set 2
-	ssdk_sh port poweron set 3
-	ssdk_sh port poweron set 4
-	ssdk_sh port poweron set 5
-
+	ipq8074_phy_power_on
 # PCIe Power-UP Sequence
 	sleep 1
 	echo 1 > /sys/bus/pci/rcrescan
@@ -742,11 +800,7 @@ ipq8074_battery_power()
 
 
 # Power off Malibu PHY of LAN ports
-	ssdk_sh port poweroff set 2
-	ssdk_sh port poweroff set 3
-	ssdk_sh port poweroff set 4
-	ssdk_sh port poweroff set 5
-
+	ipq8074_phy_power_off
 # USB Power-down Sequence
 	if [ -d config/usb_gadget/g1 ]
 	then
