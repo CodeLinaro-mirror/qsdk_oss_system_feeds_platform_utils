@@ -426,6 +426,44 @@ ipq4019_ap_dk04_1_battery_power()
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
 
+ipq6018_phy_power_on()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-cp01-c1 | ap-cp01-c2 | db-cp01)
+		ssdk_sh port poweron set 2
+		ssdk_sh port poweron set 3
+		ssdk_sh port poweron set 4
+		ssdk_sh port poweron set 5
+		;;
+		ap-cp02-c1 | db-cp02)
+		ssdk_sh port poweron set 5
+		;;
+		ap-cp03-c1)
+		ssdk_sh port poweron set 4
+		;;
+	esac
+}
+
+ipq6018_phy_power_off()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-cp01-c1 | ap-cp01-c2 | db-cp01)
+		ssdk_sh port poweroff set 2
+		ssdk_sh port poweroff set 3
+		ssdk_sh port poweroff set 4
+		ssdk_sh port poweroff set 5
+		;;
+		ap-cp02-c1 | db-cp02)
+		ssdk_sh port poweroff set 5
+		;;
+		ap-cp03-c1)
+		ssdk_sh port poweroff set 4
+		;;
+	esac
+}
+
 ipq6018_ac_power()
 {
 	echo "Entering AC-Power Mode"
@@ -433,11 +471,7 @@ ipq6018_ac_power()
 	/etc/init.d/powerctl restart
 
 # Power on PHYs of LAN ports
-	ssdk_sh port poweron set 2
-	ssdk_sh port poweron set 3
-	ssdk_sh port poweron set 4
-	ssdk_sh port poweron set 5
-
+	ipq6018_phy_power_on
 # PCIe Power-UP Sequence
 	sleep 1
 	echo 1 > /sys/bus/pci/rcrescan
@@ -542,10 +576,7 @@ ipq6018_battery_power()
 	done
 
 # Power off PHYs of LAN ports
-	ssdk_sh port poweroff set 2
-	ssdk_sh port poweroff set 3
-	ssdk_sh port poweroff set 4
-	ssdk_sh port poweroff set 5
+	ipq6018_phy_power_off
 
 # USB Power-down Sequence
 	if [ -d config/usb_gadget/g1 ]
