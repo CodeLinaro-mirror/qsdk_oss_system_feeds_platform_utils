@@ -489,11 +489,10 @@ ipq6018_ac_power()
 	fi
 
 # USB Power-UP Sequence
-	if ! [ -d /sys/module/dwc3_of_simple ]
+	if ! [ -d /sys/module/dwc3_qcom ]
 	then
 		insmod phy-msm-ssusb-qmp.ko
 		insmod phy-msm-qusb.ko
-		insmod dwc3-of-simple.ko
 		insmod dwc3.ko
 		insmod dwc3-qcom.ko
 		insmod u_qdss.ko
@@ -584,13 +583,12 @@ ipq6018_battery_power()
 		echo "" > /config/usb_gadget/g1/UDC
 	fi
 
-	if [ -d /sys/module/dwc3_of_simple ]
+	if [ -d /sys/module/dwc3_qcom ]
 	then
 		rmmod usb_f_qdss
 		rmmod u_qdss
 		rmmod dwc3-qcom
 		rmmod dwc3
-		rmmod dwc3-of-simple
 		rmmod phy_msm_qusb
 		rmmod phy_msm_ssusb_qmp
 	fi
