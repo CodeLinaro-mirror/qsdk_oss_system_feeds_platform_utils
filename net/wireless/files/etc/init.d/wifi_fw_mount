@@ -23,6 +23,10 @@ mount_wifi_fw (){
 	local part_name="0:WIFIFW"
 	local arch=""
 
+	if mount | grep -q WIFI_FW; then
+		return 0
+	fi
+
 	arch=$1
         primaryboot=$(cat /proc/boot_info/$part_name/primaryboot)
         if [ $primaryboot -eq 1 ]; then
