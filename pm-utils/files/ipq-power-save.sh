@@ -470,6 +470,9 @@ ipq6018_ac_power()
 # Cortex Power-UP Sequence
 	/etc/init.d/powerctl restart
 
+# Enabling Auto scale on NSS cores
+	echo 1 > /proc/sys/dev/nss/clock/auto_scale
+
 # Power on PHYs of LAN ports
 	ipq6018_phy_power_on
 # PCIe Power-UP Sequence
@@ -607,6 +610,12 @@ ipq6018_battery_power()
 	fi
 # LAN interface down
 	ifdown lan
+
+# Disabling Auto scale on NSS cores
+	echo 0 > /proc/sys/dev/nss/clock/auto_scale
+
+# Scaling Down UBI Cores
+	echo 187200000 > /proc/sys/dev/nss/clock/current_freq
 
 # Cortex Power-down Sequence
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
