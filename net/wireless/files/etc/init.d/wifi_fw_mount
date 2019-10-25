@@ -44,6 +44,9 @@ mount_wifi_fw (){
         local nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
 	if [ -n "$wifi_on_rootfs" ]; then
 		nand_part=$(find_mtd_part $ubi_part_name 2> /dev/null)
+		if [ -n "$nand_part" ]; then
+			emmc_part=""
+		fi
 	else
 		nand_part=$(find_mtd_part $part_name 2> /dev/null)
 	fi
