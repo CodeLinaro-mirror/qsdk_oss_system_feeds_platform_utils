@@ -723,8 +723,9 @@ ipq8074_ac_power()
 	ifup lan
 
 # Wifi Power-up Sequence
-	lsmod | grep ath11k > /dev/null
-	if [ $? -eq 0 ]; then
+	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
+		insmod /lib/modules/$(uname -r)/ath11k.ko
+		sleep 2
 		wifi up
 	else
 		wifi load
@@ -788,6 +789,7 @@ ipq8074_battery_power()
 	lsmod | grep ath11k > /dev/null
 	if [ $? -eq 0 ]; then
 		wifi down
+		rmmod ath11k
 	else
 		wifi unload
 	fi
