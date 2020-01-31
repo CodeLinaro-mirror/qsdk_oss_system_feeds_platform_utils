@@ -75,7 +75,8 @@ mount_wifi_fw (){
 	fi
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
-		cd  /lib/firmware && ln -sf $arch/WIFI_FW/qcn9000 .
+		cd  /lib/firmware/ && mkdir -p qcn9000
+		cd qcn9000 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/*.* .
 	fi
 
 	cd  /lib/firmware/$arch && ln -sf WIFI_FW/*.* .
