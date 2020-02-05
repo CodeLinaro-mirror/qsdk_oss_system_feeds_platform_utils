@@ -73,6 +73,11 @@ mount_wifi_fw (){
 	if [ -f /lib/firmware/$arch/WIFI_FW/q6_fw.mdt ]; then
 		echo " WIFI FW mount is successful" > /dev/console 2>&1
 	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
+		cd  /lib/firmware && ln -sf $arch/WIFI_FW/qcn9000 .
+	fi
+
 	cd  /lib/firmware/$arch && ln -sf WIFI_FW/*.* .
 	if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
 		cd /lib/firmware
