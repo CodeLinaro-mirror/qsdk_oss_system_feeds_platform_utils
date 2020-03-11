@@ -130,3 +130,38 @@ define KernelPackage/qpic_panel_ertft/description
 endef
 
 $(eval $(call KernelPackage,qpic_panel_ertft))
+
+CRYPTO_MENU:=Cryptographic API modules
+
+define AddPlatformDepends/crypto
+  SUBMENU:=$(CRYPTO_MENU)
+  DEPENDS+=+kmod-crypto-core $(1)
+endef
+
+define KernelPackage/crypto-qcrypto
+  TITLE:=QTI crypto CE engine
+  KCONFIG:= \
+	CONFIG_CRYPTO_DEV_QCRYPTO \
+	CONFIG_CRYPTO_DEV_QCEDEV
+  FILES:= \
+	$(LINUX_DIR)/drivers/crypto/msm/qcrypto.ko \
+	$(LINUX_DIR)/drivers/crypto/msm/qcedev.ko
+  AUTOLOAD:=$(call AutoLoad,09,qcrypto)
+  DEPENDS:=@TARGET_ipq806x||TARGET_ipq_ipq40xx +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
+  $(call AddPlatformDepends/crypto)
+endef
+
+$(eval $(call KernelPackage,crypto-qcrypto))
+
+define KernelPackage/crypto-qce
+  TITLE:=QTI Crypto Engine (QCE)
+  KCONFIG:= \
+	CONFIG_CRYPTO_DEV_QCE
+  FILES:= \
+	$(LINUX_DIR)/drivers/crypto/qce/qcrypto.ko
+  AUTOLOAD:=$(call AutoLoad,09,qcrypto)
+  DEPENDS:=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
+  $(call AddPlatformDepends/crypto)
+endef
+
+$(eval $(call KernelPackage,crypto-qce))
