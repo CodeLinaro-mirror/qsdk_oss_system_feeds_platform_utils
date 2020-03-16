@@ -141,13 +141,13 @@ boot() {
 		mount_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		mount_wifi_fw "IPQ6018"
-	elif [ "$platform" == "IPQ5018" ]; then
-		mount_wifi_fw "IPQ5018"
 		case "$board" in
 			AP-CP02*)
 				mount_adsp_fw "IPQ6018"
 				;;
 		esac
+	elif [ "$platform" == "IPQ5018" ]; then
+		mount_wifi_fw "IPQ5018"
 	else
 		echo "\nInvalid Target"
 	fi
@@ -220,13 +220,13 @@ stop() {
 		stop_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		stop_wifi_fw "IPQ6018"
-	elif [ "$platform" == "IPQ5018" ]; then
-		stop_wifi_fw "IPQ5018"
 		case "$board" in
 			AP-CP02*)
 				stop_adsp_fw "IPQ6018"
 				;;
 		esac
+	elif [ "$platform" == "IPQ5018" ]; then
+		stop_wifi_fw "IPQ5018"
 	else
 		echo "\nInvalid Target"
 		return 0
