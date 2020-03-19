@@ -132,6 +132,52 @@ mount_adsp_fw (){
 	[ -d /lib/firmware/$arch/ADSP_FW/dspso ] && ln -sf /lib/firmware/$arch/ADSP_FW/dspso /dsp
 }
 
+mount_bt_fw (){
+	local emmc_part=""
+	local nand_part=""
+	local nor_part=""
+	local ubi_part_name="rootfs"
+	local part_name="0:BTSSFW"
+	local arch=""
+	local nor_flash=""
+	local nor_mtd_part=""
+	local PART=""
+	local ubi_part=""
+
+	if mount | grep -q BT_FW; then
+		return 0;
+	fi
+
+	arch=$1
+	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
+	echo "$emmc_part loaded" > /dev/console 2>&1
+	nor_part=$(cat /proc/mtd | grep BTSSFW | awk '{print $1}' | sed 's/:$//')
+	nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
+	nand_part=$(find_mtd_part $ubi_part_name 2> /dev/null)
+
+	mkdir -p /lib/firmware/$arch/BT_FW
+
+	if [ -n "$emmc_part" ]; then
+		/bin/mount -t squashfs $emmc_part /lib/firmware/$arch/BT_FW > /dev/console 2>&1
+		[ -f /rom/lib/firmware/$arch/BT_FW/bt_fw.mdt ] && cp /rom/lib/firmware/$arch/BT_FW/*.* /lib/firmware/$arch/BT_FW/
+	elif [ -n "$nor_flash" ]; then
+		nor_mtd_part=$(find_mtd_part $part_name 2> /dev/null)
+		/bin/mount -t squashfs $nor_mtd_part /lib/firmware/$arch/BT_FW > /dev/console 2>&1
+	elif [ -n "$nand_part" ]; then
+		PART=$(grep -w  "rootfs" /proc/mtd | awk -F: '{print $1}')
+		ubiattach -p /dev/$PART
+		sync
+		ubi_part=$(find_mtd_part bt_fw 2> /dev/null)
+		/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/BT_FW > /dev/console 2>&1
+	fi
+
+	if [ -f /lib/firmware/$arch/BT_FW/image/bt_fw.mdt ]; then
+		echo "BT FW mount is successful" > /dev/console 2>&1
+	fi
+
+	cd /lib/firmware/$arch && ln -sf BT_FW/image/*.* .
+}
+
 boot() {
  . /lib/functions/system.sh
 	local platform=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $1}')
@@ -148,6 +194,7 @@ boot() {
 		esac
 	elif [ "$platform" == "IPQ5018" ]; then
 		mount_wifi_fw "IPQ5018"
+		mount_bt_fw "IPQ5018"
 	else
 		echo "\nInvalid Target"
 	fi
@@ -212,6 +259,29 @@ stop_adsp_fw() {
 	fi
 }
 
+stop_bt_fw() {
+	local emmc_part=""
+	local nand_part=""
+	local nor_part=""
+	local part_name="0:BTSSFW"
+	local nor_mtd_part=""
+	local nor_flash=""
+	arch=$1
+
+	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
+	nor_part=$(cat /proc/mtd | grep BTSSFW | awk '{print $1}' | sed 's/:$//')
+	nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
+	nand_part=$(find_mtd_part rootfs 2> /dev/null)
+	if [ -n "$emmc_part" ]; then
+		umount /lib/firmware/$arch/BT_FW
+	elif [ -n "$nor_flash" ]; then
+		nor_mtd_part=$(find_mtd_part $part_name 2> /dev/null)
+		umount /lib/firmware/$arch/BT_FW
+	elif [ -n "$nand_part" ]; then
+		umount /lib/firmware/$arch/BT_FW
+	fi
+}
+
 stop() {
 	local platform=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $1}')
 	local board=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $2}')
@@ -227,6 +297,7 @@ stop() {
 		esac
 	elif [ "$platform" == "IPQ5018" ]; then
 		stop_wifi_fw "IPQ5018"
+		stop_bt_fw "IPQ5018"
 	else
 		echo "\nInvalid Target"
 		return 0
