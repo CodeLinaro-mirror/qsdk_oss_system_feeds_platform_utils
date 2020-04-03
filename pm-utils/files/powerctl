@@ -86,6 +86,16 @@ ipq6018_power_auto() {
 	echo 50 > /sys/devices/system/cpu/cpufreq/ondemand/up_threshold
 }
 
+ipq5018_power_auto() {
+	# Set scaling governor as userspace to enable manual clock scaling or by userspace program
+	echo "userspace" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+	# Change scaling speed to minimum supported frequency
+	echo 772000 > sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+
+	# Ondemand, Performance, Powersave and Conservative scaling governors are not supported
+}
+
 start() {
 	. /lib/ipq806x.sh
 
@@ -99,5 +109,7 @@ start() {
 		ipq807x_power_auto ;;
 	ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 		ipq6018_power_auto ;;
+	ap-mp02.1 | ap-mp03.1 | ap-mp03.3 | db-mp02.1 | db-mp03.1 | db-mp03.3)
+		ipq5018_power_auto ;;
 	esac
 }
