@@ -15,7 +15,21 @@
 
 START=12
 
-start () {
-   /usr/bin/breakpad/breakpad_reporter &
+USE_PROCD=1
+NAME=breakpad_reporter
+PROG=/usr/bin/breakpad/breakpad_reporter
+
+start_service() {
+    procd_open_instance
+    procd_set_param command "$PROG"
+    procd_close_instance
+}
+
+stop() {
+    service_stop $PROG
+}
+
+reload() {
+    service_reload $PROG
 }
 
