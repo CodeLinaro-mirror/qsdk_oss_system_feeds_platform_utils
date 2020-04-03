@@ -430,7 +430,7 @@ ipq6018_phy_power_on()
 {
 	local board=$(ipq806x_board_name)
 	case "$board" in
-		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | db-cp01)
+		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | db-cp01)
 		ssdk_sh port poweron set 2
 		ssdk_sh port poweron set 3
 		ssdk_sh port poweron set 4
@@ -449,7 +449,7 @@ ipq6018_phy_power_off()
 {
 	local board=$(ipq806x_board_name)
 	case "$board" in
-		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | db-cp01)
+		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | db-cp01)
 		ssdk_sh port poweroff set 2
 		ssdk_sh port poweroff set 3
 		ssdk_sh port poweroff set 4
@@ -890,7 +890,7 @@ case "$1" in
 			ipq4019_ap_dk04_1_ac_power ;;
 		ap-hk01-c1 | ap-hk01-c2 | ap-hk01-c3 | ap-hk01-c4 | ap-hk01-c5 | ap-hk02 | ap-hk05 | ap-hk06 | ap-hk07 | ap-hk08 | ap-hk09 | ap-hk10-c1 | ap-hk10-c2 | ap-hk11-c1 | ap-ac01 | ap-ac02 | ap-ac03 | ap-ac04 | ap-oak02 | ap-oak03 | db-hk01 | db-hk02)
 			ipq8074_ac_power ;;
-		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
+		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 			ipq6018_ac_power ;;
 		esac ;;
 	true)
@@ -903,7 +903,7 @@ case "$1" in
 			ipq4019_ap_dk04_1_battery_power ;;
 		ap-hk01-c1 | ap-hk01-c2 | ap-hk01-c3 | ap-hk01-c4 | ap-hk01-c5 | ap-hk02 | ap-hk05 | ap-hk06 | ap-hk07 | ap-hk08 | ap-hk09 | ap-hk10-c1 | ap-hk10-c2 | ap-hk11-c1 | ap-ac01 | ap-ac02 | ap-ac03 | ap-ac04 | ap-oak02 | ap-oak03 | db-hk01 | db-hk02)
 			ipq8074_battery_power ;;
-		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
+		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 			ipq6018_battery_power ;;
 		esac ;;
 esac
