@@ -529,6 +529,15 @@ ipq6018_battery_power()
 {
 	echo "Entering Battery Mode..."
 
+# Wifi Power-down Sequence
+	lsmod | grep ath11k > /dev/null
+	if [ $? -eq 0 ]; then
+		wifi down
+		rmmod ath11k
+	else
+		wifi unload
+	fi
+
 # PCIe Power-Down Sequence
 
 # Remove devices
@@ -556,15 +565,6 @@ ipq6018_battery_power()
 		echo 1 > /sys/devices/pci0000:00/pci_bus/0000:00/rcremove
 	}
 	sleep 1
-
-# Wifi Power-down Sequence
-	lsmod | grep ath11k > /dev/null
-	if [ $? -eq 0 ]; then
-		wifi down
-		rmmod ath11k
-	else
-		wifi unload
-	fi
 
 # Find scsi devices and remove it
 	partition=`cat /proc/partitions | awk -F " " '{print $4}'`
