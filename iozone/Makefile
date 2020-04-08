@@ -1,5 +1,4 @@
 include $(TOPDIR)/rules.mk
-include ${INCLUDE_DIR}/host.mk
 
 PKG_NAME:=iozone3
 PKG_VERSION:=420
