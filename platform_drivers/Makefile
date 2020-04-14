@@ -79,7 +79,7 @@ SOUND_MENU:=Sound Support
 
 define AddPlatformDepends/sound
   SUBMENU:=$(SOUND_MENU)
-  DEPENDS+=kmod-sound-core $(1) @!TARGET_uml
+  DEPENDS+=kmod-sound-core $(1)
 endef
 
 define KernelPackage/sound-soc-ipq
@@ -147,7 +147,7 @@ define KernelPackage/crypto-qcrypto
 	$(LINUX_DIR)/drivers/crypto/msm/qcrypto.ko \
 	$(LINUX_DIR)/drivers/crypto/msm/qcedev.ko
   AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq806x||TARGET_ipq_ipq40xx +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
+  DEPENDS:=@TARGET_ipq806x||TARGET_ipq40xx||TARGET_ipq_ipq40xx +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
   $(call AddPlatformDepends/crypto)
 endef
 
@@ -160,7 +160,7 @@ define KernelPackage/crypto-qce
   FILES:= \
 	$(LINUX_DIR)/drivers/crypto/qce/qcrypto.ko
   AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
   $(call AddPlatformDepends/crypto)
 endef
 
@@ -252,7 +252,7 @@ $(eval $(call KernelPackage,usb-uas))
 
 define KernelPackage/usb-chipidea-qti
   TITLE:=ChipIdea controllers support
-  DEPENDS:= +kmod-usb2 +USB_GADGET_SUPPORT:kmod-usb-gadget
+  DEPENDS:= +kmod-usb2 +USB_GADGET_SUPPORT:kmod-usb-gadget @TARGET_ipq_ipq806x
   KCONFIG:=\
 	CONFIG_USB_CHIPIDEA \
 	CONFIG_USB_CHIPIDEA_HOST=y \
@@ -275,7 +275,7 @@ $(eval $(call KernelPackage,usb-chipidea-qti))
 
 define KernelPackage/usb-phy-ci-qti
   TITLE:=Chipidea USB PHY driver
-  DEPENDS:=+kmod-usb-chipidea-qti
+  DEPENDS:=+kmod-usb-chipidea-qti @TARGET_ipq_ipq806x
   KCONFIG:=CONFIG_USB_MSM_OTG
   FILES:=$(LINUX_DIR)/drivers/usb/phy/phy-msm-usb.ko
   AUTOLOAD:=$(call AutoLoad,50,phy-msm-usb)
@@ -309,7 +309,7 @@ define KernelPackage/usb-gdiag
   FILES:=\
        $(LINUX_DIR)/drivers/usb/gadget/legacy/g_diag.ko
   AUTOLOAD:=$(call AutoLoad,52,g_diag)
-  DEPENDS:=@TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-gadget +kmod-usb-lib-composite
+  DEPENDS:=@TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-gadget +kmod-usb-lib-composite
   $(call AddPlatformDepends/usb)
 endef
 
@@ -355,7 +355,7 @@ define KernelPackage/usb-f-qdss
   TITLE:=USB QDSS
   KCONFIG:=CONFIG_USB_F_QDSS \
 	CONFIG_USB_CONFIGFS_F_QDSS=y
-  DEPENDS:=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-lib-composite +kmod-usb-configfs +kmod-lib-crc-ccitt +kmod-usb-dwc3 +TARGET_ipq_ipq60xx:kmod-usb-dwc3-qcom +TARGET_ipq_ipq60xx_64:kmod-usb-dwc3-qcom +TARGET_ipq_ipq807x:kmod-usb-dwc3-of-simple +TARGET_ipq_ipq807x_64:kmod-usb-dwc3-of-simple
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-lib-composite +kmod-usb-configfs +kmod-lib-crc-ccitt +kmod-usb-dwc3 +TARGET_ipq_ipq60xx:kmod-usb-dwc3-qcom +TARGET_ipq_ipq60xx_64:kmod-usb-dwc3-qcom +TARGET_ipq_ipq807x:kmod-usb-dwc3-of-simple +TARGET_ipq_ipq807x_64:kmod-usb-dwc3-of-simple +TARGET_ipq60xx:kmod-usb-dwc3-qcom +TARGET_ipq60xx:kmod-usb-dwc3-of-simple +TARGET_ipq807x:kmod-usb-dwc3-qcom +TARGET_ipq807x:kmod-usb-dwc3-of-simple
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_qdss.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/function/u_qdss.ko
   AUTOLOAD:=$(call AutoLoad,52,usb_f_qdss)
