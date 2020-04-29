@@ -137,7 +137,7 @@ mount_bt_fw (){
 	local nand_part=""
 	local nor_part=""
 	local ubi_part_name="rootfs"
-	local part_name="0:BTSSFW"
+	local part_name="0:BTFW"
 	local arch=""
 	local nor_flash=""
 	local nor_mtd_part=""
@@ -150,8 +150,7 @@ mount_bt_fw (){
 
 	arch=$1
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
-	echo "$emmc_part loaded" > /dev/console 2>&1
-	nor_part=$(cat /proc/mtd | grep BTSSFW | awk '{print $1}' | sed 's/:$//')
+	nor_part=$(cat /proc/mtd | grep BTFW | awk '{print $1}' | sed 's/:$//')
 	nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
 	nand_part=$(find_mtd_part $ubi_part_name 2> /dev/null)
 
@@ -171,8 +170,10 @@ mount_bt_fw (){
 		/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/BT_FW > /dev/console 2>&1
 	fi
 
-	if [ -f /lib/firmware/$arch/BT_FW/image/bt_fw.mdt ]; then
+	if [ -f /lib/firmware/$arch/BT_FW/image/bt_fw_patch.mdt ]; then
 		echo "BT FW mount is successful" > /dev/console 2>&1
+	else
+		echo "BT FW mount is failed" > /dev/console 2>&1
 	fi
 
 	cd /lib/firmware/$arch && ln -sf BT_FW/image/*.* .
@@ -193,8 +194,8 @@ boot() {
 				;;
 		esac
 	elif [ "$platform" == "IPQ5018" ]; then
-		mount_wifi_fw "IPQ5018"
 		mount_bt_fw "IPQ5018"
+		mount_wifi_fw "IPQ5018"
 	else
 		echo "\nInvalid Target"
 	fi
@@ -263,13 +264,13 @@ stop_bt_fw() {
 	local emmc_part=""
 	local nand_part=""
 	local nor_part=""
-	local part_name="0:BTSSFW"
+	local part_name="0:BTFW"
 	local nor_mtd_part=""
 	local nor_flash=""
 	arch=$1
 
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
-	nor_part=$(cat /proc/mtd | grep BTSSFW | awk '{print $1}' | sed 's/:$//')
+	nor_part=$(cat /proc/mtd | grep BTFW | awk '{print $1}' | sed 's/:$//')
 	nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
 	nand_part=$(find_mtd_part rootfs 2> /dev/null)
 	if [ -n "$emmc_part" ]; then
