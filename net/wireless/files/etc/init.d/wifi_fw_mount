@@ -189,7 +189,7 @@ boot() {
 	elif [ "$platform" == "IPQ6018" ]; then
 		mount_wifi_fw "IPQ6018"
 		case "$board" in
-			AP-CP02*)
+			AP-CP01*)
 				mount_adsp_fw "IPQ6018"
 				;;
 		esac
@@ -292,7 +292,7 @@ stop() {
 	elif [ "$platform" == "IPQ6018" ]; then
 		stop_wifi_fw "IPQ6018"
 		case "$board" in
-			AP-CP02*)
+			AP-CP01*)
 				stop_adsp_fw "IPQ6018"
 				;;
 		esac
