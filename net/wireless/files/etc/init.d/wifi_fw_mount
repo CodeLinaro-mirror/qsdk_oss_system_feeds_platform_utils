@@ -80,10 +80,19 @@ mount_wifi_fw (){
 	fi
 
 	cd  /lib/firmware/$arch && ln -sf WIFI_FW/*.* .
-	if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
-		cd /lib/firmware
-		ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+
+	if [ -e /sys/firmware/devicetree/base/MP_512 ]; then
+		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini .
+		fi
+	else
+		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+		fi
 	fi
+
 	. /lib/read_caldata_to_fs.sh
 	do_load_ipq4019_board_bin
 
