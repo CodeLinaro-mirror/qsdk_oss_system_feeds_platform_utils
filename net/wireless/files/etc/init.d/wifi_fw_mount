@@ -195,6 +195,8 @@ boot() {
 
 	if [ "$platform" == "IPQ807x" ]; then
 		mount_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ8074" ]; then
+		mount_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		mount_wifi_fw "IPQ6018"
 		case "$board" in
@@ -297,6 +299,8 @@ stop() {
 	local board=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $2}')
 
 	if [ "$platform" == "IPQ807x" ]; then
+		stop_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ8074" ]; then
 		stop_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		stop_wifi_fw "IPQ6018"
