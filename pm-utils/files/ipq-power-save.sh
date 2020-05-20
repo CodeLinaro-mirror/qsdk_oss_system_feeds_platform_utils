@@ -483,15 +483,6 @@ ipq6018_ac_power()
 
 	sleep 1
 
-# Wifi Power-up Sequence
-	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
-		insmod /lib/modules/$(uname -r)/ath11k.ko
-		sleep 2
-		wifi up
-	else
-		wifi load
-	fi
-
 # USB Power-UP Sequence
 	if ! [ -d /sys/module/dwc3_qcom ]
 	then
@@ -509,6 +500,15 @@ ipq6018_ac_power()
 	fi
 # LAN interface up
 	ifup lan
+
+# Wifi Power-up Sequence
+	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
+		insmod /lib/modules/$(uname -r)/ath11k.ko
+		sleep 2
+		wifi up
+	else
+		wifi load
+	fi
 
 # SD/MMC Power-UP sequence
 	local emmcblock="$(find_mmc_part "rootfs")"
