@@ -80,10 +80,19 @@ mount_wifi_fw (){
 	fi
 
 	cd  /lib/firmware/$arch && ln -sf WIFI_FW/*.* .
-	if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
-		cd /lib/firmware
-		ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+
+	if [ -e /sys/firmware/devicetree/base/MP_512 ]; then
+		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini .
+		fi
+	else
+		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+		fi
 	fi
+
 	. /lib/read_caldata_to_fs.sh
 	do_load_ipq4019_board_bin
 
@@ -137,7 +146,7 @@ mount_bt_fw (){
 	local nand_part=""
 	local nor_part=""
 	local ubi_part_name="rootfs"
-	local part_name="0:BTSSFW"
+	local part_name="0:BTFW"
 	local arch=""
 	local nor_flash=""
 	local nor_mtd_part=""
@@ -150,8 +159,7 @@ mount_bt_fw (){
 
 	arch=$1
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
-	echo "$emmc_part loaded" > /dev/console 2>&1
-	nor_part=$(cat /proc/mtd | grep BTSSFW | awk '{print $1}' | sed 's/:$//')
+	nor_part=$(cat /proc/mtd | grep BTFW | awk '{print $1}' | sed 's/:$//')
 	nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
 	nand_part=$(find_mtd_part $ubi_part_name 2> /dev/null)
 
@@ -171,8 +179,10 @@ mount_bt_fw (){
 		/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/BT_FW > /dev/console 2>&1
 	fi
 
-	if [ -f /lib/firmware/$arch/BT_FW/image/bt_fw.mdt ]; then
+	if [ -f /lib/firmware/$arch/BT_FW/image/bt_fw_patch.mdt ]; then
 		echo "BT FW mount is successful" > /dev/console 2>&1
+	else
+		echo "BT FW mount is failed" > /dev/console 2>&1
 	fi
 
 	cd /lib/firmware/$arch && ln -sf BT_FW/image/*.* .
@@ -185,16 +195,18 @@ boot() {
 
 	if [ "$platform" == "IPQ807x" ]; then
 		mount_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ8074" ]; then
+		mount_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		mount_wifi_fw "IPQ6018"
 		case "$board" in
-			AP-CP02*)
+			AP-CP01*)
 				mount_adsp_fw "IPQ6018"
 				;;
 		esac
 	elif [ "$platform" == "IPQ5018" ]; then
-		mount_wifi_fw "IPQ5018"
 		mount_bt_fw "IPQ5018"
+		mount_wifi_fw "IPQ5018"
 	else
 		echo "\nInvalid Target"
 	fi
@@ -263,13 +275,13 @@ stop_bt_fw() {
 	local emmc_part=""
 	local nand_part=""
 	local nor_part=""
-	local part_name="0:BTSSFW"
+	local part_name="0:BTFW"
 	local nor_mtd_part=""
 	local nor_flash=""
 	arch=$1
 
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
-	nor_part=$(cat /proc/mtd | grep BTSSFW | awk '{print $1}' | sed 's/:$//')
+	nor_part=$(cat /proc/mtd | grep BTFW | awk '{print $1}' | sed 's/:$//')
 	nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
 	nand_part=$(find_mtd_part rootfs 2> /dev/null)
 	if [ -n "$emmc_part" ]; then
@@ -288,10 +300,12 @@ stop() {
 
 	if [ "$platform" == "IPQ807x" ]; then
 		stop_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ8074" ]; then
+		stop_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		stop_wifi_fw "IPQ6018"
 		case "$board" in
-			AP-CP02*)
+			AP-CP01*)
 				stop_adsp_fw "IPQ6018"
 				;;
 		esac

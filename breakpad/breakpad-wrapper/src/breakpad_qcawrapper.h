@@ -19,7 +19,8 @@
 extern "C"
 {
 #endif//__cplusplus
-    void breakpad_ExceptionHandler(void);
+typedef void (*ApplnCallback)(void);
+void breakpad_ExceptionHandler(ApplnCallback applnCallback);
 #ifdef __cplusplus
 }
 #endif//__cplusplus

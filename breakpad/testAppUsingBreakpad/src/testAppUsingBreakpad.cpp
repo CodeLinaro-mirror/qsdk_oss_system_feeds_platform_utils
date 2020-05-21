@@ -17,6 +17,11 @@
 #include "breakpad_qcawrapper.h"
 #endif
 
+void ApplicationCallback(void)
+{
+    printf("\n Inside Application Callback \n");
+}
+
 void crash() {
     volatile int* a = (int*)(NULL);
     *a = 1;
@@ -25,7 +30,7 @@ void crash() {
 int main(void)
 {
 #ifdef INCLUDE_BREAKPAD
-    breakpad_ExceptionHandler();
+    breakpad_ExceptionHandler(&ApplicationCallback);
 #endif
     printf("\nBreakpad Test Application About to Crash!\n\n");
     crash();
