@@ -135,8 +135,19 @@ CRYPTO_MENU:=Cryptographic API modules
 
 define AddPlatformDepends/crypto
   SUBMENU:=$(CRYPTO_MENU)
-  DEPENDS+=+kmod-crypto-core $(1)
+  DEPENDS+=+LINUX_4_4:kmod-crypto-core $(1)
 endef
+
+define KernelPackage/crypto-aes-internal
+  TITLE:=AES cipher CryptoAPI module
+  KCONFIG:=CONFIG_CRYPTO_AES CONFIG_CRYPTO_AES_586
+  FILES:=$(LINUX_DIR)/crypto/aes_generic.ko
+  AUTOLOAD:=$(call AutoLoad,09,aes_generic)
+  $(call AddDepends/crypto)
+endef
+
+$(eval $(call KernelPackage,crypto-aes-internal))
+
 
 define KernelPackage/crypto-qcrypto
   TITLE:=QTI crypto CE engine
@@ -156,11 +167,15 @@ $(eval $(call KernelPackage,crypto-qcrypto))
 define KernelPackage/crypto-qce
   TITLE:=QTI Crypto Engine (QCE)
   KCONFIG:= \
-	CONFIG_CRYPTO_DEV_QCE
+	CONFIG_CRYPTO_DEV_QCE \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_ALL=y@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_SKCIPHER=n@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_SHA=n@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_SW_MAX_LEN=0@ge5.4
   FILES:= \
 	$(LINUX_DIR)/drivers/crypto/qce/qcrypto.ko
   AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +kmod-crypto-aes-internal +kmod-crypto-hash +kmod-crypto-des +LINUX_5_4:kmod-crypto-xts +LINUX_5_4:kmod-crypto-cbc +LINUX_5_4:kmod-crypto-ecb +LINUX_5_4:kmod-crypto-ctr
   $(call AddPlatformDepends/crypto)
 endef
 
