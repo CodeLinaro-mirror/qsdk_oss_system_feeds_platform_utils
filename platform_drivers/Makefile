@@ -461,6 +461,19 @@ endef
 
 $(eval $(call KernelPackage,leds-tlc591xx))
 
+define KernelPackage/mhitest_mod
+  TITLE:=MHI Test Module for qcn9000.
+  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq807x||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64
+  KCONFIG:=CONFIG_MHI_BUS_TEST
+  FILES:=$(LINUX_DIR)/drivers/bus/mhi/test/mhitest_mod.ko
+endef
+
+define KernelPackage/mhitest_mod/description
+  Add MHI Test Module.
+endef
+
+$(eval $(call KernelPackage,mhitest_mod))
+
 #Add in these flags for kernel specific configs
 #@le4.4 - kernel version less than 4.4
 #@ge5.4 - kernel version greater than 5.4
