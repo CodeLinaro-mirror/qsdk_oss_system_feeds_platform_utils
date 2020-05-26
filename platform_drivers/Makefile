@@ -357,6 +357,28 @@ endef
 
 $(eval $(call KernelPackage,usb-phy-ipq807x))
 
+define KernelPackage/usb-dwc3-internal
+  TITLE:=DWC3 USB controller driver
+  KCONFIG:= \
+	CONFIG_USB_DWC3 \
+	CONFIG_USB_DWC3_HOST=n \
+	CONFIG_USB_DWC3_GADGET=n \
+	CONFIG_USB_DWC3_DUAL_ROLE=y \
+	CONFIG_EXTCON=y \
+	CONFIG_USB_DWC3_DEBUG=n \
+	CONFIG_USB_DWC3_VERBOSE=n
+  FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3.ko
+  AUTOLOAD:=$(call AutoLoad,54,dwc3,1)
+  $(call AddPlatformDepends/usb)
+endef
+
+define KernelPackage/usb-dwc3-internal/description
+ This driver provides support for the Dual Role SuperSpeed
+ USB Controller based on the Synopsys DesignWare USB3 IP Core
+endef
+
+$(eval $(call KernelPackage,usb-dwc3-internal))
+
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 Qualcomm USB driver
   DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x) +kmod-usb-dwc3-internal
