@@ -357,6 +357,23 @@ endef
 
 $(eval $(call KernelPackage,usb-phy-ipq807x))
 
+define KernelPackage/usb-dwc3-qcom-internal
+  TITLE:=DWC3 Qualcomm USB driver
+  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x) +kmod-usb-dwc3-internal
+  KCONFIG:= CONFIG_USB_DWC3_QCOM
+  FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
+  AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)
+  $(call AddPlatformDepends/usb)
+endef
+
+define KernelPackage/usb-dwc3-qcom-internal/description
+ Some Qualcomm SoCs use DesignWare Core IP for USB2/3 functionality.
+ This driver also handles Qscratch wrapper which is needed for
+ peripheral mode support.
+endef
+
+$(eval $(call KernelPackage,usb-dwc3-qcom-internal))
+
 
 define KernelPackage/diag-char
   TITLE:=CHAR DIAG
