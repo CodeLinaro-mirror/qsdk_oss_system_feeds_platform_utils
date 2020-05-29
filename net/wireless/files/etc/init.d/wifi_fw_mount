@@ -35,8 +35,7 @@ mount_wifi_fw (){
 	if [ $primaryboot -eq 1 ]; then
 		part_name="0:WIFIFW_1"
 	fi
-
-	if [ "$arch" == "IPQ6018" ]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]]; then
 		wifi_on_rootfs="1"
 	fi
 
@@ -221,7 +220,7 @@ stop_wifi_fw() {
 	local wifi_on_rootfs=""
 	arch=$1
 
-	if [ "$arch" == "IPQ6018" ]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]]; then
 		part_name="rootfs"
 		wifi_on_rootfs="1"
 	fi

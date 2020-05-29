@@ -384,3 +384,49 @@ define KernelPackage/leds-tlc591xx/description
 endef
 
 $(eval $(call KernelPackage,leds-tlc591xx))
+
+#Add in these flags for kernel specific configs
+#@le4.4 - kernel version less than 4.4
+#@ge5.4 - kernel version greater than 5.4
+#@eq5.4 - kernel version equal to 5.4
+define KernelPackage/msm-mproc
+  TITLE:= Default kernel configs
+  DEPENDS+= @TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq807x
+  KCONFIG:= \
+	  CONFIG_DIAG_OVER_QRTR=y \
+	  CONFIG_IPQ_SUBSYSTEM_RAMDUMP=y@ge5.4 \
+	  CONFIG_IPQ_SUBSYSTEM_RESTART=y@le4.4 \
+	  CONFIG_MAILBOX=y \
+	  CONFIG_MSM_RPM_RPMSG=y \
+	  CONFIG_QCOM_APCS_IPC=y \
+	  CONFIG_QCOM_GLINK_SSR=y \
+	  CONFIG_QCOM_Q6V5_WCSS=y \
+	  CONFIG_QCOM_QMI_HELPERS=y \
+	  CONFIG_QCOM_SYSMON=y \
+	  CONFIG_QRTR=y \
+	  CONFIG_QRTR_SMD=y \
+	  CONFIG_QTI_Q6V5_ADSP=y@le4.4 \
+	  CONFIG_REGULATOR_RPM_GLINK=y \
+	  CONFIG_RPMSG=y \
+	  CONFIG_RPMSG_CHAR=y \
+	  CONFIG_RPMSG_QCOM_GLINK_RPM=y \
+	  CONFIG_RPMSG_QCOM_GLINK_SMEM=y \
+	  CONFIG_RPMSG_QCOM_SMD=y \
+	  CONFIG_SAMPLES=y \
+	  CONFIG_SAMPLE_CONFIGFS=n \
+	  CONFIG_SAMPLE_HW_BREAKPOINT=n \
+	  CONFIG_SAMPLE_KFIFO=n \
+	  CONFIG_SAMPLE_KOBJECT=n \
+	  CONFIG_SAMPLE_KPROBES=n \
+	  CONFIG_SAMPLE_KRETPROBES=n \
+	  CONFIG_SAMPLE_QMI_CLIENT=m \
+	  CONFIG_SAMPLE_RPMSG_CLIENT=n \
+	  CONFIG_SAMPLE_TRACE_EVENTS=n \
+	  CONFIG_SAMPLE_VFIO_MDEV_MDPY_FB=n@le5.4
+endef
+
+define KernelPackage/msm-mproc/description
+Default kernel configs.
+endef
+
+$(eval $(call KernelPackage,msm-mproc))
