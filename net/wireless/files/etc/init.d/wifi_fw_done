@@ -22,6 +22,10 @@ boot() {
 
         if ! grep -q WIFI_FW /proc/mounts; then
 		case "$soc_model" in
+		*"IPQ5018"*)
+			. /etc/init.d/wifi_fw_mount
+			mount_wifi_fw "IPQ5018"
+			;;
 		*"IPQ6018"*)
 			. /etc/init.d/wifi_fw_mount
 			mount_wifi_fw "IPQ6018"
