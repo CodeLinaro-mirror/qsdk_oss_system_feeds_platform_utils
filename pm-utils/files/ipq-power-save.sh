@@ -16,7 +16,12 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-. /lib/ipq806x.sh
+[ -e /lib/ipq806x.sh ] && . /lib/ipq806x.sh
+
+type ipq806x_board_name &>/dev/null  || ipq806x_board_name() {
+	echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g'
+}
+
 . /lib/functions.sh
 
 ipq8064_ac_power()
