@@ -17,7 +17,11 @@
 
 START=08
 
-. /lib/ipq806x.sh
+[ -e /lib/ipq806x.sh ] && . /lib/ipq806x.sh
+
+type ipq806x_board_name &>/dev/null  || ipq806x_board_name() {
+	echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g'
+}
 
 boot() {
 	local board=$(ipq806x_board_name)
