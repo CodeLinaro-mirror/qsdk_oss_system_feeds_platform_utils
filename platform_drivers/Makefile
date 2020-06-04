@@ -391,11 +391,10 @@ $(eval $(call KernelPackage,leds-tlc591xx))
 #@eq5.4 - kernel version equal to 5.4
 define KernelPackage/msm-mproc
   TITLE:= Default kernel configs
-  DEPENDS+= @TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq807x
+  DEPENDS+= @TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:= \
 	  CONFIG_DIAG_OVER_QRTR=y \
-	  CONFIG_IPQ_SUBSYSTEM_RAMDUMP=y@ge5.4 \
-	  CONFIG_IPQ_SUBSYSTEM_RESTART=y@le4.4 \
+	  CONFIG_IPQ_SUBSYSTEM_RESTART=y \
 	  CONFIG_MAILBOX=y \
 	  CONFIG_MSM_RPM_RPMSG=y \
 	  CONFIG_QCOM_APCS_IPC=y \
@@ -405,7 +404,7 @@ define KernelPackage/msm-mproc
 	  CONFIG_QCOM_SYSMON=y \
 	  CONFIG_QRTR=y \
 	  CONFIG_QRTR_SMD=y \
-	  CONFIG_QTI_Q6V5_ADSP=y@le4.4 \
+	  CONFIG_QTI_Q6V5_ADSP=y \
 	  CONFIG_REGULATOR_RPM_GLINK=y \
 	  CONFIG_RPMSG=y \
 	  CONFIG_RPMSG_CHAR=y \
@@ -421,8 +420,7 @@ define KernelPackage/msm-mproc
 	  CONFIG_SAMPLE_KRETPROBES=n \
 	  CONFIG_SAMPLE_QMI_CLIENT=m \
 	  CONFIG_SAMPLE_RPMSG_CLIENT=n \
-	  CONFIG_SAMPLE_TRACE_EVENTS=n \
-	  CONFIG_SAMPLE_VFIO_MDEV_MDPY_FB=n@le5.4
+	  CONFIG_SAMPLE_TRACE_EVENTS=n
 endef
 
 define KernelPackage/msm-mproc/description
