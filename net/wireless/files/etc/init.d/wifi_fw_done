@@ -30,7 +30,7 @@ boot() {
 			. /etc/init.d/wifi_fw_mount
 			mount_wifi_fw "IPQ6018"
 			;;
-		*"IPQ807x"*)
+		*"IPQ807"*)
 			. /etc/init.d/wifi_fw_mount
 			mount_wifi_fw "IPQ8074"
 			;;
