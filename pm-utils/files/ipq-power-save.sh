@@ -710,7 +710,7 @@ ipq8074_ac_power()
 	sleep 1
 
 # USB Power-UP Sequence
-	if ! [ -d /sys/module/dwc3_of_simple ]
+	if [ -e /lib/modules/$(uname -r)/dwc3-of-simple.ko ]
 	then
 		insmod phy-msm-ssusb-qmp.ko
 		insmod phy-msm-qusb.ko
@@ -719,6 +719,12 @@ ipq8074_ac_power()
 		insmod dwc3.ko
 	        insmod u_qdss
 	        insmod usb_f_qdss
+	elif [ -e /lib/modules/$(uname -r)/dwc3-qcom.ko ]
+	then
+		insmod phy-qcom-qusb2.ko
+		insmod dwc3-qcom.ko
+		insmod dwc3.ko
+		insmod usb_f_qdss.ko
 	fi
 
 	if [ -d config/usb_gadget/g1 ]
@@ -831,6 +837,12 @@ ipq8074_battery_power()
 		rmmod dbm
 		rmmod phy_msm_qusb
 		rmmod phy_msm_ssusb_qmp
+	elif [ -d /sys/module/dwc3_qcom ]
+	then
+		rmmod usb_f_qdss
+		rmmod dwc3
+		rmmod dwc3_qcom
+		rmmod phy_qcom_qusb2
 	fi
 	sleep 2
 
