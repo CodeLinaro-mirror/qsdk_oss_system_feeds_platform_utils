@@ -49,18 +49,18 @@ get_current_local_time() {
 }
 
 get_ntp1() {
-        cat /etc/config/system | grep -m 1 list | tail -n 1 | cut -f 3
+        cat /etc/config/system | grep -m 1 list | tail -n 1 | awk '{print $NF}'
 }
 
 get_ntp2() {
-        cat /etc/config/system | grep -m 2 list | tail -n 1 | cut -f 3
+        cat /etc/config/system | grep -m 2 list | tail -n 1 | awk '{print $NF}'
 }
 
 get_ntp3() {
-        cat /etc/config/system | grep -m 3 list | tail -n 1 | cut -f 3
+        cat /etc/config/system | grep -m 3 list | tail -n 1 | awk '{print $NF}'
 }
 
 get_ntp4() {
-        cat /etc/config/system | grep -m 4 list | tail -n 1 | cut -f 3
+        cat /etc/config/system | grep -m 4 list | tail -n 1 | awk '{print $NF}'
 }
 
