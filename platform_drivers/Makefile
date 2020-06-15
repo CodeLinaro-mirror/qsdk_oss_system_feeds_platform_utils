@@ -135,8 +135,19 @@ CRYPTO_MENU:=Cryptographic API modules
 
 define AddPlatformDepends/crypto
   SUBMENU:=$(CRYPTO_MENU)
-  DEPENDS+=+kmod-crypto-core $(1)
+  DEPENDS+=+LINUX_4_4:kmod-crypto-core $(1)
 endef
+
+define KernelPackage/crypto-aes-internal
+  TITLE:=AES cipher CryptoAPI module
+  KCONFIG:=CONFIG_CRYPTO_AES CONFIG_CRYPTO_AES_586
+  FILES:=$(LINUX_DIR)/crypto/aes_generic.ko
+  AUTOLOAD:=$(call AutoLoad,09,aes_generic)
+  $(call AddDepends/crypto)
+endef
+
+$(eval $(call KernelPackage,crypto-aes-internal))
+
 
 define KernelPackage/crypto-qcrypto
   TITLE:=QTI crypto CE engine
@@ -156,11 +167,15 @@ $(eval $(call KernelPackage,crypto-qcrypto))
 define KernelPackage/crypto-qce
   TITLE:=QTI Crypto Engine (QCE)
   KCONFIG:= \
-	CONFIG_CRYPTO_DEV_QCE
+	CONFIG_CRYPTO_DEV_QCE \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_ALL=y@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_SKCIPHER=n@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_SHA=n@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_SW_MAX_LEN=0@ge5.4
   FILES:= \
 	$(LINUX_DIR)/drivers/crypto/qce/qcrypto.ko
   AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +kmod-crypto-aes-internal +kmod-crypto-hash +kmod-crypto-des +LINUX_5_4:kmod-crypto-xts +LINUX_5_4:kmod-crypto-cbc +LINUX_5_4:kmod-crypto-ecb +LINUX_5_4:kmod-crypto-ctr
   $(call AddPlatformDepends/crypto)
 endef
 
@@ -223,7 +238,7 @@ define KernelPackage/usb-f-diag
   KCONFIG:=CONFIG_USB_F_DIAG \
 	CONFIG_USB_CONFIGFS_F_DIAG=y \
 	CONFIG_DIAG_OVER_USB=y
-  DEPENDS:=+kmod-usb-lib-composite +kmod-usb-configfs
+  DEPENDS:=+LINUX_4_4:kmod-usb-lib-composite +LINUX_4_4:kmod-usb-configfs
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_diag.ko
   AUTOLOAD:=$(call AutoLoad,52,usb_f_diag)
   $(call AddPlatformDepends/usb)
@@ -335,6 +350,67 @@ endef
 
 $(eval $(call KernelPackage,usb-f_ss_lb))
 
+define KernelPackage/usb-phy-ipq807x
+  TITLE:=DWC3 USB QCOM PHY drivers for IPQ807x based targets
+  DEPENDS:=@TARGET_ipq||TARGET_ipq807x
+  KCONFIG:= \
+	CONFIG_PHY_QCOM_QUSB2 \
+	CONFIG_PHY_QCOM_QMP=y \
+	CONFIG_USB_QCOM_QUSB_PHY \
+	CONFIG_USB_QCOM_QMP_PHY
+  FILES:= \
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-qusb2.ko@ge5.4 \
+	$(LINUX_DIR)/drivers/usb/phy/phy-msm-qusb.ko@le4.4 \
+	$(LINUX_DIR)/drivers/usb/phy/phy-msm-ssusb-qmp.ko@le4.4
+  AUTOLOAD:=$(call AutoLoad,45,phy-qcom-qusb2 phy-msm-qusb phy-msm-ssusb-qmp,1)
+  $(call AddPlatformDepends/usb)
+endef
+
+define KernelPackage/usb-phy-ipq807x/description
+  Support for USB PHY drivers in IPQ807x based SoCs.
+endef
+
+$(eval $(call KernelPackage,usb-phy-ipq807x))
+
+define KernelPackage/usb-dwc3-internal
+  TITLE:=DWC3 USB controller driver
+  KCONFIG:= \
+	CONFIG_USB_DWC3 \
+	CONFIG_USB_DWC3_HOST=n \
+	CONFIG_USB_DWC3_GADGET=n \
+	CONFIG_USB_DWC3_DUAL_ROLE=y \
+	CONFIG_EXTCON=y \
+	CONFIG_USB_DWC3_DEBUG=n \
+	CONFIG_USB_DWC3_VERBOSE=n
+  FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3.ko
+  AUTOLOAD:=$(call AutoLoad,54,dwc3,1)
+  $(call AddPlatformDepends/usb)
+endef
+
+define KernelPackage/usb-dwc3-internal/description
+ This driver provides support for the Dual Role SuperSpeed
+ USB Controller based on the Synopsys DesignWare USB3 IP Core
+endef
+
+$(eval $(call KernelPackage,usb-dwc3-internal))
+
+define KernelPackage/usb-dwc3-qcom-internal
+  TITLE:=DWC3 Qualcomm USB driver
+  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x) +kmod-usb-dwc3-internal
+  KCONFIG:= CONFIG_USB_DWC3_QCOM
+  FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
+  AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)
+  $(call AddPlatformDepends/usb)
+endef
+
+define KernelPackage/usb-dwc3-qcom-internal/description
+ Some Qualcomm SoCs use DesignWare Core IP for USB2/3 functionality.
+ This driver also handles Qscratch wrapper which is needed for
+ peripheral mode support.
+endef
+
+$(eval $(call KernelPackage,usb-dwc3-qcom-internal))
+
 
 define KernelPackage/diag-char
   TITLE:=CHAR DIAG
@@ -355,7 +431,7 @@ define KernelPackage/usb-f-qdss
   TITLE:=USB QDSS
   KCONFIG:=CONFIG_USB_F_QDSS \
 	CONFIG_USB_CONFIGFS_F_QDSS=y
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-lib-composite +kmod-usb-configfs +kmod-lib-crc-ccitt +kmod-usb-dwc3 +TARGET_ipq_ipq60xx:kmod-usb-dwc3-qcom +TARGET_ipq_ipq60xx_64:kmod-usb-dwc3-qcom +TARGET_ipq_ipq807x:kmod-usb-dwc3-of-simple +TARGET_ipq_ipq807x_64:kmod-usb-dwc3-of-simple +TARGET_ipq60xx:kmod-usb-dwc3-qcom +TARGET_ipq60xx:kmod-usb-dwc3-of-simple +TARGET_ipq807x:kmod-usb-dwc3-qcom +TARGET_ipq807x:kmod-usb-dwc3-of-simple
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64 +kmod-usb-lib-composite +kmod-usb-configfs +kmod-lib-crc-ccitt +kmod-usb-dwc3 +TARGET_ipq_ipq60xx:kmod-usb-dwc3-qcom +TARGET_ipq_ipq60xx_64:kmod-usb-dwc3-qcom +TARGET_ipq_ipq50xx:kmod-usb-dwc3-qcom +TARGET_ipq_ipq50xx_64:kmod-usb-dwc3-qcom +TARGET_ipq_ipq807x:kmod-usb-dwc3-of-simple +TARGET_ipq_ipq807x_64:kmod-usb-dwc3-of-simple +TARGET_ipq60xx:kmod-usb-dwc3-qcom +TARGET_ipq60xx:kmod-usb-dwc3-of-simple +TARGET_ipq807x:kmod-usb-dwc3-qcom +TARGET_ipq807x:kmod-usb-dwc3-of-simple
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_qdss.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/function/u_qdss.ko
   AUTOLOAD:=$(call AutoLoad,52,usb_f_qdss)

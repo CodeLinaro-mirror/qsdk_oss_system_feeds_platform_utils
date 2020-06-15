@@ -96,8 +96,12 @@ ipq5018_power_auto() {
 	# Ondemand, Performance, Powersave and Conservative scaling governors are not supported
 }
 
+type ipq806x_board_name &>/dev/null  || ipq806x_board_name() {
+	echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g'
+}
+
 start() {
-	. /lib/ipq806x.sh
+	[ -e /lib/ipq806x.sh ] && . /lib/ipq806x.sh
 
 	local board=$(ipq806x_board_name)
 	case "$board" in

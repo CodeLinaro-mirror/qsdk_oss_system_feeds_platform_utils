@@ -7,6 +7,7 @@ PKG_SOURCE:=v$(PKG_VERSION).zip
 PKG_SOURCE_URL:=https://github.com/eembc/coremark/archive
 PKG_MD5SUM:=a87572b06cc99c0fcef3501ec45bd0fd
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/kernel.mk
 
 define Package/coremark
   SECTION:=utils
@@ -19,9 +20,16 @@ define Package/coremark/description
   CoreMark is a simple, yet sophisticated benchmark that is designed specifically to test the functionality of a processor core.
 endef
 
-PORT_DIR:=simple
+ifeq ($(LINUX_KARCH),arm64)
+PORT_DIR=linux64
+else
+PORT_DIR=linux
+endif
+
+XCFLAGS=-DMULTITHREAD=4 -DUSE_PTHREAD=1
+
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) PORT_DIR=$(PORT_DIR) ITERATIONS=200000 $(MAKE_FLAGS) compile
+	$(MAKE) -C $(PKG_BUILD_DIR) PORT_DIR=$(PORT_DIR) XCFLAGS="$(XCFLAGS)" $(MAKE_FLAGS) compile
 endef
 
 define Package/coremark/install

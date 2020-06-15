@@ -1,7 +1,6 @@
 #!/bin/sh /etc/rc.common
 #
-# Copyright (c) 2019 The Linux Foundation. All rights reserved.
-#
+# Copyright (c) 2020 The Linux Foundation. All rights reserved.
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -15,23 +14,26 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-START=08
-
-[ -e /lib/ipq806x.sh ] && . /lib/ipq806x.sh
-
-type ipq806x_board_name &>/dev/null  || ipq806x_board_name() {
-	echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g'
-}
+START=96
 
 boot() {
-	local board=$(ipq806x_board_name)
+	local soc_model=$(cat /proc/device-tree/model)
+	local soc_type
 
-	case "$board" in
-		ap-hk* | db-hk* |\
-		ap-ac* | ap-oak* |\
-		ap-cp* | db-cp*)
-		/usr/sbin/qrtr-cfg 1
-		service_start /usr/sbin/qrtr-ns
-		;;
-	esac
+        if ! grep -q WIFI_FW /proc/mounts; then
+		case "$soc_model" in
+		*"IPQ5018"*)
+			. /etc/init.d/wifi_fw_mount
+			mount_wifi_fw "IPQ5018"
+			;;
+		*"IPQ6018"*)
+			. /etc/init.d/wifi_fw_mount
+			mount_wifi_fw "IPQ6018"
+			;;
+		*"IPQ807"*)
+			. /etc/init.d/wifi_fw_mount
+			mount_wifi_fw "IPQ8074"
+			;;
+		esac
+	fi
 }
