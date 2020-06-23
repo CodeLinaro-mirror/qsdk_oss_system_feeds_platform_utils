@@ -517,3 +517,16 @@ Default kernel configs.
 endef
 
 $(eval $(call KernelPackage,msm-mproc))
+
+define KernelPackage/clk-test
+  TITLE:=CLK-TEST driver
+  KCONFIG:=CONFIG_CLK_TEST_5018
+  DEPENDS:=@TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  FILES:= $(LINUX_DIR)/drivers/clk/qcom/clk_test_ipq5018.ko
+endef
+
+define KernelPackage/clk-test/description
+This driver provides support for the testing of GCC clocks and resets.
+endef
+
+$(eval $(call KernelPackage,clk-test))
