@@ -35,8 +35,7 @@ mount_wifi_fw (){
 	if [ $primaryboot -eq 1 ]; then
 		part_name="0:WIFIFW_1"
 	fi
-
-	if [ "$arch" == "IPQ6018" ]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]]; then
 		wifi_on_rootfs="1"
 	fi
 
@@ -80,10 +79,19 @@ mount_wifi_fw (){
 	fi
 
 	cd  /lib/firmware/$arch && ln -sf WIFI_FW/*.* .
-	if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
-		cd /lib/firmware
-		ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+
+	if [ -e /sys/firmware/devicetree/base/MP_512 ]; then
+		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini .
+		fi
+	else
+		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+		fi
 	fi
+
 	. /lib/read_caldata_to_fs.sh
 	do_load_ipq4019_board_bin
 
@@ -186,6 +194,8 @@ boot() {
 
 	if [ "$platform" == "IPQ807x" ]; then
 		mount_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ8074" ]; then
+		mount_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		mount_wifi_fw "IPQ6018"
 		case "$board" in
@@ -210,7 +220,7 @@ stop_wifi_fw() {
 	local wifi_on_rootfs=""
 	arch=$1
 
-	if [ "$arch" == "IPQ6018" ]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]]; then
 		part_name="rootfs"
 		wifi_on_rootfs="1"
 	fi
@@ -288,6 +298,8 @@ stop() {
 	local board=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $2}')
 
 	if [ "$platform" == "IPQ807x" ]; then
+		stop_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ8074" ]; then
 		stop_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ6018" ]; then
 		stop_wifi_fw "IPQ6018"

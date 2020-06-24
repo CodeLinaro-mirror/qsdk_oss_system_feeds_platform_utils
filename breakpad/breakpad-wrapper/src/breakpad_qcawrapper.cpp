@@ -23,10 +23,18 @@ static bool breakpadDumpCallback(const google_breakpad::MinidumpDescriptor& desc
     /* Performing the Desired Exit Process */
     printf("Performing Breakpad Callback .....................................\n");
     printf("Dump File Location: %s\n", descriptor.path());
+
+    ApplnCallback applnCallback = (ApplnCallback)context;
+    if(applnCallback)
+    {
+        printf("Performing Application Specific Callback .....................\n");
+        (*applnCallback)();
+    }
+
     return succeeded;
 }
 
-void breakpad_ExceptionHandler()
+void breakpad_ExceptionHandler(ApplnCallback applnCallback)
 {
     printf("\t\t\t\t *******Entering breakpad_ExceptionHandler*******\n");
     static google_breakpad::ExceptionHandler* exceptHandler = NULL;
@@ -35,6 +43,6 @@ void breakpad_ExceptionHandler()
         printf("Handler is not NULL");
         return;
     }
-    exceptHandler = new google_breakpad::ExceptionHandler(google_breakpad::MinidumpDescriptor("/tmp"), NULL, breakpadDumpCallback, NULL, true, -1);
+    exceptHandler = new google_breakpad::ExceptionHandler(google_breakpad::MinidumpDescriptor("/tmp"), NULL, breakpadDumpCallback, (void*)applnCallback, true, -1);
     printf("\t\t\t\t *******Exiting breakpad_ExceptionHandler*******\n");
 }

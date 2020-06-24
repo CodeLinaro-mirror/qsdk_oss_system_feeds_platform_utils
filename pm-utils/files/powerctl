@@ -90,14 +90,18 @@ ipq5018_power_auto() {
 	# Set scaling governor as userspace to enable manual clock scaling or by userspace program
 	echo "userspace" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
-	# Change scaling speed to minimum supported frequency
-	echo 772000 > sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+	# Set scaling speed to maximum supported frequency
+	echo 1008000 > sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
 
 	# Ondemand, Performance, Powersave and Conservative scaling governors are not supported
 }
 
+type ipq806x_board_name &>/dev/null  || ipq806x_board_name() {
+	echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g'
+}
+
 start() {
-	. /lib/ipq806x.sh
+	[ -e /lib/ipq806x.sh ] && . /lib/ipq806x.sh
 
 	local board=$(ipq806x_board_name)
 	case "$board" in
