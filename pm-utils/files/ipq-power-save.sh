@@ -431,6 +431,50 @@ ipq4019_ap_dk04_1_battery_power()
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
 
+ipq5018_phy_power_on()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-mp03.1 | ap-mp03.1-c2 | db-mp03.1)
+		echo 0 > /sys/ssdk/dev_id
+		ssdk_sh port poweron set 1
+		echo 1 > /sys/ssdk/dev_id
+		ssdk_sh port poweron set 1
+		ssdk_sh port poweron set 2
+		ssdk_sh port poweron set 3
+		ssdk_sh port poweron set 4
+		echo 0 > /sys/ssdk/dev_id
+		;;
+		ap-mp02.1 | ap-mp03.3 | ap-mp03.3-c2 | db-mp02.1 | db-mp03.3 | db-mp03.3-c2)
+		echo 0 > /sys/ssdk/dev_id
+		ssdk_sh port poweron set 1
+		ssdk_sh port poweron set 2
+		;;
+	esac
+}
+
+ipq5018_phy_power_off()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-mp03.1 | ap-mp03.1-c2 | db-mp03.1)
+		echo 0 > /sys/ssdk/dev_id
+		ssdk_sh port poweroff set 1
+		echo 1 > /sys/ssdk/dev_id
+		ssdk_sh port poweroff set 1
+		ssdk_sh port poweroff set 2
+		ssdk_sh port poweroff set 3
+		ssdk_sh port poweroff set 4
+		echo 0 > /sys/ssdk/dev_id
+		;;
+		ap-mp02.1 | ap-mp03.3 | ap-mp03.3-c2 | db-mp02.1 | db-mp03.3 | db-mp03.3-c2)
+		echo 0 > /sys/ssdk/dev_id
+		ssdk_sh port poweroff set 1
+		ssdk_sh port poweroff set 2
+		;;
+	esac
+}
+
 ipq6018_phy_power_on()
 {
 	local board=$(ipq806x_board_name)
@@ -467,6 +511,162 @@ ipq6018_phy_power_off()
 		ssdk_sh port poweroff set 4
 		;;
 	esac
+}
+
+ipq5018_ac_power()
+{
+	echo "Entering AC-Power Mode"
+# Cortex Power-UP Sequence
+	/etc/init.d/powerctl restart
+
+# Enabling Auto scale on NSS cores
+	echo 1 > /proc/sys/dev/nss/clock/auto_scale
+
+# Power on PHYs of LAN ports
+	ipq5018_phy_power_on
+# PCIe Power-UP Sequence
+	sleep 1
+	echo 1 > /sys/bus/pci/rcrescan
+	sleep 2
+	echo 1 > /sys/bus/pci/rescan
+
+	sleep 1
+
+# USB Power-UP Sequence
+	if ! [ -d /sys/module/dwc3_qcom ]
+	then
+		insmod phy-qca-uniphy.ko
+		insmod phy-qca-m31.ko
+		insmod dwc3.ko
+		insmod dwc3-qcom.ko
+		insmod u_qdss.ko
+		insmod usb_f_qdss.ko
+	fi
+
+	if [ -d config/usb_gadget/g1 ]
+	then
+		echo "8a00000.dwc3" > /config/usb_gadget/g1/UDC
+	fi
+# LAN interface up
+	ifup lan
+
+# Wifi Power-up Sequence
+	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
+		insmod /lib/modules/$(uname -r)/ath11k.ko
+		sleep 2
+		wifi up
+	else
+		wifi load
+	fi
+
+# SD/MMC Power-UP sequence
+	local emmcblock="$(find_mmc_part "rootfs")"
+
+	if [ -z "$emmcblock" ]; then
+		for sd_drvname in $(cat /tmp/sysinfo/sd_drvname)
+		do
+			echo $sd_drvname > /sys/bus/platform/drivers/sdhci_msm/bind
+		done
+	fi
+
+	sleep 1
+
+	exit 0
+}
+
+ipq5018_battery_power()
+{
+	echo "Entering Battery Mode..."
+
+# Wifi Power-down Sequence
+	lsmod | grep ath11k > /dev/null
+	if [ $? -eq 0 ]; then
+		wifi down
+		rmmod ath11k
+	else
+		wifi unload
+	fi
+
+# PCIe Power-Down Sequence
+
+# Remove devices
+	sleep 2
+	for i in `ls /sys/bus/pci/devices/`; do
+		d=/sys/bus/pci/devices/${i}
+		v=`cat ${d}/vendor`
+		[ "xx${v}" != "xx0x17cb" ] && echo 1 > ${d}/remove
+	done
+
+# Remove Buses
+	sleep 2
+	for i in `ls /sys/bus/pci/devices/`; do
+		d=/sys/bus/pci/devices/${i}
+		echo 1 > ${d}/remove
+	done
+
+# Remove RC
+	sleep 2
+
+	[ -f /sys/bus/pci/rcremove ] && {
+		echo 1 > /sys/bus/pci/rcremove
+	}
+	[ -f /sys/devices/pci0000:00/pci_bus/0000:00/rcremove ] && {
+		echo 1 > /sys/devices/pci0000:00/pci_bus/0000:00/rcremove
+	}
+	sleep 1
+
+# Find scsi devices and remove it
+	partition=`cat /proc/partitions | awk -F " " '{print $4}'`
+
+	for entry in $partition; do
+		sd_entry=$(echo $entry | head -c 2)
+
+		if [ "$sd_entry" = "sd" ]; then
+			[ -f /sys/block/$entry/device/delete ] && {
+				echo 1 > /sys/block/$entry/device/delete
+			}
+		fi
+	done
+
+# Power off PHYs of LAN ports
+	ipq5018_phy_power_off
+
+# USB Power-down Sequence
+	if [ -d config/usb_gadget/g1 ]
+	then
+		echo "" > /config/usb_gadget/g1/UDC
+	fi
+
+	if [ -d /sys/module/dwc3_qcom ]
+	then
+		rmmod usb_f_qdss
+		rmmod u_qdss
+		rmmod dwc3-qcom
+		rmmod dwc3
+		rmmod phy_qca_m31
+		rmmod phy_qca_uniphy
+	fi
+	sleep 2
+
+#SD/MMC Power-down Sequence
+	local emmcblock="$(find_mmc_part "rootfs")"
+
+	if [ -z "$emmcblock" ]; then
+		rm /tmp/sysinfo/sd_drvname
+		if [ -d /sys/block/mmcblk0 ]; then
+			sd_drvname=`readlink /sys/block/mmcblk0 | grep -o "[0-9]*.sdhci[^/]*"`
+			echo "$sd_drvname" >> /tmp/sysinfo/sd_drvname
+			echo $sd_drvname >> /sys/bus/platform/drivers/sdhci_msm/unbind
+		fi
+	fi
+# LAN interface down
+	ifdown lan
+
+# Disabling Auto scale on NSS cores
+	echo 0 > /proc/sys/dev/nss/clock/auto_scale
+
+# Cortex Power-down Sequence
+	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
 
 ipq6018_ac_power()
@@ -909,6 +1109,8 @@ case "$1" in
 			ipq8074_ac_power ;;
 		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 			ipq6018_ac_power ;;
+		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
+			ipq5018_ac_power ;;
 		esac ;;
 	true)
 		case "$board" in
@@ -922,5 +1124,7 @@ case "$1" in
 			ipq8074_battery_power ;;
 		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 			ipq6018_battery_power ;;
+		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
+			ipq5018_battery_power ;;
 		esac ;;
 esac
