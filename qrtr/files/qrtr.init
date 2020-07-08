@@ -29,7 +29,8 @@ boot() {
 	case "$board" in
 		ap-hk* | db-hk* |\
 		ap-ac* | ap-oak* |\
-		ap-cp* | db-cp*)
+		ap-cp* | db-cp* |\
+		ap-mp*)
 		/usr/sbin/qrtr-cfg 1
 		service_start /usr/sbin/qrtr-ns
 		;;
