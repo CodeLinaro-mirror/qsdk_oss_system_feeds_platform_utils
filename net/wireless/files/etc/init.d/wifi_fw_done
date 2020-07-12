@@ -25,6 +25,9 @@ boot() {
 		*"IPQ5018"*)
 			. /etc/init.d/wifi_fw_mount
 			mount_wifi_fw "IPQ5018"
+			if ! grep -q BT_FW /proc/mounts; then
+				mount_bt_fw "IPQ5018"
+			fi
 			;;
 		*"IPQ6018"*)
 			. /etc/init.d/wifi_fw_mount
