@@ -22,8 +22,10 @@ Build/Compile=true
 
 define Package/wififw_mount_script/install
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/dump_q6v5
 	$(INSTALL_BIN) ./files/etc/init.d/wifi_fw_mount $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/etc/init.d/wifi_fw_done $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/etc/hotplug.d/dump_q6v5/00-q6dump $(1)/etc/hotplug.d/dump_q6v5
 endef
 
 $(eval $(call BuildPackage,wififw_mount_script))
