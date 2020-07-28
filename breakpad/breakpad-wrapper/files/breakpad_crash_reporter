@@ -27,15 +27,17 @@ if [ ! -n "$SERVER" ]; then
 	exit 0
 fi
 
-$(tftp -l $LOCAL_PATH/$1 -r $1 -p $SERVER 2>&1)
-if [ $? -eq 0 ]; then
-    printf "%s\n" "$1 collected in $SERVER" \
-                > /dev/console
+if [ -f "$LOCAL_PATH/$1" ]; then
+    $(tftp -l $LOCAL_PATH/$1 -r $1 -p $SERVER 2>&1)
+    if [ $? -eq 0 ]; then
+        printf "%s\n" "$1 collected in $SERVER" \
+                    > /dev/console
         if [ ! -d $LOCAL_PATH/$DUMP_SENT_DIR ]; then
-            mkdir -p $LOCAL_PATH/$DUMP_SENT_DIR
+             mkdir -p $LOCAL_PATH/$DUMP_SENT_DIR
         fi
-    mv $LOCAL_PATH/$1 $LOCAL_PATH/$DUMP_SENT_DIR
-else
-    printf "%s\n" "$1 collection failed in $SERVER" \
-                 > /dev/console
+             mv $LOCAL_PATH/$1 $LOCAL_PATH/$DUMP_SENT_DIR
+    else
+        printf "%s\n" "$1 collection failed in $SERVER" \
+             > /dev/console
+    fi
 fi
