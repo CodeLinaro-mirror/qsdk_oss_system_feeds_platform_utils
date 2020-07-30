@@ -25,12 +25,25 @@ mount_wifi_fw (){
 	local ubi_part_name="rootfs"
 	local arch=""
 	local wifi_on_rootfs=""
+	local hw=""
 
 	if mount | grep -q WIFI_FW; then
 		return 0
 	fi
 
 	arch=$1
+	case "$arch" in
+		"IPQ8074")
+			hw="hw2.0"
+	;;
+		"IPQ6018")
+			hw="hw1.0"
+	;;
+		*)
+			hw="hw1.0"
+	;;
+	esac
+
 	primaryboot=$(cat /proc/boot_info/$part_name/primaryboot)
 	if [ $primaryboot -eq 1 ]; then
 		part_name="0:WIFIFW_1"
@@ -94,6 +107,24 @@ mount_wifi_fw (){
 
 	. /lib/read_caldata_to_fs.sh
 	do_load_ipq4019_board_bin
+
+	if [ -e /lib/firmware/$arch/WIFI_FW/board-2.bin ]; then
+		mkdir -p /lib/firmware/ath11k/$arch/$hw
+		cd /lib/firmware/ath11k/$arch/$hw/
+		ln -sf /lib/firmware/$arch/WIFI_FW/board-2.bin .
+		ln -sf /tmp/$arch/caldata.bin .
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath11k/qcn9000/hw1.0/
+			cd /lib/firmware/ath11k/qcn9000/hw1.0/
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin .
+			ln -sf /tmp/qcn9000/caldata*.bin .
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/m3.bin .
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/amss.bin .
+		fi
+	fi
 
 	mkdir -p /vendor/firmware
 	mv /lib/firmware/$arch/WIFI_FW/Data.msc /vendor/firmware
