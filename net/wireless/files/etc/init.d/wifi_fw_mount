@@ -113,6 +113,7 @@ mount_wifi_fw (){
 		cd /lib/firmware/ath11k/$arch/$hw/
 		ln -sf /lib/firmware/$arch/WIFI_FW/board-2.bin .
 		ln -sf /tmp/$arch/caldata.bin .
+		ln -sf /lib/firmware/qdss_trace_config.bin .
 	fi
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
@@ -123,6 +124,7 @@ mount_wifi_fw (){
 			ln -sf /tmp/qcn9000/caldata*.bin .
 			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/m3.bin .
 			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/amss.bin .
+			ln -sf /lib/firmware/qdss_trace_config.bin .
 		fi
 	fi
 
