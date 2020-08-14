@@ -97,11 +97,17 @@ mount_wifi_fw (){
 		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
 			cd /lib/firmware
 			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini .
+		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature_512P.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature_512P.ini .
 		fi
 	else
 		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
 			cd /lib/firmware
 			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature.ini ]; then
+			cd /lib/firmware
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature.ini .
 		fi
 	fi
 
