@@ -92,6 +92,12 @@ mount_wifi_fw (){
 		cd /vendor/firmware/qcn9000 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/Data.msc .
 	fi
 
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		cd  /lib/firmware/ && mkdir -p qcn9100 && mkdir -p /vendor/firmware/qcn9100
+		cd qcn9100 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/*.* . && ln -sf /lib/firmware/$arch/WIFI_FW/q6_fw.* .
+		cd /vendor/firmware/qcn9100 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/Data.msc .
+	fi
+
 	cd  /lib/firmware/$arch && ln -sf WIFI_FW/*.* .
 
 	if [ -e /sys/firmware/devicetree/base/MP_512 ]; then
