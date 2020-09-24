@@ -546,7 +546,9 @@ ipq5018_ac_power()
 
 # Wifi Power-up Sequence
 	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
-		insmod /lib/modules/$(uname -r)/ath11k.ko
+		insmod ath11k
+		insmod ath11k_ahb
+		insmod ath11k_pci
 		sleep 2
 		wifi up
 	else
@@ -576,6 +578,9 @@ ipq5018_battery_power()
 	lsmod | grep ath11k > /dev/null
 	if [ $? -eq 0 ]; then
 		wifi down
+		sleep 2
+		rmmod ath11k_pci
+		rmmod ath11k_ahb
 		rmmod ath11k
 	else
 		wifi unload
@@ -702,7 +707,9 @@ ipq6018_ac_power()
 
 # Wifi Power-up Sequence
 	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
-		insmod /lib/modules/$(uname -r)/ath11k.ko
+		insmod ath11k
+		insmod ath11k_ahb
+		insmod ath11k_pci
 		sleep 2
 		wifi up
 	else
@@ -732,6 +739,9 @@ ipq6018_battery_power()
 	lsmod | grep ath11k > /dev/null
 	if [ $? -eq 0 ]; then
 		wifi down
+		sleep 2
+		rmmod ath11k_pci
+		rmmod ath11k_ahb
 		rmmod ath11k
 	else
 		wifi unload
@@ -931,7 +941,9 @@ ipq8074_ac_power()
 
 # Wifi Power-up Sequence
 	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
-		insmod /lib/modules/$(uname -r)/ath11k.ko
+		insmod ath11k
+		insmod ath11k_ahb
+		insmod ath11k_pci
 		sleep 2
 		wifi up
 	else
@@ -967,6 +979,9 @@ ipq8074_battery_power()
 	lsmod | grep ath11k > /dev/null
 	if [ $? -eq 0 ]; then
 		wifi down
+		sleep 2
+		rmmod ath11k_pci
+		rmmod ath11k_ahb
 		rmmod ath11k
 	else
 		wifi unload
