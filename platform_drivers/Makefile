@@ -324,7 +324,7 @@ define KernelPackage/usb-gdiag
   FILES:=\
        $(LINUX_DIR)/drivers/usb/gadget/legacy/g_diag.ko
   AUTOLOAD:=$(call AutoLoad,52,g_diag)
-  DEPENDS:=@TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-gadget +kmod-usb-lib-composite
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-gadget +kmod-usb-lib-composite
   $(call AddPlatformDepends/usb)
 endef
 
