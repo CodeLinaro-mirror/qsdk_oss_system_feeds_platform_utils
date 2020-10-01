@@ -141,7 +141,7 @@ mount_wifi_fw (){
 			ln -sf /tmp/qcn9000/caldata*.bin .
 			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/m3.bin .
 			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/amss.bin .
-			ln -sf /lib/firmware/$arch/WIFI_FW/qnc9000/qdss_trace_config.bin .
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/qdss_trace_config.bin .
 		fi
 	fi
 
