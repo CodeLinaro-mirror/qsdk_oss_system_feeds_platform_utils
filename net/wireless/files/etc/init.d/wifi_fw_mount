@@ -234,11 +234,13 @@ mount_bt_fw (){
 
 	if [ -f /lib/firmware/$arch/BT_FW/image/bt_fw_patch.mdt ]; then
 		echo "BT FW mount is successful" > /dev/console 2>&1
+		mkdir /tmp/BT_FW &&  cp -r /lib/firmware/$arch/BT_FW/image/ /tmp/BT_FW
+		umount /lib/firmware/$arch/BT_FW
 	else
 		echo "BT FW mount is failed" > /dev/console 2>&1
 	fi
 
-	cd /lib/firmware/$arch && ln -sf BT_FW/image/*.* .
+	cd /lib/firmware/$arch && ln -sf /tmp/BT_FW/image/*.* .
 }
 
 boot() {
