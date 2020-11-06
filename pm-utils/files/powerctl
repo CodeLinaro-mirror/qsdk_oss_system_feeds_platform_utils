@@ -113,7 +113,7 @@ start() {
 		ipq807x_power_auto ;;
 	ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 		ipq6018_power_auto ;;
-	ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
+	ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.1-c3 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
 		ipq5018_power_auto ;;
 	esac
 }
