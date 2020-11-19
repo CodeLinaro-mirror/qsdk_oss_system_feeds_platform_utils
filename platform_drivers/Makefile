@@ -418,9 +418,11 @@ define KernelPackage/diag-char
 	  CONFIG_DIAG_CHAR
   DEPENDS:=+kmod-lib-crc-ccitt +USB_CONFIGFS_F_DIAG:kmod-usb-f-diag +USB_CONFIGFS_F_DIAG:kmod-usb-core
   FILES:=$(LINUX_DIR)/drivers/char/diag/diagchar.ko
-  ifneq ($(CONFIG_KERNEL_IPQ_MEM_PROFILE),256)
+ifneq (,$(findstring $(CONFIG_KERNEL_IPQ_MEM_PROFILE), 256)$(CONFIG_LOWMEM_FLASH))
+   AUTOLOAD:=
+else
    AUTOLOAD:=$(call AutoLoad,52,diagchar)
-  endif
+endif
 endef
 
 define KernelPackage/diag-char/description
