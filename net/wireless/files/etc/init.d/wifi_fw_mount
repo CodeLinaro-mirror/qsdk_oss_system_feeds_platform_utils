@@ -128,6 +128,18 @@ mount_wifi_fw (){
 		mkdir -p /lib/firmware/qcn9100 && cd /lib/firmware/qcn9100 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9100/qdss* .
 	fi
 
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6122 ]; then
+		cd $fwfolder && mkdir -p qcn6122 && mkdir -p /vendor/firmware/qcn6122
+		cd qcn6122 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn6122/*.* . && ln -sf /lib/firmware/$arch/WIFI_FW/q6_fw.* .
+		cd /vendor/firmware/qcn6122 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn6122/Data.msc .
+		mkdir -p /lib/firmware/qcn6122 && cd /lib/firmware/qcn6122 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn6122/qdss* .
+	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		cd $fwfolder && mkdir -p qcn6122 && mkdir -p /vendor/firmware/qcn6122
+		cd qcn6122 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/*.* . && ln -sf /lib/firmware/$arch/WIFI_FW/q6_fw.* .
+		cd /vendor/firmware/qcn6122 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/Data.msc .
+		mkdir -p /lib/firmware/qcn6122 && cd /lib/firmware/qcn6122 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9100/qdss* .
+	fi
+
 	mkdir -p $fwfolder/$arch
 	cd  $fwfolder/$arch && ln -sf /lib/firmware/$arch/WIFI_FW/*.* .
 	cd  /lib/firmware/$arch && create_soft_link /lib/firmware/$arch/WIFI_FW/qdss* .
