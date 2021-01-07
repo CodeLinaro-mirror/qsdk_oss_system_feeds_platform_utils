@@ -238,7 +238,7 @@ define KernelPackage/usb-f-diag
   KCONFIG:=CONFIG_USB_F_DIAG \
 	CONFIG_USB_CONFIGFS_F_DIAG=y \
 	CONFIG_DIAG_OVER_USB=y
-  DEPENDS:=+LINUX_4_4:kmod-usb-lib-composite +LINUX_4_4:kmod-usb-configfs
+  DEPENDS:=+kmod-usb-lib-composite +kmod-usb-configfs
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_diag.ko
   AUTOLOAD:=$(call AutoLoad,52,usb_f_diag)
   $(call AddPlatformDepends/usb)
