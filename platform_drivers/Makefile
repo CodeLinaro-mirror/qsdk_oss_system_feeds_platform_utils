@@ -415,7 +415,9 @@ $(eval $(call KernelPackage,usb-dwc3-qcom-internal))
 
 define KernelPackage/diag-char
   TITLE:=CHAR DIAG
-  KCONFIG:=CONFIG_DIAGFWD_BRIDGE_CODE=y \
+  KCONFIG:= CONFIG_DIAG_MHI=y@ge5.4 \
+	  CONFIG_DIAG_OVER_PCIE=n@ge5.4 \
+	  CONFIG_DIAGFWD_BRIDGE_CODE=y \
 	  CONFIG_DIAG_CHAR
   DEPENDS:=+kmod-lib-crc-ccitt +USB_CONFIGFS_F_DIAG:kmod-usb-f-diag +USB_CONFIGFS_F_DIAG:kmod-usb-core
   FILES:=$(LINUX_DIR)/drivers/char/diag/diagchar.ko
