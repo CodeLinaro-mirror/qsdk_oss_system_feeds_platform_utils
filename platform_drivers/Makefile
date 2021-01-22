@@ -469,6 +469,7 @@ endef
 $(eval $(call KernelPackage,leds-tlc591xx))
 
 define KernelPackage/mhitest_mod
+  SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
   DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq807x||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:=CONFIG_MHI_BUS_TEST
@@ -486,6 +487,7 @@ $(eval $(call KernelPackage,mhitest_mod))
 #@ge5.4 - kernel version greater than 5.4
 #@eq5.4 - kernel version equal to 5.4
 define KernelPackage/msm-mproc
+  SUBMENU:=$(OTHER_MENU)
   TITLE:= Default kernel configs
   DEPENDS+= @TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:= \
@@ -539,6 +541,7 @@ endef
 $(eval $(call KernelPackage,clk-test))
 
 define KernelPackage/qmi_sample_client
+  SUBMENU:=$(OTHER_MENU)
   TITLE:= Sample qmi test application.
   DEPENDS+= @TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
 
