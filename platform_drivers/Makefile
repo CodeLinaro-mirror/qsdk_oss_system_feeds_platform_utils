@@ -554,3 +554,24 @@ Add QMI ping_pong test application
 endef
 
 $(eval $(call KernelPackage,qmi_sample_client))
+
+define KernelPackage/ipq-thermal
+  TITLE:= IPQ thermal driver.
+  DEPENDS+= @TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+
+  KCONFIG:= \
+	  CONFIG_THERMAL=y \
+	  CONFIG_THERMAL_DEFAULT_GOV_STEP_WISE=y \
+	  CONFIG_THERMAL_GOV_STEP_WISE=y \
+	  CONFIG_THERMAL_GOV_USER_SPACE=y \
+	  CONFIG_THERMAL_HWMON=y \
+	  CONFIG_THERMAL_OF=y \
+	  CONFIG_THERMAL_WRITABLE_TRIPS=y \
+	  CONFIG_NVMEM=y
+endef
+
+define KernelPackage/ipq-thermal/description
+Add IPQ Thermal driver
+endef
+
+$(eval $(call KernelPackage,ipq-thermal))
