@@ -238,7 +238,7 @@ define KernelPackage/usb-f-diag
   KCONFIG:=CONFIG_USB_F_DIAG \
 	CONFIG_USB_CONFIGFS_F_DIAG=y \
 	CONFIG_DIAG_OVER_USB=y
-  DEPENDS:=+LINUX_4_4:kmod-usb-lib-composite +LINUX_4_4:kmod-usb-configfs
+  DEPENDS:=+kmod-usb-lib-composite +kmod-usb-configfs
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_diag.ko
   AUTOLOAD:=$(call AutoLoad,52,usb_f_diag)
   $(call AddPlatformDepends/usb)
@@ -324,7 +324,7 @@ define KernelPackage/usb-gdiag
   FILES:=\
        $(LINUX_DIR)/drivers/usb/gadget/legacy/g_diag.ko
   AUTOLOAD:=$(call AutoLoad,52,g_diag)
-  DEPENDS:=@TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-gadget +kmod-usb-lib-composite
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-gadget +kmod-usb-lib-composite
   $(call AddPlatformDepends/usb)
 endef
 
@@ -374,6 +374,7 @@ $(eval $(call KernelPackage,usb-phy-ipq807x))
 
 define KernelPackage/usb-dwc3-internal
   TITLE:=DWC3 USB controller driver
+  DEPENDS:=+USB_GADGET_SUPPORT:kmod-usb-gadget
   KCONFIG:= \
 	CONFIG_USB_DWC3 \
 	CONFIG_USB_DWC3_HOST=n \
@@ -414,7 +415,9 @@ $(eval $(call KernelPackage,usb-dwc3-qcom-internal))
 
 define KernelPackage/diag-char
   TITLE:=CHAR DIAG
-  KCONFIG:=CONFIG_DIAGFWD_BRIDGE_CODE=y \
+  KCONFIG:= CONFIG_DIAG_MHI=y@ge5.4 \
+	  CONFIG_DIAG_OVER_PCIE=n@ge5.4 \
+	  CONFIG_DIAGFWD_BRIDGE_CODE=y \
 	  CONFIG_DIAG_CHAR
   DEPENDS:=+kmod-lib-crc-ccitt +USB_CONFIGFS_F_DIAG:kmod-usb-f-diag +USB_CONFIGFS_F_DIAG:kmod-usb-core
   FILES:=$(LINUX_DIR)/drivers/char/diag/diagchar.ko
@@ -466,6 +469,7 @@ endef
 $(eval $(call KernelPackage,leds-tlc591xx))
 
 define KernelPackage/mhitest_mod
+  SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
   DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq807x||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:=CONFIG_MHI_BUS_TEST
@@ -483,6 +487,7 @@ $(eval $(call KernelPackage,mhitest_mod))
 #@ge5.4 - kernel version greater than 5.4
 #@eq5.4 - kernel version equal to 5.4
 define KernelPackage/msm-mproc
+  SUBMENU:=$(OTHER_MENU)
   TITLE:= Default kernel configs
   DEPENDS+= @TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:= \
@@ -536,6 +541,7 @@ endef
 $(eval $(call KernelPackage,clk-test))
 
 define KernelPackage/qmi_sample_client
+  SUBMENU:=$(OTHER_MENU)
   TITLE:= Sample qmi test application.
   DEPENDS+= @TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
 

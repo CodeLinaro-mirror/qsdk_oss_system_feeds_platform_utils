@@ -185,6 +185,34 @@ mount_wifi_fw (){
 		fi
 	fi
 
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath11k/qcn9100/hw1.0/
+			cd /lib/firmware/ath11k/qcn9100/hw1.0/
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin .
+			ln -sf /lib/firmware/qcn9100/caldata*.bin .
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/qdss_trace_config.bin .
+		fi
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6122 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn6122/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath11k/qcn6122/hw1.0/
+			cd /lib/firmware/ath11k/qcn6122/hw1.0/
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn6122/board-2.bin .
+			ln -sf /lib/firmware/qcn6122/caldata*.bin .
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn6122/qdss_trace_config.bin .
+		fi
+	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath11k/qcn6122/hw1.0/
+			cd /lib/firmware/ath11k/qcn6122/hw1.0/
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin .
+			ln -sf /lib/firmware/qcn9100/caldata*.bin .
+			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9100/qdss_trace_config.bin .
+		fi
+	fi
+
 	mkdir -p /vendor/firmware
 	mv /lib/firmware/$arch/WIFI_FW/Data.msc /vendor/firmware
 }
