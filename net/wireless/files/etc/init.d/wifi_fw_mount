@@ -175,8 +175,8 @@ mount_wifi_fw (){
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
 		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin ]; then
-			mkdir -p /lib/firmware/ath11k/qcn9000/hw1.0/
-			cd /lib/firmware/ath11k/qcn9000/hw1.0/
+			mkdir -p /lib/firmware/ath11k/QCN9074/hw1.0/
+			cd /lib/firmware/ath11k/QCN9074/hw1.0/
 			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin .
 			ln -sf /tmp/qcn9000/caldata*.bin .
 			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/m3.bin .
