@@ -443,7 +443,7 @@ ipq5018_phy_power_on()
 		ssdk_sh port poweron set 4
 		echo 0 > /sys/ssdk/dev_id
 		;;
-		ap-mp02.1 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.3 | db-mp03.3-c2)
+		ap-mp02.1 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.3-c3 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.3 | db-mp03.3-c2)
 		echo 0 > /sys/ssdk/dev_id
 		ssdk_sh port poweron set 2
 		;;
@@ -462,7 +462,7 @@ ipq5018_phy_power_off()
 		ssdk_sh port poweroff set 4
 		echo 0 > /sys/ssdk/dev_id
 		;;
-		ap-mp02.1 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.3 | db-mp03.3-c2)
+		ap-mp02.1 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.3-c3 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.3 | db-mp03.3-c2)
 		echo 0 > /sys/ssdk/dev_id
 		ssdk_sh port poweroff set 2
 		;;
@@ -1118,7 +1118,7 @@ case "$1" in
 			ipq8074_ac_power ;;
 		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 			ipq6018_ac_power ;;
-		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
+		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.3-c3 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
 			ipq5018_ac_power ;;
 		esac ;;
 	true)
@@ -1133,7 +1133,7 @@ case "$1" in
 			ipq8074_battery_power ;;
 		ap-cp01-c1 | ap-cp01-c2 | ap-cp01-c3 | ap-cp01-c4 | ap-cp02-c1 | ap-cp03-c1 | db-cp01 | db-cp02)
 			ipq6018_battery_power ;;
-		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
+		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.3-c3 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
 			ipq5018_battery_power ;;
 		esac ;;
 esac
