@@ -235,6 +235,8 @@ boot() {
 		mount_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ8074" ]; then
 		mount_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ9574" ]; then
+		mount_wifi_fw "IPQ9574"
 	elif [ "$platform" == "IPQ6018" ]; then
 		mount_wifi_fw "IPQ6018"
 		case "$board" in
@@ -340,6 +342,8 @@ stop() {
 		stop_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ8074" ]; then
 		stop_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ9574" ]; then
+		stop_wifi_fw "IPQ9574"
 	elif [ "$platform" == "IPQ6018" ]; then
 		stop_wifi_fw "IPQ6018"
 		case "$board" in
