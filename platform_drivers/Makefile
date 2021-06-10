@@ -402,7 +402,7 @@ $(eval $(call KernelPackage,usb-dwc3-internal))
 
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 QTI USB driver
-  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x) +kmod-usb-dwc3-internal
+  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx) +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)
@@ -476,7 +476,7 @@ $(eval $(call KernelPackage,leds-tlc591xx))
 define KernelPackage/mhitest_mod
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
-  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:=CONFIG_MHI_BUS_TEST
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/test/mhitest_mod.ko
 endef
