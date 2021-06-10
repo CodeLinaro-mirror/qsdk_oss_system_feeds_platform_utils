@@ -583,3 +583,31 @@ Add IPQ Thermal driver
 endef
 
 $(eval $(call KernelPackage,ipq-thermal))
+
+define KernelPackage/ipq-coresight
+  TITLE:= IPQ CoreSight Tracing Support Driver.
+  DEPENDS:= @TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  KCONFIG:= \
+	CONFIG_CORESIGHT=y \
+	CONFIG_CORESIGHT_CSR=y \
+	CONFIG_CORESIGHT_CTI=y \
+	CONFIG_CORESIGHT_EVENT=y \
+	CONFIG_CORESIGHT_HWEVENT=y \
+	CONFIG_CORESIGHT_LINKS_AND_SINKS=y \
+	CONFIG_CORESIGHT_LINK_AND_SINK_TMC=y \
+	CONFIG_CORESIGHT_QCOM_REPLICATOR=y \
+	CONFIG_CORESIGHT_SINK_TPIU=y \
+	CONFIG_CORESIGHT_SOURCE_ETM3X=y \
+	CONFIG_CORESIGHT_SOURCE_ETM4X=y \
+	CONFIG_CORESIGHT_STM=y \
+	CONFIG_CORESIGHT_TPDA=y \
+	CONFIG_CORESIGHT_TPDM=y \
+	CONFIG_SPS=y \
+	CONFIG_SPS_SUPPORT_NDP_BAM=y
+endef
+
+define KernelPackage/ipq-coresight/description
+Add IPQ CoreSight Tracing Support
+endef
+
+$(eval $(call KernelPackage,ipq-coresight))
