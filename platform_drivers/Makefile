@@ -583,3 +583,21 @@ Add IPQ Thermal driver
 endef
 
 $(eval $(call KernelPackage,ipq-thermal))
+
+define KernelPackage/bt_tty
+  TITLE:= BT Inter-processor Communication
+  DEPENDS+= @TARGET_ipq50xx
+  KCONFIG:= \
+	  CONFIG_QTI_BT_INTERFACE \
+	  CONFIG_QTI_BT_PIL \
+	  CONFIG_QCOM_MDT_LOADER=y
+  FILES:= $(LINUX_DIR)/drivers/soc/qcom/bt_interface.ko \
+	$(LINUX_DIR)/drivers/remoteproc/bt_rproc.ko
+  AUTOLOAD:=$(call AutoLoad,53,bt_interface bt_rproc,1)
+endef
+
+define KernelPackage/bt_tty/description
+BT Interprocessor Communication support specific to IPQ50xx
+endef
+
+$(eval $(call KernelPackage,bt_tty))
