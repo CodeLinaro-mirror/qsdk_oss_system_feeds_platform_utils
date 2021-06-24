@@ -108,6 +108,11 @@ mount_wifi_fw (){
 		local ubi_part=$(find_mtd_part wifi_fw 2> /dev/null)
 		if [ -n "$ubi_part" ]; then
 			/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/WIFI_FW > /dev/console 2>&1
+			if [ ! -f /lib/firmware/$arch/WIFI_FW/q6_fw.mdt ]; then
+				echo "WIFI FW mount failed, retry after 1 sec" > /dev/console 2>&1
+				sleep 1
+				/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/WIFI_FW > /dev/console 2>&1
+			fi
 		fi
 	fi
 	if [ -f /lib/firmware/$arch/WIFI_FW/q6_fw.mdt ]; then
