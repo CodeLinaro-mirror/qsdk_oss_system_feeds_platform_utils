@@ -2,6 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
+
 PKG_NAME:=platform_drivers
 PKG_VERSION:=1
 
@@ -121,8 +122,12 @@ $(eval $(call KernelPackage,qpic_panel_ili_qvga))
 define KernelPackage/qpic_panel_ertft
   SUBMENU:=$(VIDEO_MENU)
   TITLE:=ERT TFT  Panel support
-  KCONFIG:=CONFIG_FB_MSM_QPIC_ER_SSD1963_PANEL
-  FILES:=$(LINUX_DIR)/drivers/video/msm/mdss/qpic_panel_er_ssd1963.ko
+  KCONFIG:=CONFIG_FB_MSM_QPIC_ER_SSD1963_PANEL@lt4.4 \
+	CONFIG_FB_QCOM_QPIC_ER_SSD1963_PANEL@le4.4 \
+	CONFIG_FB_QTI_QPIC_ER_SSD1963_PANEL@ge5.4
+  FILES:=$(LINUX_DIR)/drivers/video/msm/mdss/qpic_panel_er_ssd1963.ko@lt4.4 \
+	$(LINUX_DIR)/drivers/video/fbdev/qcom/qpic_panel_er_ssd1963.ko@le4.4 \
+	$(LINUX_DIR)/drivers/video/fbdev/qti/qpic_panel_er_ssd1963.ko@ge5.4
 endef
 
 define KernelPackage/qpic_panel_ertft/description
@@ -175,7 +180,7 @@ define KernelPackage/crypto-qce
   FILES:= \
 	$(LINUX_DIR)/drivers/crypto/qce/qcrypto.ko
   AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq95xx||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-crypto-manager +LINUX_4_4:kmod-crypto-aes-internal +kmod-crypto-hash +LINUX_4_4:kmod-crypto-des
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx +kmod-crypto-manager +LINUX_4_4:kmod-crypto-aes-internal +kmod-crypto-hash +LINUX_4_4:kmod-crypto-des
   $(call AddPlatformDepends/crypto)
 endef
 
@@ -397,7 +402,7 @@ $(eval $(call KernelPackage,usb-dwc3-internal))
 
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 QTI USB driver
-  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq95xx) +kmod-usb-dwc3-internal
+  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx) +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)
@@ -421,7 +426,11 @@ define KernelPackage/diag-char
 	  CONFIG_DIAG_CHAR
   DEPENDS:=+kmod-lib-crc-ccitt +USB_CONFIGFS_F_DIAG:kmod-usb-f-diag +USB_CONFIGFS_F_DIAG:kmod-usb-core
   FILES:=$(LINUX_DIR)/drivers/char/diag/diagchar.ko
-  AUTOLOAD:=$(call AutoLoad,52,diagchar)
+ifneq (,$(findstring $(CONFIG_KERNEL_IPQ_MEM_PROFILE), 256)$(CONFIG_LOWMEM_FLASH))
+   AUTOLOAD:=
+else
+   AUTOLOAD:=$(call AutoLoad,52,diagchar)
+endif
 endef
 
 define KernelPackage/diag-char/description
@@ -465,8 +474,9 @@ endef
 $(eval $(call KernelPackage,leds-tlc591xx))
 
 define KernelPackage/mhitest_mod
+  SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
-  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq95xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx
   KCONFIG:=CONFIG_MHI_BUS_TEST
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/test/mhitest_mod.ko
 endef
@@ -482,6 +492,7 @@ $(eval $(call KernelPackage,mhitest_mod))
 #@ge5.4 - kernel version greater than 5.4
 #@eq5.4 - kernel version equal to 5.4
 define KernelPackage/msm-mproc
+  SUBMENU:=$(OTHER_MENU)
   TITLE:= Default kernel configs
   DEPENDS+= @TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:= \
@@ -535,8 +546,9 @@ endef
 $(eval $(call KernelPackage,clk-test))
 
 define KernelPackage/qmi_sample_client
+  SUBMENU:=$(OTHER_MENU)
   TITLE:= Sample qmi test application.
-  DEPENDS+= @TARGET_ipq807x||TARGET_ipq95xx||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  DEPENDS+= @TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq50xx||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx
 
   KCONFIG:= \
 	  CONFIG_SAMPLE_QMI_CLIENT
@@ -550,3 +562,70 @@ Add QMI ping_pong test application
 endef
 
 $(eval $(call KernelPackage,qmi_sample_client))
+
+define KernelPackage/ipq-thermal
+  TITLE:= IPQ thermal driver.
+  DEPENDS+= @TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+
+  KCONFIG:= \
+	  CONFIG_THERMAL=y \
+	  CONFIG_THERMAL_DEFAULT_GOV_STEP_WISE=y \
+	  CONFIG_THERMAL_GOV_STEP_WISE=y \
+	  CONFIG_THERMAL_GOV_USER_SPACE=y \
+	  CONFIG_THERMAL_HWMON=y \
+	  CONFIG_THERMAL_OF=y \
+	  CONFIG_THERMAL_WRITABLE_TRIPS=y \
+	  CONFIG_NVMEM=y
+endef
+
+define KernelPackage/ipq-thermal/description
+Add IPQ Thermal driver
+endef
+
+$(eval $(call KernelPackage,ipq-thermal))
+
+define KernelPackage/ipq-coresight
+  TITLE:= IPQ CoreSight Tracing Support Driver.
+  DEPENDS:= @TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  KCONFIG:= \
+	CONFIG_CORESIGHT=y \
+	CONFIG_CORESIGHT_CSR=y \
+	CONFIG_CORESIGHT_CTI=y \
+	CONFIG_CORESIGHT_EVENT=y \
+	CONFIG_CORESIGHT_HWEVENT=y \
+	CONFIG_CORESIGHT_LINKS_AND_SINKS=y \
+	CONFIG_CORESIGHT_LINK_AND_SINK_TMC=y \
+	CONFIG_CORESIGHT_QCOM_REPLICATOR=y \
+	CONFIG_CORESIGHT_SINK_TPIU=y \
+	CONFIG_CORESIGHT_SOURCE_ETM3X=y \
+	CONFIG_CORESIGHT_SOURCE_ETM4X=y \
+	CONFIG_CORESIGHT_STM=y \
+	CONFIG_CORESIGHT_TPDA=y \
+	CONFIG_CORESIGHT_TPDM=y \
+	CONFIG_SPS=y \
+	CONFIG_SPS_SUPPORT_NDP_BAM=y
+endef
+
+define KernelPackage/ipq-coresight/description
+Add IPQ CoreSight Tracing Support
+endef
+
+$(eval $(call KernelPackage,ipq-coresight))
+
+define KernelPackage/bt_tty
+  TITLE:= BT Inter-processor Communication
+  DEPENDS+= @TARGET_ipq50xx
+  KCONFIG:= \
+	  CONFIG_QTI_BT_INTERFACE \
+	  CONFIG_QTI_BT_PIL \
+	  CONFIG_QCOM_MDT_LOADER=y
+  FILES:= $(LINUX_DIR)/drivers/soc/qcom/bt_interface.ko \
+	$(LINUX_DIR)/drivers/remoteproc/bt_rproc.ko
+  AUTOLOAD:=$(call AutoLoad,53,bt_interface bt_rproc,1)
+endef
+
+define KernelPackage/bt_tty/description
+BT Interprocessor Communication support specific to IPQ50xx
+endef
+
+$(eval $(call KernelPackage,bt_tty))

@@ -16,6 +16,15 @@
 START=00
 STOP=95
 
+create_soft_link()
+{
+	if [ -e /sys/firmware/devicetree/base/AUTO_MOUNT ]; then
+		cp -f $*
+	elif [ ! -e /sys/firmware/devicetree/base/AUTO_MOUNT ]; then
+		ln -s $*
+	fi
+}
+
 mount_wifi_fw (){
 	local emmc_part=""
 	local nand_part=""
@@ -26,6 +35,21 @@ mount_wifi_fw (){
 	local arch=""
 	local wifi_on_rootfs=""
 	local hw=""
+	local board_name
+	local fwfolder="/lib/firmware"
+
+	[ -f /tmp/sysinfo/board_name ] && {
+		board_name=ap$(cat /tmp/sysinfo/board_name | awk -F 'ap' '{print$2}')
+	}
+
+	[ -e /sys/firmware/devicetree/base/AUTO_MOUNT ] && {
+		case $board_name in
+			ap-mp*)
+				fwfolder="/lib/firmware/wifi"
+				mkdir -p $fwfolder
+			;;
+		esac
+	}
 
 	if mount | grep -q WIFI_FW; then
 		return 0
@@ -53,7 +77,7 @@ mount_wifi_fw (){
 	fi
 
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
-	nor_part=$(cat /proc/mtd | grep WIFIFW | awk '{print $1}' | sed 's/:$//')
+	nor_part=$(cat /proc/mtd | grep -w "WIFIFW" | awk '{print $1}' | sed 's/:$//')
 	local nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
 	if [ -n "$wifi_on_rootfs" ]; then
 		nand_part=$(find_mtd_part $ubi_part_name 2> /dev/null)
@@ -84,6 +108,11 @@ mount_wifi_fw (){
 		local ubi_part=$(find_mtd_part wifi_fw 2> /dev/null)
 		if [ -n "$ubi_part" ]; then
 			/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/WIFI_FW > /dev/console 2>&1
+			if [ ! -f /lib/firmware/$arch/WIFI_FW/q6_fw.mdt ]; then
+				echo "WIFI FW mount failed, retry after 1 sec" > /dev/console 2>&1
+				sleep 1
+				/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/WIFI_FW > /dev/console 2>&1
+			fi
 		fi
 	fi
 	if [ -f /lib/firmware/$arch/WIFI_FW/q6_fw.mdt ]; then
@@ -91,21 +120,50 @@ mount_wifi_fw (){
 	fi
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
-		cd  /lib/firmware/ && mkdir -p qcn9000
-		cd qcn9000 && ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/*.* .
+		cd  $fwfolder && mkdir -p qcn9000 && mkdir -p /vendor/firmware/qcn9000
+		cd qcn9000 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/*.* .
+		cd /vendor/firmware/qcn9000 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/Data.msc .
+		mkdir -p /lib/firmware/qcn9000 && cd /lib/firmware/qcn9000 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9000/qdss* .
 	fi
 
-	cd  /lib/firmware/$arch && ln -sf WIFI_FW/*.* .
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		cd $fwfolder && mkdir -p qcn9100 && mkdir -p /vendor/firmware/qcn9100
+		cd qcn9100 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/*.* . && ln -s /lib/firmware/$arch/WIFI_FW/q6_fw.* .
+		cd /vendor/firmware/qcn9100 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/Data.msc .
+		mkdir -p /lib/firmware/qcn9100 && cd /lib/firmware/qcn9100 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9100/qdss* .
+	fi
 
-	if [ -e /sys/firmware/devicetree/base/MP_512 ]; then
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6122 ]; then
+		cd $fwfolder && mkdir -p qcn6122 && mkdir -p /vendor/firmware/qcn6122
+		cd qcn6122 && ln -s /lib/firmware/$arch/WIFI_FW/qcn6122/*.* . && ln -s /lib/firmware/$arch/WIFI_FW/q6_fw.* .
+		cd /vendor/firmware/qcn6122 && ln -s /lib/firmware/$arch/WIFI_FW/qcn6122/Data.msc .
+		mkdir -p /lib/firmware/qcn6122 && cd /lib/firmware/qcn6122 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn6122/qdss* .
+	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		cd $fwfolder && mkdir -p qcn6122 && mkdir -p /vendor/firmware/qcn6122
+		cd qcn6122 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/*.* . && ln -s /lib/firmware/$arch/WIFI_FW/q6_fw.* .
+		cd /vendor/firmware/qcn6122 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/Data.msc .
+		mkdir -p /lib/firmware/qcn6122 && cd /lib/firmware/qcn6122 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9100/qdss* .
+	fi
+
+	mkdir -p $fwfolder/$arch
+	cd  $fwfolder/$arch && ln -s /lib/firmware/$arch/WIFI_FW/*.* .
+	cd  /lib/firmware/$arch && create_soft_link /lib/firmware/$arch/WIFI_FW/qdss* .
+
+	if [ -e /sys/firmware/devicetree/base/MP_512 ] || [ -e /sys/firmware/devicetree/base/MP_256 ]; then
 		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
 			cd /lib/firmware
-			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini .
+			create_soft_link /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini .
+		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature_512P.ini ]; then
+			cd /lib/firmware
+			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature_512P.ini .
 		fi
 	else
 		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
 			cd /lib/firmware
-			ln -sf /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+			create_soft_link /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
+		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature.ini ]; then
+			cd /lib/firmware
+			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature.ini .
 		fi
 	fi
 
@@ -115,18 +173,48 @@ mount_wifi_fw (){
 	if [ -e /lib/firmware/$arch/WIFI_FW/board-2.bin ]; then
 		mkdir -p /lib/firmware/ath11k/$arch/$hw
 		cd /lib/firmware/ath11k/$arch/$hw/
-		ln -sf /lib/firmware/$arch/WIFI_FW/board-2.bin .
-		ln -sf /tmp/$arch/caldata.bin .
+		ln -s /lib/firmware/$arch/WIFI_FW/board-2.bin .
+		ln -s /tmp/$arch/caldata.bin .
+		ln -s /lib/firmware/$arch/qdss_trace_config.bin .
 	fi
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
 		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin ]; then
-			mkdir -p /lib/firmware/ath11k/qcn9000/hw1.0/
-			cd /lib/firmware/ath11k/qcn9000/hw1.0/
-			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin .
-			ln -sf /tmp/qcn9000/caldata*.bin .
-			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/m3.bin .
-			ln -sf /lib/firmware/$arch/WIFI_FW/qcn9000/amss.bin .
+			mkdir -p /lib/firmware/ath11k/QCN9074/hw1.0/
+			cd /lib/firmware/ath11k/QCN9074/hw1.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin .
+			ln -s /tmp/qcn9000/caldata*.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/m3.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/amss.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/qdss_trace_config.bin .
+		fi
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath11k/qcn9100/hw1.0/
+			cd /lib/firmware/ath11k/qcn9100/hw1.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin .
+			ln -s /lib/firmware/qcn9100/caldata*.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/qdss_trace_config.bin .
+		fi
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6122 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn6122/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath11k/qcn6122/hw1.0/
+			cd /lib/firmware/ath11k/qcn6122/hw1.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn6122/board-2.bin .
+			ln -s /lib/firmware/qcn6122/caldata*.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn6122/qdss_trace_config.bin .
+		fi
+	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9100 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath11k/qcn6122/hw1.0/
+			cd /lib/firmware/ath11k/qcn6122/hw1.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/board-2.bin .
+			ln -s /lib/firmware/qcn9100/caldata*.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/qdss_trace_config.bin .
 		fi
 	fi
 
@@ -175,8 +263,8 @@ mount_adsp_fw (){
 		echo " ADSP FW mount is successful" > /dev/console 2>&1
 	fi
 
-	cd  /lib/firmware/$arch &&  ln -sf ADSP_FW/image/*.* .
-	[ -d /lib/firmware/$arch/ADSP_FW/dspso ] && ln -sf /lib/firmware/$arch/ADSP_FW/dspso /dsp
+	cd  /lib/firmware/$arch &&  ln -s ADSP_FW/image/*.* .
+	[ -d /lib/firmware/$arch/ADSP_FW/dspso ] && ln -s /lib/firmware/$arch/ADSP_FW/dspso /dsp
 }
 
 mount_bt_fw (){
@@ -219,11 +307,13 @@ mount_bt_fw (){
 
 	if [ -f /lib/firmware/$arch/BT_FW/image/bt_fw_patch.mdt ]; then
 		echo "BT FW mount is successful" > /dev/console 2>&1
+		mkdir /tmp/BT_FW &&  cp -r /lib/firmware/$arch/BT_FW/image/ /tmp/BT_FW
+		umount /lib/firmware/$arch/BT_FW
 	else
 		echo "BT FW mount is failed" > /dev/console 2>&1
 	fi
 
-	cd /lib/firmware/$arch && ln -sf BT_FW/image/*.* .
+	cd /lib/firmware/$arch && ln -s /tmp/BT_FW/image/*.* .
 }
 
 boot() {
@@ -259,6 +349,7 @@ stop_wifi_fw() {
 	local primaryboot=""
 	local part_name="0:WIFIFW"
 	local wifi_on_rootfs=""
+	local nor_flash=""
 	arch=$1
 
 	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]]; then
@@ -272,8 +363,10 @@ stop_wifi_fw() {
 	fi
 
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
-	nor_part=$(cat /proc/mtd | grep WIFIFW | awk '{print $1}' | sed 's/:$//')
-	local nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
+	nor_part=$(cat /proc/mtd | grep -w "WIFIFW" | awk '{print $1}' | sed 's/:$//')
+	if [ -n "$nor_part" ]; then
+		nor_flash=`find /sys/bus/spi/devices/*/mtd -name ${nor_part}`
+	fi
 	nand_part=$(find_mtd_part $part_name 2> /dev/null)
 	if [ -n "$emmc_part" ]; then
 		umount /lib/firmware/$arch/WIFI_FW
