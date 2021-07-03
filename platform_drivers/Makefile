@@ -402,7 +402,7 @@ $(eval $(call KernelPackage,usb-dwc3-internal))
 
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 QTI USB driver
-  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x) +kmod-usb-dwc3-internal
+  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx) +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)
@@ -476,7 +476,7 @@ $(eval $(call KernelPackage,leds-tlc591xx))
 define KernelPackage/mhitest_mod
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
-  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:=CONFIG_MHI_BUS_TEST
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/test/mhitest_mod.ko
 endef
@@ -583,3 +583,49 @@ Add IPQ Thermal driver
 endef
 
 $(eval $(call KernelPackage,ipq-thermal))
+
+define KernelPackage/ipq-coresight
+  TITLE:= IPQ CoreSight Tracing Support Driver.
+  DEPENDS:= @TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
+  KCONFIG:= \
+	CONFIG_CORESIGHT=y \
+	CONFIG_CORESIGHT_CSR=y \
+	CONFIG_CORESIGHT_CTI=y \
+	CONFIG_CORESIGHT_EVENT=y \
+	CONFIG_CORESIGHT_HWEVENT=y \
+	CONFIG_CORESIGHT_LINKS_AND_SINKS=y \
+	CONFIG_CORESIGHT_LINK_AND_SINK_TMC=y \
+	CONFIG_CORESIGHT_QCOM_REPLICATOR=y \
+	CONFIG_CORESIGHT_SINK_TPIU=y \
+	CONFIG_CORESIGHT_SOURCE_ETM3X=y \
+	CONFIG_CORESIGHT_SOURCE_ETM4X=y \
+	CONFIG_CORESIGHT_STM=y \
+	CONFIG_CORESIGHT_TPDA=y \
+	CONFIG_CORESIGHT_TPDM=y \
+	CONFIG_SPS=y \
+	CONFIG_SPS_SUPPORT_NDP_BAM=y
+endef
+
+define KernelPackage/ipq-coresight/description
+Add IPQ CoreSight Tracing Support
+endef
+
+$(eval $(call KernelPackage,ipq-coresight))
+
+define KernelPackage/bt_tty
+  TITLE:= BT Inter-processor Communication
+  DEPENDS+= @TARGET_ipq50xx
+  KCONFIG:= \
+	  CONFIG_QTI_BT_INTERFACE \
+	  CONFIG_QTI_BT_PIL \
+	  CONFIG_QCOM_MDT_LOADER=y
+  FILES:= $(LINUX_DIR)/drivers/soc/qcom/bt_interface.ko \
+	$(LINUX_DIR)/drivers/remoteproc/bt_rproc.ko
+  AUTOLOAD:=$(call AutoLoad,53,bt_interface bt_rproc,1)
+endef
+
+define KernelPackage/bt_tty/description
+BT Interprocessor Communication support specific to IPQ50xx
+endef
+
+$(eval $(call KernelPackage,bt_tty))
