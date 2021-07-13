@@ -614,13 +614,16 @@ $(eval $(call KernelPackage,ipq-coresight))
 
 define KernelPackage/bt_tty
   TITLE:= BT Inter-processor Communication
-  DEPENDS+= @TARGET_ipq50xx
+  DEPENDS+= @TARGET_ipq50xx||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
   KCONFIG:= \
-	  CONFIG_QTI_BT_INTERFACE \
-	  CONFIG_QTI_BT_PIL \
-	  CONFIG_QCOM_MDT_LOADER=y
-  FILES:= $(LINUX_DIR)/drivers/soc/qcom/bt_interface.ko \
-	$(LINUX_DIR)/drivers/remoteproc/bt_rproc.ko
+	CONFIG_QTI_BT_INTERFACE \
+	CONFIG_QTI_BT_PIL \
+	CONFIG_QTI_BT_TTY \
+	CONFIG_QCOM_MDT_LOADER=y
+  FILES:= $(LINUX_DIR)/drivers/soc/qcom/bt_interface.ko@ge5.4 \
+	$(LINUX_DIR)/drivers/remoteproc/bt_rproc.ko@ge5.4 \
+	$(LINUX_DIR)/drivers/soc/qcom/bt/bt_rproc.ko@le4.4 \
+	$(LINUX_DIR)/drivers/soc/qcom/bt/bt_interface.ko@le4.4
   AUTOLOAD:=$(call AutoLoad,53,bt_interface bt_rproc,1)
 endef
 
