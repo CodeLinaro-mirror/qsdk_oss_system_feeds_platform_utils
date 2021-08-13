@@ -9,6 +9,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://github.com/andersson/qrtr.git
 PKG_SOURCE_VERSION:=cd6bedd5d00f211e6c1e3803ff2f9f53c246435e
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_MIRROR_MD5SUM:=skip
 
 include $(INCLUDE_DIR)/package.mk
 
