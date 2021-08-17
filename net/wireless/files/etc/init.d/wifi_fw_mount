@@ -218,8 +218,8 @@ mount_wifi_fw (){
 		fi
 	fi
 
-	mkdir -p /vendor/firmware
-	mv /lib/firmware/$arch/WIFI_FW/Data.msc /vendor/firmware
+	mkdir -p /vendor/firmware/$arch
+	cd /vendor/firmware/$arch && ln -s /lib/firmware/$arch/WIFI_FW/Data.msc .
 }
 
 mount_adsp_fw (){
