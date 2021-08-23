@@ -130,7 +130,7 @@ start() {
 		ipq6018_power_auto ;;
 	ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.1-c3 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.3-c3 | ap-mp03.3-c4 | ap-mp03.3-c5 | ap-mp03.4-c1 | ap-mp03.4-c2 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2 | tb-mp04)
 		ipq5018_power_auto ;;
-	ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2)
+	ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2 | db-al01-c3 | db-al02-c1 | db-al02-c2 | db-al02-c3)
 		ipq9574_power_auto ;;
 	esac
 }
