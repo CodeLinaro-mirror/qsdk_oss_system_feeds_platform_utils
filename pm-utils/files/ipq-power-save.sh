@@ -832,6 +832,48 @@ ipq6018_battery_power()
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
 
+ipq9574_phy_power_on()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2 | db-al01-c3 |\
+			db-al02-c1 | db-al02-c2)
+			ssdk_sh port poweron set 2
+			ssdk_sh port poweron set 3
+			ssdk_sh port poweron set 4
+			ssdk_sh port poweron set 5
+			ssdk_sh port poweron set 6
+		;;
+		db-al02-c3)
+			ssdk_sh port poweron set 2
+			ssdk_sh port poweron set 3
+			ssdk_sh port poweron set 4
+			ssdk_sh port poweron set 6
+		;;
+	esac
+}
+
+ipq9574_phy_power_off()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2 | db-al01-c3 |\
+			db-al02-c1 | db-al02-c2)
+			ssdk_sh port poweroff set 2
+			ssdk_sh port poweroff set 3
+			ssdk_sh port poweroff set 4
+			ssdk_sh port poweroff set 5
+			ssdk_sh port poweroff set 6
+		;;
+		db-al02-c3)
+			ssdk_sh port poweroff set 2
+			ssdk_sh port poweroff set 3
+			ssdk_sh port poweroff set 4
+			ssdk_sh port poweroff set 6
+		;;
+	esac
+}
+
 ipq9574_ac_power()
 {
 	echo "Entering AC-Power Mode"
@@ -841,8 +883,8 @@ ipq9574_ac_power()
 # Enabling Auto scale on NSS cores
 	echo 1 > /proc/sys/dev/nss/clock/auto_scale
 
-# Power on Malibu PHY of LAN ports
-
+# Power on PHYs of LAN ports
+	ipq9574_phy_power_on
 # PCIe Power-UP Sequence
 	sleep 1
 	echo 1 > /sys/bus/pci/rcrescan
@@ -928,8 +970,8 @@ ipq9574_battery_power()
 	done
 
 
-# Power off Malibu PHY of LAN ports
-
+# Power off PHYs of LAN ports
+        ipq9574_phy_power_off
 # USB Power-down Sequence
 	if [ -d config/usb_gadget/g1 ]
 	then
