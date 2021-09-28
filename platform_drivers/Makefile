@@ -329,7 +329,7 @@ define KernelPackage/usb-gdiag
   FILES:=\
        $(LINUX_DIR)/drivers/usb/gadget/legacy/g_diag.ko
   AUTOLOAD:=$(call AutoLoad,52,g_diag)
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64 +kmod-usb-gadget +kmod-usb-lib-composite
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq50xx +kmod-usb-gadget +kmod-usb-lib-composite
   $(call AddPlatformDepends/usb)
 endef
 
@@ -402,7 +402,7 @@ $(eval $(call KernelPackage,usb-dwc3-internal))
 
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 QTI USB driver
-  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx) +kmod-usb-dwc3-internal
+  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq50xx) +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)
@@ -632,3 +632,24 @@ BT Interprocessor Communication support specific to IPQ50xx
 endef
 
 $(eval $(call KernelPackage,bt_tty))
+
+define KernelPackage/usb-phy-ipq5018
+  TITLE:=DWC3 USB PHY driver for IPQ5018
+  DEPENDS:=@TARGET_ipq50xx
+  KCONFIG:= \
+	CONFIG_USB_QCA_M31_PHY \
+	CONFIG_PHY_IPQ_UNIPHY_USB
+  FILES:= \
+	$(LINUX_DIR)/drivers/usb/phy/phy-qca-m31.ko \
+	$(LINUX_DIR)/drivers/phy/phy-qca-uniphy.ko@le4.4 \
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qca-uniphy.ko@ge5.4
+  AUTOLOAD:=$(call AutoLoad,45,phy-qca-m31 phy-qca-uniphy,1)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-phy-ipq5018/description
+ This driver provides support for the USB PHY drivers
+ within the IPQ5018 SoCs.
+endef
+
+$(eval $(call KernelPackage,usb-phy-ipq5018))
