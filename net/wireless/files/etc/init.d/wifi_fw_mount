@@ -72,7 +72,7 @@ mount_wifi_fw (){
 	if [ $primaryboot -eq 1 ]; then
 		part_name="0:WIFIFW_1"
 	fi
-	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]]; then
 		wifi_on_rootfs="1"
 	fi
 
@@ -325,6 +325,8 @@ boot() {
 		mount_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ8074" ]; then
 		mount_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ9574" ]; then
+		mount_wifi_fw "IPQ9574"
 	elif [ "$platform" == "IPQ6018" ]; then
 		mount_wifi_fw "IPQ6018"
 		case "$board" in
@@ -433,6 +435,8 @@ stop() {
 		stop_wifi_fw "IPQ8074"
 	elif [ "$platform" == "IPQ8074" ]; then
 		stop_wifi_fw "IPQ8074"
+	elif [ "$platform" == "IPQ9574" ]; then
+		stop_wifi_fw "IPQ9574"
 	elif [ "$platform" == "IPQ6018" ]; then
 		stop_wifi_fw "IPQ6018"
 		case "$board" in

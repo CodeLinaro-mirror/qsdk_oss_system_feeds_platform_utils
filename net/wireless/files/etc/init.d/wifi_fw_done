@@ -37,6 +37,10 @@ boot() {
 			. /etc/init.d/wifi_fw_mount
 			mount_wifi_fw "IPQ8074"
 			;;
+		*"IPQ9574"*)
+			. /etc/init.d/wifi_fw_mount
+			mount_wifi_fw "IPQ9574"
+			;;
 		esac
 	fi
 }
