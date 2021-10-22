@@ -357,7 +357,7 @@ $(eval $(call KernelPackage,usb-f_ss_lb))
 
 define KernelPackage/usb-phy-ipq807x
   TITLE:=DWC3 USB QTI PHY drivers for IPQ807x based targets
-  DEPENDS:=@TARGET_ipq||TARGET_ipq807x||TARGET_ipq95xx
+  DEPENDS:=@TARGET_ipq||TARGET_ipq807x||TARGET_ipq95xx||TARGET_ipq60xx
   KCONFIG:= \
 	CONFIG_PHY_QCOM_QUSB2 \
 	CONFIG_PHY_QCOM_QMP=y \
