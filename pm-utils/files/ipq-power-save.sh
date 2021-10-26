@@ -1301,7 +1301,7 @@ case "$1" in
 			ipq6018_ac_power ;;
 		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.3-c3 | ap-mp03.3-c4 | ap-mp03.3-c5 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
 			ipq5018_ac_power ;;
-	ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2 | db-al01-c3 | db-al02-c1 | db-al02-c2 | db-al02-c3)
+		ap-al* | db-al*)
 			ipq9574_ac_power ;;
 		esac ;;
 	true)
@@ -1318,7 +1318,7 @@ case "$1" in
 			ipq6018_battery_power ;;
 		ap-mp02.1 | ap-mp03.1 | ap-mp03.1-c2 | ap-mp03.3 | ap-mp03.3-c2 | ap-mp03.3-c3 | ap-mp03.3-c4 | ap-mp03.3-c5 | ap-mp03.5-c1 | ap-mp03.5-c2 | ap-mp03.6-c1 | ap-mp03.6-c2 | db-mp02.1 | db-mp03.1 | db-mp03.1-c2 | db-mp03.3 | db-mp03.3-c2)
 			ipq5018_battery_power ;;
-		ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2 | db-al01-c3 | db-al02-c1 | db-al02-c2 | db-al02-c3)
+		ap-al* | db-al*)
 			ipq9574_battery_power ;;
 		esac ;;
 esac
