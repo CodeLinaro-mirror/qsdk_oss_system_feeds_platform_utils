@@ -110,7 +110,7 @@ define Build/InstallDev
 
 endef
 
-define Package/kernel-pr-tests/install
+define Package/kernel-tests/install
 	mkdir -p $(1)/data/kernel-tests/modules
 	$(INSTALL_DIR) $(1)/data/kernel-tests
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/arm/arm_float $(1)/data/kernel-tests
