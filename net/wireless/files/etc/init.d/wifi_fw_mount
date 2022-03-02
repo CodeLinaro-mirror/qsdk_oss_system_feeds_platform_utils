@@ -157,26 +157,28 @@ mount_wifi_fw (){
 	cd  /lib/firmware/$arch && create_soft_link /lib/firmware/$arch/WIFI_FW/qdss* .
 
 	if [ -e /sys/firmware/devicetree/base/MP_512 ] || [ -e /sys/firmware/devicetree/base/MP_256 ]; then
-		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
+		#qcn9224 INI file would have all QCN9224 RDP's info, so first priority for qcn9224 file if it exists
+		if [ -f /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature_512P.ini ]; then
+			cd /lib/firmware
+			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature_512P.ini .
+		elif [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini ]; then
 			cd /lib/firmware
 			create_soft_link /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature_512P.ini .
 		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature_512P.ini ]; then
 			cd /lib/firmware
 			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature_512P.ini .
-		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature_512P.ini ]; then
-			cd /lib/firmware
-			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature_512P.ini .
 		fi
 	else
-		if [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
+		#qcn9224 INI file would have all QCN9224 RDP's info, so first priority for qcn9224 file if it exists
+		if [ -f /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature.ini ]; then
+			cd /lib/firmware
+			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature.ini .
+		elif [ -f /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini ]; then
 			cd /lib/firmware
 			create_soft_link /lib/firmware/$arch/WIFI_FW/firmware_rdp_feature.ini .
 		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature.ini ]; then
 			cd /lib/firmware
 			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9000/firmware_rdp_feature.ini .
-		elif [ -f /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature.ini ]; then
-			cd /lib/firmware
-			create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9224/firmware_rdp_feature.ini .
 		fi
 	fi
 
