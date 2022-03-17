@@ -23,7 +23,7 @@ define KernelPackage/bootconfig
   KCONFIG:=CONFIG_BOOTCONFIG_PARTITION
   FILES:=$(LINUX_DIR)/drivers/platform/msm/bootconfig.ko@lt4.4 \
 	$(LINUX_DIR)/drivers/platform/ipq/bootconfig.ko@ge4.4
-  AUTOLOAD:=$(call AutoLoad,56,bootconfig,1)
+  AUTOLOAD:=$(call AutoLoad,96,bootconfig)
 endef
 
 define KernelPackage/bootconfig/description
@@ -198,7 +198,7 @@ define KernelPackage/usb-ath79
   DEPENDS:=@TARGET_ar71xx +kmod-usb2
   KCONFIG:=CONFIG_USB_EHCI_HCD_ATH79
   FILES:=$(LINUX_DIR)/drivers/usb/host/ehci-ath79.ko
-  AUTOLOAD:=$(call AutoLoad,40,ehci-ath79,1)
+  AUTOLOAD:=$(call AutoLoad,80,ehci-ath79)
   $(call AddPlatformDepends/usb)
 endef
 
@@ -260,7 +260,7 @@ define KernelPackage/usb-uas
   DEPENDS:= +kmod-scsi-core +kmod-usb-storage
   KCONFIG:=CONFIG_USB_UAS
   FILES:=$(LINUX_DIR)/drivers/usb/storage/uas.ko
-  AUTOLOAD:=$(call AutoProbe,uas,1)
+  AUTOLOAD:=$(call AutoProbe,uas)
   $(call AddPlatformDepends/usb)
 endef
 
@@ -367,7 +367,7 @@ define KernelPackage/usb-phy-ipq807x
 	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-qusb2.ko@ge5.4 \
 	$(LINUX_DIR)/drivers/usb/phy/phy-msm-qusb.ko@le4.4 \
 	$(LINUX_DIR)/drivers/usb/phy/phy-msm-ssusb-qmp.ko@le4.4
-  AUTOLOAD:=$(call AutoLoad,45,phy-qcom-qusb2 phy-msm-qusb phy-msm-ssusb-qmp,1)
+  AUTOLOAD:=$(call AutoLoad,85,phy-qcom-qusb2 phy-msm-qusb phy-msm-ssusb-qmp)
   $(call AddPlatformDepends/usb)
 endef
 
@@ -389,7 +389,7 @@ define KernelPackage/usb-dwc3-internal
 	CONFIG_USB_DWC3_DEBUG=n \
 	CONFIG_USB_DWC3_VERBOSE=n
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3.ko
-  AUTOLOAD:=$(call AutoLoad,54,dwc3,1)
+  AUTOLOAD:=$(call AutoLoad,84,dwc3)
   $(call AddPlatformDepends/usb)
 endef
 
@@ -405,7 +405,7 @@ define KernelPackage/usb-dwc3-qcom-internal
   DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq50xx) +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
-  AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)
+  AUTOLOAD:=$(call AutoLoad,83,dwc3-qcom)
   $(call AddPlatformDepends/usb)
 endef
 
@@ -464,7 +464,7 @@ define KernelPackage/leds-tlc591xx
   DEPENDS:=+kmod-i2c-core +kmod-regmap
   KCONFIG:=CONFIG_LEDS_TLC591XX
   FILES:=$(LINUX_DIR)/drivers/leds/leds-tlc591xx.ko
-  AUTOLOAD:=$(call AutoLoad,60,leds-tlc591xx,1)
+  AUTOLOAD:=$(call AutoLoad,60,leds-tlc591xx)
 endef
 
 define KernelPackage/leds-tlc591xx/description
@@ -554,7 +554,7 @@ define KernelPackage/qmi_sample_client
 	  CONFIG_SAMPLE_QMI_CLIENT
   FILES:= \
 	  $(LINUX_DIR)/samples/qmi/qmi_sample_client.ko
-  AUTOLOAD:=$(call AutoLoad,53,qmi_sample_client,1)
+  AUTOLOAD:=$(call AutoLoad,53,qmi_sample_client)
 endef
 
 define KernelPackage/qmi_sample_client/description
@@ -624,7 +624,7 @@ define KernelPackage/bt_tty
 	$(LINUX_DIR)/drivers/remoteproc/bt_rproc.ko@ge5.4 \
 	$(LINUX_DIR)/drivers/soc/qcom/bt/bt_rproc.ko@le4.4 \
 	$(LINUX_DIR)/drivers/soc/qcom/bt/bt_interface.ko@le4.4
-  AUTOLOAD:=$(call AutoLoad,53,bt_interface bt_rproc,1)
+  AUTOLOAD:=$(call AutoLoad,53,bt_interface bt_rproc)
 endef
 
 define KernelPackage/bt_tty/description
@@ -643,7 +643,7 @@ define KernelPackage/usb-phy-ipq5018
 	$(LINUX_DIR)/drivers/usb/phy/phy-qca-m31.ko \
 	$(LINUX_DIR)/drivers/phy/phy-qca-uniphy.ko@le4.4 \
 	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qca-uniphy.ko@ge5.4
-  AUTOLOAD:=$(call AutoLoad,45,phy-qca-m31 phy-qca-uniphy,1)
+  AUTOLOAD:=$(call AutoLoad,85,phy-qca-m31 phy-qca-uniphy)
   $(call AddDepends/usb)
 endef
 
