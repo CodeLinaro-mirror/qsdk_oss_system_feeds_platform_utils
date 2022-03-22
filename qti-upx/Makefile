@@ -4,7 +4,7 @@ PKG_NAME:=upx
 PKG_VERSION:=3.96-amd64_linux
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://source.codeaurora.org/mirrored_source/quic/qsdk/
+PKG_SOURCE_URL:=https://codelinaro.jfrog.io/ui/native/codelinaro-qsdk/
 PKG_MD5SUM:=78a9650320a850868fc46cbb59a9150a
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_NAME)-$(PKG_VERSION)

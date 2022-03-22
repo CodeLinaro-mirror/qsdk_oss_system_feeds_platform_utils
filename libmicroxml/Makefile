@@ -12,7 +12,7 @@ PKG_VERSION:=2015-03-18
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 # PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://source.codeaurora.org/quic/qsdk/libmicroxml
+PKG_SOURCE_URL:=https://codelinaro.jfrog.io/ui/native/codelinaro-qsdk/
 PKG_SOURCE_VERSION:=caa8d3e6887f5c70e54df555dd78e4e45cfa74cc
 PKG_BUILD_DIR:=$(BUILD_DIR)/microxml-$(PKG_SOURCE_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).zip

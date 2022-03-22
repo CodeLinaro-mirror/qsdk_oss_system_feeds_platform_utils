@@ -6,7 +6,7 @@ PKG_VERSION:=1.0
 PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=http://source.codeaurora.org/quic/qsdk/oss/tools/qdl
+PKG_SOURCE_URL:=https://git.codelinaro.org/clo/qsdk/oss/tools/qdl
 PKG_SOURCE_VERSION:=0fcf944ab5b8903249d888230ef2e68e83286256
 PKG_SOURCE_BRANCH:=qdl/scorching/master
 
