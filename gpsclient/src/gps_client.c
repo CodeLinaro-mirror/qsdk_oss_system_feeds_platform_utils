@@ -36,7 +36,7 @@ int main(void)
 	struct gps_data_t gps_info;
 	struct fixsource_t gpsd_source;
 	int status,flags;
-
+	bool latlon_set = false, alti_set = false, hdop_set = false, pdop_set = false, vdop_set = false, orientation_set = false, is_data_valid = false;
 	(void)gpsd_source_spec(NULL, &gpsd_source);
 
 	flags = WATCH_ENABLE | WATCH_JSON;
@@ -49,9 +49,9 @@ int main(void)
 	}
 
 	(void)gps_stream(&gps_info, flags, gpsd_source.device);
-
-	/* Wait for data from GPSD for a maximum of 5 microseconds */
-	while (gps_waiting(&gps_info, 5000000)) {
+	//printf("\nWaiting for GPS data!!\n");
+	/* Wait for data from GPSD for a maximum of 10 seconds */
+	while ((gps_waiting(&gps_info, 10000000)) && (is_data_valid == false)) {
 		if (-1 == gps_read(&gps_info))
 		{
 			printf("Read failure!\n");
@@ -68,18 +68,20 @@ int main(void)
 			{
 				gps_info.fix.mode = 0;
 			}
-			printf("Indoor deployment: %s <%d>\n",status_str[gps_info.status],gps_info.status);
+			printf("\nIndoor deployment: %s <%d>\n",status_str[gps_info.status],gps_info.status);
 
 			if (LATLON_SET == (LATLON_SET & gps_info.set))
 			{
 				if (isfinite(gps_info.fix.latitude) && isfinite(gps_info.fix.longitude))
 				{
+					latlon_set = true;
 					/* Display data from the GPS receiver if valid */
 					printf("Latitude: %.6f Longitude: %.6f\n",
 					gps_info.fix.latitude, gps_info.fix.longitude);
 				}
 				else
 				{
+					latlon_set = false;
 					printf("Latitude and Longitude: Data not found\n");
 				}
 			}
@@ -91,10 +93,12 @@ int main(void)
 			{
 				if (isfinite(gps_info.fix.altitude))
 				{
+					alti_set = true;
 					printf("Height: %.6f \n",gps_info.fix.altitude);
 				}
 				else
 				{
+					alti_set = false;
 					printf("Height: Data not found\n");
 				}
 			}
@@ -104,35 +108,47 @@ int main(void)
 			}
 			if (isfinite(gps_info.dop.hdop))
 			{
+				hdop_set = true;
 				printf("Major axis: %.1f\n", gps_info.dop.hdop);
 			}
 			else
 			{
+				hdop_set = false;
 				printf("Major axis : Data not found\n");
 			}
 			if (isfinite(gps_info.dop.pdop))
 			{
+				pdop_set = true;
 				printf("Minor axis: %.1f\n", gps_info.dop.pdop);
 			}
 			else
 			{
+				pdop_set = false;
 				printf("Minor axis: Data not found\n");
 			}
 			if (isfinite(gps_info.dop.vdop))
 			{
+				vdop_set = true;
 				printf("Vertical Uncertainty: %.1f\n", gps_info.dop.vdop);
 			}
 			else
 			{
+				vdop_set = false;
 				printf("vertical Uncertainty: Data not found\n");
 			}
 			if (isfinite(gps_info.fix.track))
 			{
+				orientation_set = true;
 				printf("orientation:%f \n", gps_info.fix.track);
 			}
 			else
 			{
+				orientation_set = false;
 				printf("orientation: Data not found\n");
+			}
+			if ((latlon_set == true) && (alti_set == true) && (hdop_set == true) && (pdop_set == true) && (vdop_set == true) && (orientation_set == true))
+			{
+				is_data_valid = true;
 			}
 		}
 		else
@@ -140,10 +156,19 @@ int main(void)
 			printf("No data packets received...\n");
 		}
 	}
-	sleep (3);
+	sleep(1);
 	flags = WATCH_DISABLE;
 	(void)gps_stream(&gps_info, flags, gpsd_source.device);
 	(void)gps_close(&gps_info);
-	exit(EXIT_SUCCESS);
+	if (is_data_valid == true)
+	{
+		printf("GPS Data fields are set...Exiting!!\n");
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		printf("GPS Wait timed out..Retrying!!\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
