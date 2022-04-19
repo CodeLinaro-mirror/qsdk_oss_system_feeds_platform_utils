@@ -22,21 +22,14 @@
 #include <errno.h>
 
 #define MODE_STRING_COUNT 4
-#define STATUS_STRING_COUNT 3
-
-static char *status_str[STATUS_STRING_COUNT] =
-{
-	"status_no_fix",
-	"status_fix",
-	"status_dgps_fix"
-};
 
 int main(void)
 {
 	struct gps_data_t gps_info;
 	struct fixsource_t gpsd_source;
-	int status,flags;
-	bool latlon_set = false, alti_set = false, hdop_set = false, pdop_set = false, vdop_set = false, orientation_set = false, is_data_valid = false;
+	int status, flags,indoor_dep, orientation;
+	bool latlon_set = false, alti_set = false, eph_set = false, epv_set = false, is_data_valid = false;
+	double ehpe, epv;
 	(void)gpsd_source_spec(NULL, &gpsd_source);
 
 	flags = WATCH_ENABLE | WATCH_JSON;
@@ -49,7 +42,7 @@ int main(void)
 	}
 
 	(void)gps_stream(&gps_info, flags, gpsd_source.device);
-	//printf("\nWaiting for GPS data!!\n");
+
 	/* Wait for data from GPSD for a maximum of 10 seconds */
 	while ((gps_waiting(&gps_info, 10000000)) && (is_data_valid == false)) {
 		if (-1 == gps_read(&gps_info, NULL, 0))
@@ -68,33 +61,36 @@ int main(void)
 			{
 				gps_info.fix.mode = 0;
 			}
-			printf("\nIndoor deployment: %s <%d>\n",status_str[gps_info.fix.status],gps_info.fix.status);
-
+			/* Updating the indoor deployment value to outdoor(2)*/
+			indoor_dep = 2;
+			/* Updating the orientation to zero degree as the horizontal area covered by GPS is a circle */
+			orientation = 0;
 			if (LATLON_SET == (LATLON_SET & gps_info.set))
 			{
 				if (isfinite(gps_info.fix.latitude) && isfinite(gps_info.fix.longitude))
 				{
 					latlon_set = true;
 					/* Display data from the GPS receiver if valid */
-					printf("Latitude: %.6f Longitude: %.6f\n",
+					printf("\nLatitude: %.7f Longitude: %.7f\n",
 					gps_info.fix.latitude, gps_info.fix.longitude);
 				}
 				else
 				{
 					latlon_set = false;
-					printf("Latitude and Longitude: Data not found\n");
+					printf("\nLatitude and Longitude: Data not found\n");
 				}
 			}
 			else
 			{
-				printf("LatLon not set!\n");
+				latlon_set = false;
+				printf("\nLatLon not set!\n");
 			}
 			if (ALTITUDE_SET == (ALTITUDE_SET & gps_info.set))
 			{
-				if (isfinite(gps_info.fix.altitude))
+				if (isfinite(gps_info.fix.altMSL))
 				{
 					alti_set = true;
-					printf("Height: %.6f \n",gps_info.fix.altMSL);
+					printf("Height: %.2f \n",gps_info.fix.altMSL);
 				}
 				else
 				{
@@ -104,49 +100,35 @@ int main(void)
 			}
 			else
 			{
+				alti_set = false;
 				printf("Altitude not set\n");
 			}
-			if (isfinite(gps_info.dop.hdop))
+			if (isfinite(gps_info.fix.eph))
 			{
-				hdop_set = true;
-				printf("Major axis: %.1f\n", gps_info.dop.hdop);
+				eph_set = true;
+				ehpe = (gps_info.fix.eph)*1.7;
+				printf("Major axis: %.2f\n", ehpe);
+				printf("Minor axis: %.2f\n", ehpe);
 			}
 			else
 			{
-				hdop_set = false;
-				printf("Major axis : Data not found\n");
+				eph_set = false;
+				printf("Major/Minor axis : Data not found\n");
 			}
-			if (isfinite(gps_info.dop.pdop))
+			if (isfinite(gps_info.fix.epv))
 			{
-				pdop_set = true;
-				printf("Minor axis: %.1f\n", gps_info.dop.pdop);
-			}
-			else
-			{
-				pdop_set = false;
-				printf("Minor axis: Data not found\n");
-			}
-			if (isfinite(gps_info.dop.vdop))
-			{
-				vdop_set = true;
-				printf("Vertical Uncertainty: %.1f\n", gps_info.dop.vdop);
+				epv_set = true;
+				epv = (gps_info.fix.epv)*2;
+				printf("Vertical Uncertainty: %.2f\n", epv);
 			}
 			else
 			{
-				vdop_set = false;
+				epv_set = false;
 				printf("vertical Uncertainty: Data not found\n");
 			}
-			if (isfinite(gps_info.fix.track))
-			{
-				orientation_set = true;
-				printf("orientation:%f \n", gps_info.fix.track);
-			}
-			else
-			{
-				orientation_set = false;
-				printf("orientation: Data not found\n");
-			}
-			if ((latlon_set == true) && (alti_set == true) && (hdop_set == true) && (pdop_set == true) && (vdop_set == true) && (orientation_set == true))
+			printf("Indoor_dep: %d \n",indoor_dep);
+			printf("Orientation: %d \n",orientation);
+			if ((latlon_set == true) && (alti_set == true) && (eph_set == true) && (epv_set == true))
 			{
 				is_data_valid = true;
 			}
@@ -167,7 +149,7 @@ int main(void)
 	}
 	else
 	{
-		printf("GPS Wait timed out..Retrying!!\n");
+		printf("GPS Wait timed out!!\n");
 		exit(EXIT_FAILURE);
 	}
 }
