@@ -37,6 +37,11 @@ int main(void)
 	struct fixsource_t gpsd_source;
 	int status,flags;
 	bool latlon_set = false, alti_set = false, hdop_set = false, pdop_set = false, vdop_set = false, orientation_set = false, is_data_valid = false;
+	FILE *fd;
+	char path[] = "/etc/afc/location-ipq_enc.conf";
+	char decrypted_path[] = "/etc/afc/location-ipq.conf";
+	bool file_found = true, update_pending = true;
+
 	(void)gpsd_source_spec(NULL, &gpsd_source);
 
 	flags = WATCH_ENABLE | WATCH_JSON;
@@ -47,11 +52,15 @@ int main(void)
 		printf("No GPSD running or network error:%d,%s\n",errno,gps_errstr(errno));
 		exit(EXIT_FAILURE);
 	}
+	if (access(path, F_OK) != 0){
+		printf("Error: Location config file not found!!\n");
+		file_found = false;
+	}
 
 	(void)gps_stream(&gps_info, flags, gpsd_source.device);
 	//printf("\nWaiting for GPS data!!\n");
 	/* Wait for data from GPSD for a maximum of 10 seconds */
-	while ((gps_waiting(&gps_info, 10000000)) && (is_data_valid == false)) {
+	while ((gps_waiting(&gps_info, 10000000)) && (update_pending == true)) {
 		if (-1 == gps_read(&gps_info))
 		{
 			printf("Read failure!\n");
@@ -62,9 +71,8 @@ int main(void)
 			if (MODE_SET != (MODE_SET & gps_info.set)) {
 				continue;
 			}
-		/* Checking if the mode is within the range */
-			if (gps_info.fix.mode < 0 ||
-			 gps_info.fix.mode >= MODE_STRING_COUNT)
+			/* Checking if the mode is within the range */
+			if ((gps_info.fix.mode < 0) || (gps_info.fix.mode >= MODE_STRING_COUNT))
 			{
 				gps_info.fix.mode = 0;
 			}
@@ -85,9 +93,11 @@ int main(void)
 					printf("Latitude and Longitude: Data not found\n");
 				}
 			}
+
 			else
 			{
 				printf("LatLon not set!\n");
+				latlon_set = false;
 			}
 			if (ALTITUDE_SET == (ALTITUDE_SET & gps_info.set))
 			{
@@ -105,6 +115,7 @@ int main(void)
 			else
 			{
 				printf("Altitude not set\n");
+				alti_set = false;
 			}
 			if (isfinite(gps_info.dop.hdop))
 			{
@@ -149,20 +160,45 @@ int main(void)
 			if ((latlon_set == true) && (alti_set == true) && (hdop_set == true) && (pdop_set == true) && (vdop_set == true) && (orientation_set == true))
 			{
 				is_data_valid = true;
+				printf("GPS Data fields are set!!\n");
 			}
 		}
 		else
 		{
 			printf("No data packets received...\n");
 		}
+		if ((file_found == true) && (is_data_valid == true))
+		{
+			system("/usr/sbin/encrypt_client_app decrypt location");
+			system("sync");
+			if ((fd = fopen(decrypted_path, "w")) != NULL){
+				printf("Updating %s\n",decrypted_path);
+				fprintf(fd,"#\n#  Copyright (c) 2021 Qualcomm Technologies, Inc.\n#  All Rights Reserved.\n#  Confidential and Proprietary - Qualcomm Technologies, Inc.\n#\n\n");
+				fprintf(fd,"#############################\n# Location Configuration file.\n#############################\n\n");
+				fprintf(fd,"# Common Location Fields\nlocation_object_ellipse = 1\n\nlocation_object_linear_polygon = 0\n\nlocation_object_radial_polygon = 0\n\n");
+				fprintf(fd,"location_height = %.6f\n\nlocation_vertical_uncertainity = %.1f\n\nlocation_indoordep = %d\n\n",gps_info.fix.altitude,gps_info.dop.vdop,gps_info.status);
+				fprintf(fd,"# Ellipse location fields\nellipse_minor_axis = %.1f\n\nellipse_major_axis = %.1f\n\nellipse_orientation = %f\n\nellipse_longitude = %.6f\n\nellipse_latitude = %.6f\n\n",gps_info.dop.pdop,gps_info.dop.hdop,gps_info.fix.track,gps_info.fix.longitude,gps_info.fix.latitude);
+				fprintf(fd,"# Linear Polygon location fields\nlinear_polygon_longitude = -121.9149914479106\n\nlinear_polygon_latitude = 37.364992615471664\n\n");
+				fprintf(fd,"# Radial Polygon location fields\nradial_polygon_longitude = -121.9149914479106\n\nradial_polygon_lattitude = 37.364992615471664\n\nradial_polygon_length = 16.1\n\nradial_polygon_angle = 30.5\n");
+				update_pending = false;
+				fclose(fd);
+			}
+			else
+			{
+				printf("Error opening %s",decrypted_path);
+				exit(EXIT_FAILURE);
+			}
+			system("/usr/sbin/encrypt_client_app encrypt location");
+			system("sync");
+		}
 	}
 	sleep(1);
 	flags = WATCH_DISABLE;
 	(void)gps_stream(&gps_info, flags, gpsd_source.device);
 	(void)gps_close(&gps_info);
-	if (is_data_valid == true)
+	if (update_pending == false)
 	{
-		printf("GPS Data fields are set...Exiting!!\n");
+		printf("Location config file updated...Exiting!!\n");
 		exit(EXIT_SUCCESS);
 	}
 	else
