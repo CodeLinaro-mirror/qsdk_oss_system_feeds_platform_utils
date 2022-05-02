@@ -173,7 +173,6 @@ int main(void)
 			system("sync");
 			if ((fd = fopen(decrypted_path, "w")) != NULL){
 				printf("Updating %s\n",decrypted_path);
-				fprintf(fd,"#\n#  Copyright (c) 2021 Qualcomm Technologies, Inc.\n#  All Rights Reserved.\n#  Confidential and Proprietary - Qualcomm Technologies, Inc.\n#\n\n");
 				fprintf(fd,"#############################\n# Location Configuration file.\n#############################\n\n");
 				fprintf(fd,"# Common Location Fields\nlocation_object_ellipse = 1\n\nlocation_object_linear_polygon = 0\n\nlocation_object_radial_polygon = 0\n\n");
 				fprintf(fd,"location_height = %.6f\n\nlocation_vertical_uncertainity = %.1f\n\nlocation_indoordep = %d\n\n",gps_info.fix.altitude,gps_info.dop.vdop,gps_info.status);
