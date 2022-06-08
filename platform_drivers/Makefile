@@ -402,7 +402,7 @@ $(eval $(call KernelPackage,usb-dwc3-internal))
 
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 QTI USB driver
-  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq50xx) +kmod-usb-dwc3-internal
+  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq50xx||TARGET_ipq53xx) +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,83,dwc3-qcom)
@@ -635,7 +635,7 @@ $(eval $(call KernelPackage,bt_tty))
 
 define KernelPackage/usb-phy-ipq5018
   TITLE:=DWC3 USB PHY driver for IPQ5018
-  DEPENDS:=@TARGET_ipq50xx
+  DEPENDS:=@TARGET_ipq50xx||TARGET_ipq53xx
   KCONFIG:= \
 	CONFIG_USB_QCA_M31_PHY \
 	CONFIG_PHY_IPQ_UNIPHY_USB
