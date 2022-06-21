@@ -22,21 +22,13 @@
 #include <errno.h>
 
 #define MODE_STRING_COUNT 4
-#define STATUS_STRING_COUNT 3
-
-static char *status_str[STATUS_STRING_COUNT] =
-{
-	"status_no_fix",
-	"status_fix",
-	"status_dgps_fix"
-};
 
 int main(void)
 {
 	struct gps_data_t gps_info;
 	struct fixsource_t gpsd_source;
 	int status, flags, indoor_dep, orientation;
-	bool latlon_set = false, alti_set = false, hdop_set = false, pdop_set = false, vdop_set = false, is_data_valid = false;
+	bool latlon_set = false, alti_set = false, eph_set = false, epv_set = false, is_data_valid = false;
 	FILE *fd;
 	char path[] = "/etc/afc/location-ipq_enc.conf";
 	char decrypted_path[] = "/etc/afc/location-ipq.conf";
@@ -58,7 +50,7 @@ int main(void)
 	}
 
 	(void)gps_stream(&gps_info, flags, gpsd_source.device);
-	//printf("\nWaiting for GPS data!!\n");
+
 	/* Wait for data from GPSD for a maximum of 10 seconds */
 	while ((gps_waiting(&gps_info, 10000000)) && (is_data_valid == false)) {
 		if (-1 == gps_read(&gps_info, NULL, 0))
@@ -81,7 +73,6 @@ int main(void)
 			indoor_dep = 2;
 			/* Updating the orientation to zero degree as the horizontal area covered by GPS is a circle */
 			orientation = 0;
-			printf("\nIndoor deployment: %s <%d>\n",status_str[gps_info.fix.status],gps_info.fix.status);
 
 			if (LATLON_SET == (LATLON_SET & gps_info.set))
 			{
@@ -106,10 +97,10 @@ int main(void)
 			}
 			if (ALTITUDE_SET == (ALTITUDE_SET & gps_info.set))
 			{
-				if (isfinite(gps_info.fix.altitude))
+				if (isfinite(gps_info.fix.altMSL))
 				{
 					alti_set = true;
-					printf("Height: %.6f \n",gps_info.fix.altMSL);
+					printf("Height: %.2f \n",gps_info.fix.altMSL);
 				}
 				else
 				{
@@ -122,39 +113,30 @@ int main(void)
 				printf("Altitude not set\n");
 				alti_set = false;
 			}
-			if (isfinite(gps_info.dop.hdop))
+			if (isfinite(gps_info.fix.eph))
 			{
-				hdop_set = true;
-				printf("Major axis: %.1f\n", gps_info.dop.hdop);
+				eph_set = true;
+				printf("Major axis: %.2f\n", gps_info.fix.eph);
+				printf("Minor axis: %.2f\n", gps_info.fix.eph);
 			}
 			else
 			{
-				hdop_set = false;
-				printf("Major axis : Data not found\n");
+				eph_set = false;
+				printf("Major/Minor axis : Data not found\n");
 			}
-			if (isfinite(gps_info.dop.pdop))
+			if (isfinite(gps_info.fix.epv))
 			{
-				pdop_set = true;
-				printf("Minor axis: %.1f\n", gps_info.dop.pdop);
-			}
-			else
-			{
-				pdop_set = false;
-				printf("Minor axis: Data not found\n");
-			}
-			if (isfinite(gps_info.dop.vdop))
-			{
-				vdop_set = true;
-				printf("Vertical Uncertainty: %.1f\n", gps_info.dop.vdop);
+				epv_set = true;
+				printf("Vertical Uncertainty: %.2f\n", gps_info.fix.epv);
 			}
 			else
 			{
-				vdop_set = false;
+				epv_set = false;
 				printf("vertical Uncertainty: Data not found\n");
 			}
 			printf("Indoor deployment: %d\n",indoor_dep);
 			printf("Orientation: %d\n",orientation);
-			if ((latlon_set == true) && (alti_set == true) && (hdop_set == true) && (pdop_set == true) && (vdop_set == true))
+			if ((latlon_set == true) && (alti_set == true) && (eph_set == true) && (epv_set == true))
 			{
 				is_data_valid = true;
 				printf("GPS Data fields are set!!\n");
@@ -172,8 +154,8 @@ int main(void)
 				printf("Updating %s\n",decrypted_path);
 				fprintf(fd,"#############################\n# Location Configuration file.\n#############################\n\n");
 				fprintf(fd,"# Common Location Fields\nlocation_object_ellipse = 1\n\nlocation_object_linear_polygon = 0\n\nlocation_object_radial_polygon = 0\n\n");
-				fprintf(fd,"location_height = %.6f\n\nlocation_vertical_uncertainity = %.1f\n\nlocation_indoordep = %d\n\n",gps_info.fix.altitude,gps_info.dop.vdop,indoor_dep);
-				fprintf(fd,"# Ellipse location fields\nellipse_minor_axis = %.1f\n\nellipse_major_axis = %.1f\n\nellipse_orientation = %d\n\nellipse_longitude = %.6f\n\nellipse_latitude = %.6f\n\n",gps_info.dop.pdop,gps_info.dop.hdop,orientation,gps_info.fix.longitude,gps_info.fix.latitude);
+				fprintf(fd,"location_height = %.2f\n\nlocation_vertical_uncertainity = %.2f\n\nlocation_indoordep = %d\n\n",gps_info.fix.altMSL,gps_info.fix.epv,indoor_dep);
+				fprintf(fd,"# Ellipse location fields\nellipse_minor_axis = %.2f\n\nellipse_major_axis = %.2f\n\nellipse_orientation = %d\n\nellipse_longitude = %.7f\n\nellipse_latitude = %.7f\n\n",gps_info.fix.eph,gps_info.fix.eph,orientation,gps_info.fix.longitude,gps_info.fix.latitude);
 				fprintf(fd,"# Linear Polygon location fields\nlinear_polygon_longitude = -121.9149914479106\n\nlinear_polygon_latitude = 37.364992615471664\n\n");
 				fprintf(fd,"# Radial Polygon location fields\nradial_polygon_longitude = -121.9149914479106\n\nradial_polygon_lattitude = 37.364992615471664\n\nradial_polygon_length = 16.1\n\nradial_polygon_angle = 30.5\n");
 				update_pending = false;
@@ -194,17 +176,16 @@ int main(void)
 	(void)gps_close(&gps_info);
 	if (update_pending == false)
 	{
-		printf("Location config file updated...Exiting!!\n");
+		printf("\nConfig file updated successfully!!\n");
 		exit(EXIT_SUCCESS);
 	}
 	else if (file_found == false)
         {
-                printf("\nFile update failed: Location config file not found\n");
-		exit(EXIT_SUCCESS);
+                printf("\nLocation config file not found\n");
         }
 	else
 	{
-		printf("GPS Wait timed out..Retrying!!\n");
+		printf("GPS Wait timed out!!\n");
 		exit(EXIT_FAILURE);
 	}
 }
