@@ -61,7 +61,7 @@ int main(void)
 	//printf("\nWaiting for GPS data!!\n");
 	/* Wait for data from GPSD for a maximum of 10 seconds */
 	while ((gps_waiting(&gps_info, 10000000)) && (is_data_valid == false)) {
-		if (-1 == gps_read(&gps_info))
+		if (-1 == gps_read(&gps_info, NULL, 0))
 		{
 			printf("Read failure!\n");
 			exit(EXIT_FAILURE);
@@ -81,6 +81,7 @@ int main(void)
 			indoor_dep = 2;
 			/* Updating the orientation to zero degree as the horizontal area covered by GPS is a circle */
 			orientation = 0;
+			printf("\nIndoor deployment: %s <%d>\n",status_str[gps_info.fix.status],gps_info.fix.status);
 
 			if (LATLON_SET == (LATLON_SET & gps_info.set))
 			{
@@ -108,7 +109,7 @@ int main(void)
 				if (isfinite(gps_info.fix.altitude))
 				{
 					alti_set = true;
-					printf("Height: %.6f \n",gps_info.fix.altitude);
+					printf("Height: %.6f \n",gps_info.fix.altMSL);
 				}
 				else
 				{
