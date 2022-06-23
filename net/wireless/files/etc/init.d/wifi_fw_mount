@@ -130,6 +130,7 @@ mount_wifi_fw (){
 		cd  $fwfolder && mkdir -p qcn9224 && mkdir -p /vendor/firmware/qcn9224
 		cd qcn9224 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/*.* .
 		cd /vendor/firmware/qcn9224 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/Data.msc .
+		ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/Data_dualmac.msc .
 		mkdir -p /lib/firmware/qcn9224 && cd /lib/firmware/qcn9224 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9224/qdss* .
 	fi
 
