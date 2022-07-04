@@ -278,6 +278,8 @@ CONFIG_CMD_NFS=y
 #
 # Network PHY
 #
+# CONFIG_ATHRS17C_SWITCH is not set
+# CONFIG_IPQ_QCA_AQUANTIA_PHY is not set
 # CONFIG_QCA8075_PHY is not set
 # CONFIG_QCA_AQUANTIA_PHY is not set
 # CONFIG_QCA8033_PHY is not set
