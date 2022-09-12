@@ -20,8 +20,29 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #define MODE_STRING_COUNT 4
+#define LOCAL_HOST "127.0.0.1"
+#define SOC_PORT 9090
+
+typedef enum{
+        other,
+        gps,
+        mobile
+}locationMethod;
+
+typedef struct locationInfo {
+        double latitude;
+        double longitude;
+        double height;
+        double vertical_uncertainity;
+        double major_axis;
+        double minor_axis;
+        double orientation;
+        locationMethod method;
+}locationInfo;
 
 int main(void)
 {
@@ -30,6 +51,11 @@ int main(void)
 	int status, flags,indoor_dep, orientation;
 	bool latlon_set = false, alti_set = false, eph_set = false, epv_set = false, is_data_valid = false;
 	double ehpe, epv;
+	int cliSocket;
+	locationInfo loc_info;
+	int bytes_sent = 0;
+	struct sockaddr_in address;
+
 	(void)gpsd_source_spec(NULL, &gpsd_source);
 
 	flags = WATCH_ENABLE | WATCH_JSON;
@@ -137,6 +163,25 @@ int main(void)
 		{
 			printf("No data packets received...\n");
 		}
+
+		if ((cliSocket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+		{
+			printf( "\n cliSocket creation error \n");
+			return -1;
+		}
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+		address.sin_port = htons(SOC_PORT);
+		loc_info.latitude = gps_info.fix.latitude;
+		loc_info.longitude = gps_info.fix.longitude;
+		loc_info.height = gps_info.fix.altMSL;
+		loc_info.vertical_uncertainity = epv;
+		loc_info.major_axis = ehpe;
+		loc_info.minor_axis = ehpe;
+		loc_info.orientation = 0;
+		loc_info.method = gps;
+		bytes_sent = sendto(cliSocket, (const char *)&loc_info, sizeof(loc_info), MSG_CONFIRM, (const struct sockaddr *) &address, sizeof(address));
+		printf("%d bytes_sent to Wifi location app\n", bytes_sent);
 	}
 	sleep(1);
 	flags = WATCH_DISABLE;
