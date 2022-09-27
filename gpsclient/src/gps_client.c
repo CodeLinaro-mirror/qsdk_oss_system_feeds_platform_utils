@@ -50,7 +50,7 @@ int main(void)
 	struct fixsource_t gpsd_source;
 	int status, flags,indoor_dep, orientation;
 	bool latlon_set = false, alti_set = false, eph_set = false, epv_set = false, is_data_valid = false;
-	double ehpe, epv;
+	double ehpe = 0, epv = 0;
 	int cliSocket;
 	locationInfo loc_info;
 	int bytes_sent = 0;
