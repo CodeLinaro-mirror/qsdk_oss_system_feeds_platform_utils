@@ -16,9 +16,11 @@
 
 START=96
 
+. /lib/upgrade/platform.sh
+
 boot() {
 	local soc_model=$(cat /proc/device-tree/model)
-	local runtime_failsafe_entry="/sys/bus/platform/drivers/qti_scm_restart_reason/kernel_boot_complete"
+	local trymode_inprogress="/proc/upgrade_info/trymode_inprogress"
 	local soc_type
 
         if ! grep -q WIFI_FW /proc/mounts; then
@@ -49,14 +51,12 @@ boot() {
 		esac
 	fi
 
-	case "$soc_model" in
-	*"IPQ9574"*)
-		if [ -f "$runtime_failsafe_entry" ]; then
-			echo 1 > $runtime_failsafe_entry
-			echo " Runtime Failsafe Feature Enabled, marked kernel boot complete " > /dev/console
-		else
-			echo " Runtime Failsafe Feature not enabled " > /dev/console
+	if [ -f "$trymode_inprogress" ]; then
+		local is_in_trymode=$(cat /proc/upgrade_info/trymode_inprogress)
+		if [ $is_in_trymode -eq 1 ]; then
+			echo "Bootconfig: updating age" > /dev/console
+			age_do_upgrade
+			echo "Bootconfig: Age is Updated" > /dev/console
 		fi
-		;;
-	esac
+	fi
 }
