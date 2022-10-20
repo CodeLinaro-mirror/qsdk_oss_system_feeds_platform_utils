@@ -1013,7 +1013,7 @@ ipq9574_battery_power()
 
 }
 
-devsoc_ac_power()
+ipq5332_ac_power()
 {
 	echo "Entering AC-Power Mode"
 # Cortex Power-UP Sequence
@@ -1075,7 +1075,7 @@ devsoc_ac_power()
 	exit 0
 }
 
-devsoc_battery_power()
+ipq5332_battery_power()
 {
 	echo "Entering Battery Mode..."
 
@@ -1444,7 +1444,7 @@ case "$1" in
 		ap-al* | db-al*)
 			ipq9574_ac_power ;;
 		ap-emu*)
-			devsoc_ac_power ;;
+			ipq5332_ac_power ;;
 		esac ;;
 	true)
 		case "$board" in
@@ -1463,6 +1463,6 @@ case "$1" in
 		ap-al* | db-al*)
 			ipq9574_battery_power ;;
 		ap-emu*)
-			devsoc_battery_power ;;
+			ipq5332_battery_power ;;
 		esac ;;
 esac
