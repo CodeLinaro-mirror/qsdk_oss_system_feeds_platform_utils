@@ -25,7 +25,8 @@ define Package/obuspa/description
 endef
 
 CONFIGURE_ARGS += \
-	--disable-websockets
+	--disable-websockets \
+	--disable-stomp
 
 define Package/obuspa/conffiles
 /etc/config/obuspa
