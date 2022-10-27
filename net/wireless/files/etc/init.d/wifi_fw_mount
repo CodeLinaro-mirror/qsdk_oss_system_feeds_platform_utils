@@ -72,7 +72,7 @@ mount_wifi_fw (){
 	if [ $primaryboot -eq 1 ]; then
 		part_name="0:WIFIFW_1"
 	fi
-	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]] || [[ "$arch" == "devsoc" ]]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]] || [[ "$arch" == "IPQ5332" ]]; then
 		wifi_on_rootfs="1"
 	fi
 
@@ -91,7 +91,7 @@ mount_wifi_fw (){
 	mkdir -p /lib/firmware/$arch/WIFI_FW
 	if [ -n "$emmc_part" ]; then
 		/bin/mount -t squashfs $emmc_part /lib/firmware/$arch/WIFI_FW > /dev/console 2>&1
-		if [[ "$arch" == "devsoc" ]]; then
+		if [[ "$arch" == "IPQ5332" ]]; then
 			[ -f /rom/lib/firmware/$arch/WIFI_FW/q6_fw0.mdt ] && [ -f /rom/lib/firmware/$arch/WIFI_FW/q6_fw1.mdt ] && cp /rom/lib/firmware/$arch/WIFI_FW/*.* /lib/firmware/$arch/WIFI_FW/
 		else
 			[ -f /rom/lib/firmware/$arch/WIFI_FW/q6_fw.mdt ] && cp /rom/lib/firmware/$arch/WIFI_FW/*.* /lib/firmware/$arch/WIFI_FW/
@@ -379,13 +379,10 @@ boot() {
 	elif [ "$platform" == "IPQ5018" ]; then
 		mount_bt_fw "IPQ5018"
 		mount_wifi_fw "IPQ5018"
+	elif [ "$platform" == "IPQ5332" ]; then
+		mount_wifi_fw "IPQ5332"
 	else
-		local emu=$(grep -o "EMULATION" /proc/device-tree/model)
-		if [ "$emu" == "EMULATION" ]; then
-			mount_wifi_fw "devsoc"
-		else
-			echo "\nInvalid Target"
-		fi
+		echo "\nInvalid Target"
 	fi
 }
 
@@ -494,14 +491,11 @@ stop() {
 	elif [ "$platform" == "IPQ5018" ]; then
 		stop_wifi_fw "IPQ5018"
 		stop_bt_fw "IPQ5018"
+	elif [ "$platform" == "IPQ5332" ]; then
+		stop_wifi_fw "IPQ5332"
 	else
-		local emu=$(grep -o "EMULATION" /proc/device-tree/model)
-		if [ "$emu" == "EMULATION" ]; then
-			stop_wifi_fw "devsoc"
-		else
-			echo "\nInvalid Target"
-			return 0
-		fi
+		echo "\nInvalid Target"
+		return 0
 	fi
 	return 0
 }
