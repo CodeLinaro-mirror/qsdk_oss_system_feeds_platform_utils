@@ -1443,7 +1443,7 @@ case "$1" in
 			ipq5018_ac_power ;;
 		ap-al* | db-al*)
 			ipq9574_ac_power ;;
-		ap-emu*)
+		ap-emu* | ap-mi* | db-mi*)
 			ipq5332_ac_power ;;
 		esac ;;
 	true)
@@ -1462,7 +1462,7 @@ case "$1" in
 			ipq5018_battery_power ;;
 		ap-al* | db-al*)
 			ipq9574_battery_power ;;
-		ap-emu*)
+		ap-emu* | ap-mi* | db-mi*)
 			ipq5332_battery_power ;;
 		esac ;;
 esac
