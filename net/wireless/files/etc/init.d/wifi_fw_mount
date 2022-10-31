@@ -91,10 +91,8 @@ mount_wifi_fw (){
 	mkdir -p /lib/firmware/$arch/WIFI_FW
 	if [ -n "$emmc_part" ]; then
 		/bin/mount -t squashfs $emmc_part /lib/firmware/$arch/WIFI_FW > /dev/console 2>&1
-		if [[ "$arch" == "IPQ5332" ]]; then
-			[ -f /rom/lib/firmware/$arch/WIFI_FW/q6_fw0.mdt ] && [ -f /rom/lib/firmware/$arch/WIFI_FW/q6_fw1.mdt ] && cp /rom/lib/firmware/$arch/WIFI_FW/*.* /lib/firmware/$arch/WIFI_FW/
-		else
-			[ -f /rom/lib/firmware/$arch/WIFI_FW/q6_fw.mdt ] && cp /rom/lib/firmware/$arch/WIFI_FW/*.* /lib/firmware/$arch/WIFI_FW/
+		if [ $? -eq 0 ]; then
+			cp /rom/lib/firmware/$arch/WIFI_FW/*.* /lib/firmware/$arch/WIFI_FW/
 		fi
 	elif [ -n "$nor_flash" ]; then
 		local nor_mtd_part=$(find_mtd_part $part_name 2> /dev/null)
