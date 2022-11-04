@@ -20,7 +20,6 @@ START=96
 
 boot() {
 	local soc_model=$(cat /proc/device-tree/model)
-	local trymode_inprogress="/proc/upgrade_info/trymode_inprogress"
 	local soc_type
 
         if ! grep -q WIFI_FW /proc/mounts; then
@@ -51,12 +50,4 @@ boot() {
 		esac
 	fi
 
-	if [ -f "$trymode_inprogress" ]; then
-		local is_in_trymode=$(cat /proc/upgrade_info/trymode_inprogress)
-		if [ $is_in_trymode -eq 1 ]; then
-			echo "Bootconfig: updating age" > /dev/console
-			age_do_upgrade
-			echo "Bootconfig: Age is Updated" > /dev/console
-		fi
-	fi
 }
