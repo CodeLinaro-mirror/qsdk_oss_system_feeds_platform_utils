@@ -68,7 +68,28 @@ mount_wifi_fw (){
 	;;
 	esac
 
-	primaryboot=$(cat /proc/boot_info/$part_name/primaryboot)
+	local age0=$(cat /proc/boot_info/bootconfig0/age)
+	local age1=$(cat /proc/boot_info/bootconfig1/age)
+	local bootname="bootconfig1"
+
+	#Try mode
+	if [ -e /proc/upgrade_info/trybit ]; then
+		if [ -e /proc/upgrade_info/trymode_inprogress ]; then
+			if [ $age0 -le $age1 ]; then
+				bootname="bootconfig0"
+			else
+				bootname="bootconfig1"
+			fi
+		else
+			if [ $age1 -ge $age0 ]; then
+				bootname="bootconfig1"
+			else
+				bootname="bootconfig0"
+			fi
+		fi
+	fi
+
+	primaryboot=$(cat /proc/boot_info/$bootname/$part_name/primaryboot)
 	if [ $primaryboot -eq 1 ]; then
 		part_name="0:WIFIFW_1"
 	fi
@@ -395,7 +416,20 @@ stop_wifi_fw() {
 		wifi_on_rootfs="1"
 	fi
 
-	primaryboot=$(cat /proc/boot_info/$part_name/primaryboot)
+	local age0=$(cat /proc/boot_info/bootconfig0/age)
+	local age1=$(cat /proc/boot_info/bootconfig1/age)
+	local bootname="bootconfig1"
+
+	#Try mode
+	if [ -e /proc/upgrade_info/trybit ]; then
+		if [ $age1 -ge $age0 ]; then
+			bootname="bootconfig1"
+		else
+			bootname="bootconfig0"
+		fi
+	fi
+
+	primaryboot=$(cat /proc/boot_info/$bootname/$part_name/primaryboot)
 	if [ $primaryboot -eq 1 ]; then
 		part_name="${part_name}_1"
 	fi
