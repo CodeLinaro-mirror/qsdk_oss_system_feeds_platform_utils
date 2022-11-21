@@ -487,6 +487,20 @@ endef
 
 $(eval $(call KernelPackage,mhitest_mod))
 
+define KernelPackage/mhi_fuse_blower_mod
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=MHI Fuse Blower Module for qcn9224.
+  DEPENDS+=@TARGET_ipq95xx
+  KCONFIG:=
+  FILES:=$(LINUX_DIR)/drivers/bus/mhi/fuse_blower/mhi_fuse_blower_mod.ko
+endef
+
+define KernelPackage/mhi_fuse_blower_mod/description
+  Add MHI Fuse blower Module.
+endef
+
+$(eval $(call KernelPackage,mhi_fuse_blower_mod))
+
 #Add in these flags for kernel specific configs
 #@le4.4 - kernel version less than 4.4
 #@ge5.4 - kernel version greater than 5.4
