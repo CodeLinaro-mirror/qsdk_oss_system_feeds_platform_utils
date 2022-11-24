@@ -19,7 +19,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sysupgrade-helper
   SECTION:=boot
   CATEGORY:=Boot Loaders
-  DEPENDS:=@TARGET_ipq806x||TARGET_ipq_ipq807x_64||TARGET_ipq807x_generic||TARGET_ipq_ipq60xx_64||TARGET_ipq60xx_generic||TARGET_ipq_ipq50xx_64||TARGET_ipq50xx_generic||TARGET_ipq95xx_generic||TARGET_ipq_ipq53xx_generic +losetup
+  DEPENDS:=@TARGET_ipq806x||TARGET_ipq_ipq807x_64||TARGET_ipq807x_generic||TARGET_ipq_ipq60xx_64||TARGET_ipq60xx_generic||TARGET_ipq_ipq50xx_64||TARGET_ipq50xx_generic||TARGET_ipq95xx_generic||TARGET_ipq53xx_generic +losetup
   TITLE:=U-boot images tools (dumpimage, mkimage)
 endef
 
