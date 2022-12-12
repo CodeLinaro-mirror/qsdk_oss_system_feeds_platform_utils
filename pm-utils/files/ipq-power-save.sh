@@ -1013,6 +1013,56 @@ ipq9574_battery_power()
 
 }
 
+ipq5332_phy_power_on()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-mi01.1 | ap-mi01.7)
+			echo 1 > /sys/ssdk/dev_id
+			ssdk_sh port poweron set 1
+			ssdk_sh port poweron set 2
+			ssdk_sh port poweron set 3
+			echo 0 > /sys/ssdk/dev_id
+			;;
+		ap-mi01.2 | ap-mi01.4 | ap-mi01.6)
+			echo 1 > /sys/ssdk/dev_id
+			ssdk_sh port poweron set 1
+			ssdk_sh port poweron set 2
+			ssdk_sh port poweron set 3
+			ssdk_sh port poweron set 4
+			echo 0 > /sys/ssdk/dev_id
+			;;
+		db-mi01.1)
+			ssdk_sh port poweron set 1
+			;;
+	esac
+}
+
+ipq5332_phy_power_off()
+{
+	local board=$(ipq806x_board_name)
+	case "$board" in
+		ap-mi01.1 | ap-mi01.7)
+			echo 1 > /sys/ssdk/dev_id
+			ssdk_sh port poweroff set 1
+			ssdk_sh port poweroff set 2
+			ssdk_sh port poweroff set 3
+			echo 0 > /sys/ssdk/dev_id
+			;;
+		ap-mi01.2 | ap-mi01.4 | ap-mi01.6)
+			echo 1 > /sys/ssdk/dev_id
+			ssdk_sh port poweroff set 1
+			ssdk_sh port poweroff set 2
+			ssdk_sh port poweroff set 3
+			ssdk_sh port poweroff set 4
+			echo 0 > /sys/ssdk/dev_id
+			;;
+		db-mi01.1)
+			ssdk_sh port poweroff set 1
+			;;
+	esac
+}
+
 ipq5332_ac_power()
 {
 	echo "Entering AC-Power Mode"
@@ -1023,7 +1073,7 @@ ipq5332_ac_power()
 	echo 1 > /proc/sys/dev/nss/clock/auto_scale
 
 # Power on PHYs of LAN ports
-
+	ipq5332_phy_power_on
 # PCIe Power-UP Sequence
 	[ -f /sys/bus/pci/rcrescan ] && {
 		sleep 1
@@ -1113,7 +1163,7 @@ ipq5332_battery_power()
 
 
 # Power off PHYs of LAN ports
-
+	ipq5332_phy_power_off
 # USB Power-down Sequence
 	if [ -d config/usb_gadget/g1 ]
 	then
