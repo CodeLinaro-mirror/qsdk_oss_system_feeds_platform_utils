@@ -13,7 +13,7 @@ PKG_ASLR_PIE:=0
 include $(INCLUDE_DIR)/package.mk
 
 MAKE_PATH:=src/current
-ifeq ($(ARCH),aarch64)
+ifneq (, $(findstring $(ARCH), aarch64 aarch64_be))
 MAKE_FLAGS += linux-arm
 else
 MAKE_FLAGS += linux-$(ARCH)
