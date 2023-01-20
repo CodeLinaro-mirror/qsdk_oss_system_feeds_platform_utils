@@ -179,6 +179,7 @@ CONFIG_SYS_MALLOC_CLEAR_ON_INIT=y
 # Boot images
 #
 # CONFIG_FIT is not set
+# CONFIG_FIT_FULL_CHECK is not set
 CONFIG_SYS_EXTRA_OPTIONS=""
 
 #

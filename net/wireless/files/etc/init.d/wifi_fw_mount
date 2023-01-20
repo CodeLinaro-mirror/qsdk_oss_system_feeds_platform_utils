@@ -273,6 +273,7 @@ mount_wifi_fw (){
 			cd /lib/firmware/ath12k/QCN92XX/hw1.0/
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/m3.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/amss.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/amss_dualmac.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/board-2.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/regdb.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/qdss_trace_config.bin .
