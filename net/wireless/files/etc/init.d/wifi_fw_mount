@@ -222,8 +222,17 @@ mount_wifi_fw (){
 	do_load_ipq4019_board_bin
 
 	if [ -e /lib/firmware/$arch/WIFI_FW/board-2.bin ]; then
-		mkdir -p /lib/firmware/ath11k/$arch/$hw
-		cd /lib/firmware/ath11k/$arch/$hw/
+
+		case "$arch" in
+			IPQ5332)
+				mkdir -p /lib/firmware/ath12k/$arch/$hw
+				cd /lib/firmware/ath12k/$arch/$hw/
+				;;
+			*)
+				mkdir -p /lib/firmware/ath11k/$arch/$hw
+				cd /lib/firmware/ath11k/$arch/$hw/
+				;;
+		esac
 		ln -s /lib/firmware/$arch/WIFI_FW/board-2.bin .
 		ln -s /tmp/$arch/caldata.bin .
 		ln -s /lib/firmware/$arch/qdss_trace_config.bin .
