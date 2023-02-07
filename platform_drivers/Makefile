@@ -186,6 +186,19 @@ endef
 
 $(eval $(call KernelPackage,crypto-qce))
 
+define KernelPackage/crypto-seccrypt
+  TITLE:=QTI Crypto Secure Crypt (QSC)
+  KCONFIG:= \
+	CONFIG_SECCRYPT
+  FILES:= \
+	$(LINUX_DIR)/drivers/crypto/seccrypt.ko
+  AUTOLOAD:=$(call AutoLoad,09,seccrypt)
+  DEPENDS:=@TARGET_ipq53xx
+  $(call AddPlatformDepends/crypto)
+endef
+
+$(eval $(call KernelPackage,crypto-seccrypt))
+
 USB_MENU:=USB Support
 
 define AddPlatformDepends/usb
