@@ -1032,7 +1032,7 @@ ipq5332_phy_power_on()
 			ssdk_sh port poweron set 4
 			echo 0 > /sys/ssdk/dev_id
 			;;
-		db-mi01.1)
+		db-mi01.1 | db-mi03.1)
 			ssdk_sh port poweron set 1
 			;;
 		ap-mi03.1)
@@ -1064,7 +1064,7 @@ ipq5332_phy_power_off()
 			ssdk_sh port poweroff set 4
 			echo 0 > /sys/ssdk/dev_id
 			;;
-		db-mi01.1)
+		db-mi01.1 | db-mi03.1)
 			ssdk_sh port poweroff set 1
 			;;
 		ap-mi03.1)
