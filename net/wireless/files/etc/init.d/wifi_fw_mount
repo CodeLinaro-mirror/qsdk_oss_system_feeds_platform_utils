@@ -277,14 +277,16 @@ mount_wifi_fw (){
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9100/qdss_trace_config.bin .
 		fi
 	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9224 ]; then
-		if [  -e /lib/firmware/$arch/WIFI_FW/qcn9224/board-2.bin ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9224/board-2.bin ]; then
 			mkdir -p /lib/firmware/ath12k/QCN92XX/hw1.0/
 			cd /lib/firmware/ath12k/QCN92XX/hw1.0/
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/m3.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/amss.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/amss_dualmac.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/board-2.bin .
-			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/regdb.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9224/regdb.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/regdb.bin .
+			fi
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/qdss_trace_config.bin .
 		fi
 	fi
