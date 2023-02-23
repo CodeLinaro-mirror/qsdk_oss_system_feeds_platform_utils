@@ -269,6 +269,38 @@ mount_wifi_fw (){
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/amss.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/board-2.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9224/qdss_trace_config.bin .
+			case $board_name in
+				ap-al02-c4)
+					#caldata_2.bin --> PCI1 2.4 GHz
+					if [ -e /lib/firmware/qcn9224/caldata_2.bin ]; then
+						ln -s /lib/firmware/qcn9224/caldata_2.bin cal-pci-0002:01:00.0.bin
+					fi
+
+					#caldata_3.bin --> PCI2 6 GHz
+					if [ -e /lib/firmware/qcn9224/caldata_3.bin ]; then
+						ln -s /lib/firmware/qcn9224/caldata_3.bin cal-pci-0003:01:00.0.bin
+					fi
+
+					#caldata_4.bin --> PCI3 5 GHz
+					if [ -e /lib/firmware/qcn9224/caldata_4.bin ]; then
+						ln -s /lib/firmware/qcn9224/caldata_4.bin cal-pci-0004:01:00.0.bin
+					fi
+				;;
+				ap-al02-c6)
+					#caldata_3.bin --> PCI2 6 GHz
+					if [ -e /lib/firmware/qcn9224/caldata_3.bin ]; then
+						ln -s /lib/firmware/qcn9224/caldata_3.bin cal-pci-0003:01:00.0.bin
+					fi
+
+					#caldata_4.bin --> PCI3 5 GHz
+					if [ -e /lib/firmware/qcn9224/caldata_4.bin ]; then
+						ln -s /lib/firmware/qcn9224/caldata_4.bin cal-pci-0004:01:00.0.bin
+					fi
+				;;
+				*)
+					#No sym links
+				;;
+			esac
 		fi
 	fi
 
