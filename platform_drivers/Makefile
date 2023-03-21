@@ -503,7 +503,7 @@ $(eval $(call KernelPackage,mhitest_mod))
 define KernelPackage/mhi_fuse_blower_mod
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Fuse Blower Module for qcn9224.
-  DEPENDS+=@TARGET_ipq95xx
+  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx
   KCONFIG:=
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/fuse_blower/mhi_fuse_blower_mod.ko
 endef
