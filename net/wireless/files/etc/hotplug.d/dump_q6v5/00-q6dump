@@ -22,15 +22,25 @@ if [ ! -n "$SERVER" ]; then
 	exit 0
 fi
 
+TSTAMP=0
+wifissrdumptstamp=$(fw_printenv | grep wifissrdumptstamp | wc -l)
+[ $wifissrdumptstamp != 0 ] && TSTAMP=$(fw_printenv wifissrdumptstamp | grep -c 1)
+
 if [ -e /dev/$DEVICENAME ] && [ "$ACTION" = add ]; then
-	printf "%s\n" "Collecting $DEVICENAME dump in $SERVER" > /dev/console
 	cd /dev
-	$(tftp -l $DEVICENAME -p $SERVER 2>&1)
+	if [ "$TSTAMP" -ne 0 ]; then
+		REMOTE="${DEVICENAME}"_`date +%y%m%d%H%M%S`
+	else
+		REMOTE=${DEVICENAME}
+	fi
+
+	printf "%s\n" "Collecting $REMOTE dump in $SERVER" > /dev/console
+	$(tftp -l $DEVICENAME -r $REMOTE -p $SERVER 2>&1)
 	if [ $? -eq 0 ]; then
-		printf "%s\n" "$DEVICENAME dump collected in $SERVER" \
+		printf "%s\n" "$REMOTE dump collected in $SERVER" \
 								> /dev/console
 	else
-		printf "%s\n" "$DEVICENAME dump collection failed in $SERVER" \
+		printf "%s\n" "$REMOTE dump collection failed in $SERVER" \
 								> /dev/console
 	fi
 	cd /proc/ath_pktlog
