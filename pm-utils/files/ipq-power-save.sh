@@ -1114,10 +1114,8 @@ ipq5332_ac_power()
 	ifup lan
 
 # Wifi Power-up Sequence
-	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
-		insmod ath11k
-		insmod ath11k_ahb
-		insmod ath11k_pci
+	if [ -f /lib/modules/$(uname -r)/ath12k.ko ]; then
+		insmod ath12k
 		sleep 2
 		wifi up
 	else
@@ -1144,13 +1142,11 @@ ipq5332_battery_power()
 	echo "Entering Battery Mode..."
 
 # Wifi Power-down Sequence
-	lsmod | grep ath11k > /dev/null
+	lsmod | grep ath12k > /dev/null
 	if [ $? -eq 0 ]; then
 		wifi down
 		sleep 2
-		rmmod ath11k_pci
-		rmmod ath11k_ahb
-		rmmod ath11k
+		rmmod ath12k
 	else
 		wifi unload
 	fi
