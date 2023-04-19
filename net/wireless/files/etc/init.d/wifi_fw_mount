@@ -262,6 +262,13 @@ mount_wifi_fw (){
 		mkdir -p /lib/firmware/qcn9160 && cd /lib/firmware/qcn9160 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9160/qdss* .
 	fi
 
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6432 ]; then
+		cd $fwfolder && mkdir -p qcn6432 && mkdir -p /vendor/firmware/qcn6432
+		cd qcn6432 && ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/*.* . && ln -s /lib/firmware/$arch/WIFI_FW/q6_fw.* .
+		cd /vendor/firmware/qcn6432 && ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/Data.msc .
+		mkdir -p /lib/firmware/qcn6432 && cd /lib/firmware/qcn6432 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn6432/qdss* .
+        fi
+
 	mkdir -p $fwfolder/$arch
 	cd  $fwfolder/$arch && ln -s /lib/firmware/$arch/WIFI_FW/*.* .
 	cd  /lib/firmware/$arch && create_soft_link /lib/firmware/$arch/WIFI_FW/qdss* .
