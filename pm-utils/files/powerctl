@@ -91,7 +91,7 @@ ipq5018_power_auto() {
 	echo "userspace" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 	# Set scaling speed to maximum supported frequency
-	echo 1008000 > sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+	echo 1008000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
 
 	# Ondemand, Performance, Powersave and Conservative scaling governors are not supported
 }
