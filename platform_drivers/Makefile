@@ -669,12 +669,14 @@ define KernelPackage/usb-phy-ipq5018
   DEPENDS:=@TARGET_ipq50xx||TARGET_ipq53xx
   KCONFIG:= \
 	CONFIG_USB_QCA_M31_PHY \
+	CONFIG_PHY_QCOM_M31_USB \
 	CONFIG_PHY_IPQ_UNIPHY_USB
   FILES:= \
-	$(LINUX_DIR)/drivers/usb/phy/phy-qca-m31.ko \
+	$(LINUX_DIR)/drivers/usb/phy/phy-qca-m31.ko@lt6.1 \
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-m31.ko@ge6.1 \
 	$(LINUX_DIR)/drivers/phy/phy-qca-uniphy.ko@le4.4 \
 	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qca-uniphy.ko@ge5.4
-  AUTOLOAD:=$(call AutoLoad,85,phy-qca-m31 phy-qca-uniphy)
+  AUTOLOAD:=$(call AutoLoad,85,phy-qca-m31 phy-qcom-m31 phy-qca-uniphy)
   $(call AddDepends/usb)
 endef
 
