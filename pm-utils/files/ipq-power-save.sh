@@ -1017,14 +1017,15 @@ ipq5332_phy_power_on()
 {
 	local board=$(ipq806x_board_name)
 	case "$board" in
-		ap-mi01.1 | ap-mi01.7)
+		ap-mi01.6)
 			echo 1 > /sys/ssdk/dev_id
 			ssdk_sh port poweron set 1
 			ssdk_sh port poweron set 2
 			ssdk_sh port poweron set 3
 			echo 0 > /sys/ssdk/dev_id
 			;;
-		ap-mi01.2 | ap-mi01.4 | ap-mi01.6)
+		ap-mi01.2 | ap-mi01.4 | ap-mi01.3 | ap-mi04.1 |\
+		ap-mi01.9 | ap-mi01.2-qcn9160-c1 | ap-mi04.1-c2)
 			echo 1 > /sys/ssdk/dev_id
 			ssdk_sh port poweron set 1
 			ssdk_sh port poweron set 2
@@ -1049,14 +1050,15 @@ ipq5332_phy_power_off()
 {
 	local board=$(ipq806x_board_name)
 	case "$board" in
-		ap-mi01.1 | ap-mi01.7)
+		ap-mi01.6)
 			echo 1 > /sys/ssdk/dev_id
 			ssdk_sh port poweroff set 1
 			ssdk_sh port poweroff set 2
 			ssdk_sh port poweroff set 3
 			echo 0 > /sys/ssdk/dev_id
 			;;
-		ap-mi01.2 | ap-mi01.4 | ap-mi01.6)
+		ap-mi01.2 | ap-mi01.4 | ap-mi01.3 | ap-mi04.1 |\
+		ap-mi01.9 | ap-mi01.2-qcn9160-c1 | ap-mi04.1-c2)
 			echo 1 > /sys/ssdk/dev_id
 			ssdk_sh port poweroff set 1
 			ssdk_sh port poweroff set 2
