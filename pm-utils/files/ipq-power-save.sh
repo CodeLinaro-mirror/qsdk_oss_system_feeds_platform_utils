@@ -887,7 +887,12 @@ ipq9574_ac_power()
 	ipq9574_phy_power_on
 # PCIe Power-UP Sequence
 	sleep 1
-	echo 1 > /sys/bus/pci/rcrescan
+	if [ -f /sys/bus/pci/rcrescan ]
+	then
+		echo 1 > /sys/bus/pci/rcrescan
+	else
+		echo 1 > /sys/bus/pci/rescan
+	fi
 	sleep 2
 
 # USB Power-UP Sequence
@@ -950,10 +955,14 @@ ipq9574_battery_power()
 	fi
 
 # PCIe Power-Down Sequence
-
-	[ -f /sys/bus/pci/rcremove ] && {
+	if [ -f /sys/bus/pci/rcremove ]
+	then
 		echo 1 > /sys/bus/pci/rcremove
-	}
+	else
+		for i in `ls /sys/bus/pci/devices/`; do
+			echo 1 > /sys/bus/pci/devices/${i}/remove
+		done
+	fi
 	sleep 1
 
 # Find scsi devices and remove it
@@ -1091,10 +1100,13 @@ ipq5332_ac_power()
 # Power on PHYs of LAN ports
 	ipq5332_phy_power_on
 # PCIe Power-UP Sequence
-	[ -f /sys/bus/pci/rcrescan ] && {
-		sleep 1
+	sleep 1
+	if [ -f /sys/bus/pci/rcrescan ]
+	then
 		echo 1 > /sys/bus/pci/rcrescan
-	}
+	else
+		echo 1 > /sys/bus/pci/rescan
+	fi
 	sleep 2
 
 # USB Power-UP Sequence
@@ -1154,10 +1166,14 @@ ipq5332_battery_power()
 	fi
 
 # PCIe Power-Down Sequence
-
-	[ -f /sys/bus/pci/rcremove ] && {
+	if [ -f /sys/bus/pci/rcremove ]
+	then
 		echo 1 > /sys/bus/pci/rcremove
-	}
+	else
+		for i in `ls /sys/bus/pci/devices/`; do
+			echo 1 > /sys/bus/pci/devices/${i}/remove
+		done
+	fi
 	sleep 1
 
 # Find scsi devices and remove it
