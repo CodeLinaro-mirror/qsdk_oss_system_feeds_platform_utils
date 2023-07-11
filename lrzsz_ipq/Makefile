@@ -11,17 +11,17 @@ PKG_MD5SUM:=b5ce6a74abc9b9eb2af94dffdfd372a4
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/lrzsz
+define Package/lrzsz-ipq
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Modem Utilities
 endef
 
-define Package/lrzsz/description
+define Package/lrzsz-ipq/description
   Modem Managment Utilities
 endef
 
-define Package/lrzsz/install
+define Package/lrzsz-ipq/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/lrz $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/lsz $(1)/usr/bin/
@@ -30,4 +30,4 @@ define Package/lrzsz/install
 	$(LN) /usr/bin/lsz $(1)/usr/bin/sz
 endef
 
-$(eval $(call BuildPackage,lrzsz))
+$(eval $(call BuildPackage,lrzsz-ipq))
