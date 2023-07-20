@@ -345,17 +345,8 @@ mount_wifi_fw (){
 			mkdir -p /lib/firmware/ath12k/QCN6432/hw1.0/
 			cd /lib/firmware/ath12k/QCN6432/hw1.0/
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/board-2.bin .
-			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/m3.bin .
-			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/amss.bin .
+			ln -s /lib/firmware/qcn6432/caldata*.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/qdss_trace_config.bin .
-
-			if [ -e /lib/firmware/qcn6432/caldata_1.bin ]; then
-				ln -s /lib/firmware/qcn6432/caldata_1.bin cal-ahb-soc:wifi4@f00000.bin
-			fi
-
-			if [ -e /lib/firmware/qcn6432/caldata_2.bin ]; then
-				ln -s /lib/firmware/qcn6432/caldata_2.bin cal-ahb-soc:wifi5@f00000.bin
-			fi
 		fi
 	fi
 
