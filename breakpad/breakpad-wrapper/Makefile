@@ -27,7 +27,7 @@ define Build/Prepare
 	$(Build/Patch)
 endef
 
-TARGET_CFLAGS += \
+TARGET_CFLAGS += -fPIC \
 	-I$(STAGING_DIR)/usr/include/ \
 	-I$(STAGING_DIR)/usr/include/breakpad \
 	-I$(TOOLCHAIN_DIR)/arm-openwrt-linux-muslgnueabi/include/c++/5.2.0 \

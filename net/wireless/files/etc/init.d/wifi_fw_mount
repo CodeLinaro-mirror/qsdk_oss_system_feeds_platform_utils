@@ -84,6 +84,27 @@ create_caldata_bin()
 			cp ${apdk}/qcn9224/caldata_1.bin /lib/firmware/qcn9224/caldata_1.bin
 			cp ${apdk}/qcn9224/caldata_2.bin /lib/firmware/qcn9224/caldata_2.bin
 		;;
+		ap-mi01.3*)
+			[ -s /lib/firmware/IPQ5332/caldata.bin ] && return
+			MI_BD_FILENAME=/lib/firmware/IPQ5332/bdwlan.bin
+			mkdir -p ${apdk}/IPQ5332
+			if [ -f "$MI_BD_FILENAME" ]; then
+				FILESIZE=$(stat -Lc%s "$MI_BD_FILENAME")
+			else
+				FILESIZE=131072
+			fi
+			dd if=${mtdblock} of=${apdk}/IPQ5332/caldata.bin bs=1 count=$FILESIZE skip=4096
+			[ -L /lib/firmware/IPQ5332/caldata.bin ] || \
+			cp ${apdk}/IPQ5332/caldata.bin /lib/firmware/IPQ5332/caldata.bin
+
+			MI_FILESIZE_1=100352
+			MI_FILESIZE_2=109568
+			mkdir -p ${apdk}/qcn6432
+			dd if=${mtdblock} of=${apdk}/qcn6432/caldata_1.bin bs=1 count=$MI_FILESIZE_1 skip=157696
+			dd if=${mtdblock} of=${apdk}/qcn6432/caldata_2.bin bs=1 count=$MI_FILESIZE_2 skip=362496
+			cp ${apdk}/qcn6432/caldata_1.bin /lib/firmware/qcn6432/caldata_1.bin
+			cp ${apdk}/qcn6432/caldata_2.bin /lib/firmware/qcn6432/caldata_2.bin
+		;;
 		ap-mi*)
 			MI_BD_FILENAME=/lib/firmware/IPQ5332/bdwlan.bin
 			mkdir -p ${apdk}/IPQ5332
@@ -317,6 +338,25 @@ mount_wifi_fw (){
 		ln -s /lib/firmware/$arch/WIFI_FW/board-2.bin .
 		ln -s /lib/firmware/$arch/caldata.bin .
 		ln -s /lib/firmware/$arch/qdss_trace_config.bin .
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6432 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn6432/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath12k/QCN6432/hw1.0/
+			cd /lib/firmware/ath12k/QCN6432/hw1.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/board-2.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/m3.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/amss.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/qdss_trace_config.bin .
+
+			if [ -e /lib/firmware/qcn6432/caldata_1.bin ]; then
+				ln -s /lib/firmware/qcn6432/caldata_1.bin cal-ahb-soc:wifi4@f00000.bin
+			fi
+
+			if [ -e /lib/firmware/qcn6432/caldata_2.bin ]; then
+				ln -s /lib/firmware/qcn6432/caldata_2.bin cal-ahb-soc:wifi5@f00000.bin
+			fi
+		fi
 	fi
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
