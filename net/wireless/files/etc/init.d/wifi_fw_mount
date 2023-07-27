@@ -18,9 +18,9 @@ STOP=95
 
 create_soft_link()
 {
-	if [ -e /sys/firmware/devicetree/base/AUTO_MOUNT ]; then
+	if [ -e /sys/firmware/devicetree/base/MP_256 ]; then
 		cp -f $*
-	elif [ ! -e /sys/firmware/devicetree/base/AUTO_MOUNT ]; then
+	elif [ ! -e /sys/firmware/devicetree/base/MP_256 ]; then
 		ln -s $*
 	fi
 }
@@ -571,7 +571,7 @@ stop_wifi_fw() {
 	local nor_flash=""
 	arch=$1
 
-	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]] || [[ "$arch" == "IPQ5332" ]]; then
 		part_name="rootfs"
 		wifi_on_rootfs="1"
 	fi
@@ -612,6 +612,11 @@ stop_wifi_fw() {
 			ubidetach -f -p  /dev/$PART
 			sync
 		fi
+	fi
+	if [ -f /lib/firmware/$arch/WIFI_FW/q6_fw.mdt ] || ([ -f /lib/firmware/$arch/WIFI_FW/q6_fw0.mdt ] && [ -f /lib/firmware/$arch/WIFI_FW/q6_fw1.mdt ]); then
+		echo " WIFI FW umount not successful" > /dev/console 2>&1
+	else
+		echo " WIFI FW umount successful" > /dev/console 2>&1
 	fi
 }
 
