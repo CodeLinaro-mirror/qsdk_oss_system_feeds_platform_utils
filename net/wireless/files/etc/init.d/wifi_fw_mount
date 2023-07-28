@@ -286,7 +286,7 @@ mount_wifi_fw (){
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6432 ]; then
 		cd $fwfolder && mkdir -p qcn6432 && mkdir -p /vendor/firmware/qcn6432
 		cd qcn6432 && ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/*.* . && ln -s /lib/firmware/$arch/WIFI_FW/q6_fw.* .
-		cd /vendor/firmware/qcn6432 && ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/Data.msc .
+		cd /vendor/firmware/qcn6432 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn6432/Data.msc .
 		mkdir -p /lib/firmware/qcn6432 && cd /lib/firmware/qcn6432 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn6432/qdss* .
         fi
 
@@ -436,7 +436,7 @@ mount_wifi_fw (){
 	fi
 
 	mkdir -p /vendor/firmware/$arch
-	cd /vendor/firmware/$arch && ln -s /lib/firmware/$arch/WIFI_FW/Data.msc .
+	cd /vendor/firmware/$arch && create_soft_link /lib/firmware/$arch/WIFI_FW/Data.msc .
 }
 
 mount_adsp_fw (){
