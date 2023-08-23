@@ -25,6 +25,34 @@ create_soft_link()
 	fi
 }
 
+sym_bdf_file()
+{
+	local fwfolder="/lib/firmware"
+	local arch=""
+	arch=$1
+	local BDF=$(grep -w  "0:BDF" /proc/mtd | awk -F: '{print $1}')
+	if [ -n "$BDF" ]; then
+		local bdf=$(find_mtd_part 0:BDF 2> /dev/null)
+		mkdir -p /bdf
+		/bin/mount -t squashfs $bdf /bdf/ > /dev/console 2>&1
+		if [ $? -ne 0 ]; then
+			echo "CRITICAL:BDF mount failed" > /dev/console 2>&1
+			echo $(cat /proc/mtd) > /dev/console 2>&1
+			return -1
+		fi
+	else
+		echo "There is no bdf partition available" > /dev/console 2>&1
+		return -1
+	fi
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
+		mkdir -p /bdf/qcn9000
+		cd $fwfolder/qcn9000 && ln -s /bdf/qcn9000/*.* .
+	fi
+	mkdir -p /bdf/$arch
+	cd  $fwfolder/$arch && ln -s /bdf/$arch/*.* .
+
+}
+
 mount_wifi_fw (){
 	local emmc_part=""
 	local nand_part=""
@@ -325,6 +353,7 @@ mount_wifi_fw (){
 
 	mkdir -p /vendor/firmware/$arch
 	cd /vendor/firmware/$arch && ln -s /lib/firmware/$arch/WIFI_FW/Data.msc .
+	sym_bdf_file $arch
 }
 
 mount_adsp_fw (){
