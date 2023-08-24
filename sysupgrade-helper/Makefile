@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_DISTNAME:=sysupgrade-helper
-PKG_NAME:=u-boot-2016
+PKG_NAME:=u-boot
 PKG_SOURCE_PROTO:=git
 PKG_BRANCH:=master
 PKG_RELEASE:=1
@@ -19,11 +19,11 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sysupgrade-helper
   SECTION:=boot
   CATEGORY:=Boot Loaders
-  DEPENDS:=@TARGET_ipq806x||TARGET_ipq_ipq807x_64||TARGET_ipq807x_generic||TARGET_ipq_ipq60xx_64||TARGET_ipq60xx_generic||TARGET_ipq_ipq50xx_64||TARGET_ipq50xx_generic||TARGET_ipq95xx_generic||TARGET_ipq53xx_generic +losetup
+  DEPENDS:=@TARGET_ipq806x||TARGET_ipq_ipq807x_64||TARGET_ipq807x_generic||TARGET_ipq_ipq60xx_64||TARGET_ipq60xx_generic||TARGET_ipq_ipq50xx_64||TARGET_ipq50xx_generic||TARGET_ipq95xx_generic||TARGET_ipq53xx_generic +losetup +libopenssl
   TITLE:=U-boot images tools (dumpimage, mkimage)
 endef
 
-HOSTLDFLAGS+= \
+HOSTLDFLAGS = \
 	      -L$(STAGING_DIR)/usr/lib \
 	      -znow -zrelro -pie
 
@@ -33,13 +33,31 @@ ifneq ($(CONFIG_TARGET_ipq95xx)$(CONFIG_TARGET_ipq807x)$(CONFIG_TARGET_ipq50xx),
   SHA_FLAG = "-DUSE_SHA384"
 endif
 
+define Build/Configure
+	mkdir -p $(PKG_BUILD_DIR)/include/config
+	echo "CONFIG_FIT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_FIT_PRINT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_FIT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_FIT_PRINT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	touch $(PKG_BUILD_DIR)/include/config/auto.conf
+	mkdir -p $(PKG_BUILD_DIR)/include/generated
+	echo "#define CONFIG_FIT_PRINT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_FIT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_FIT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_FIT_PRINT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	touch $(PKG_BUILD_DIR)/include/generated/autoconf.h
+endef
+
+MAKE_FLAGS += \
+	CROSS_BUILD_TOOLS=y \
+	HOSTCFLAGS="$(SHA_FLAG) -fPIC" \
+	HOSTLDFLAGS="$(HOSTLDFLAGS) -lpthread -lcrypto -lssl" \
+	HOSTEXTRACFLAGS="$(HOST_EXTRACFLAGS)" \
+	no-dot-config-targets=tools-only \
+	tools-only
+
 define Build/Compile
-	cp config $(PKG_BUILD_DIR)/.config
-	$(MAKE) -C $(PKG_BUILD_DIR) TARGETCC="$(TARGET_CC) $(SHA_FLAG)" \
-		CROSS_COMPILE=$(TARGET_CROSS) \
-		TARGET_CFLAGS="$(TARGET_CFLAGS)" \
-		HOSTLDFLAGS="$(HOSTLDFLAGS)" \
-		tools-only
+	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS)
 endef
 
 define Package/sysupgrade-helper/install
