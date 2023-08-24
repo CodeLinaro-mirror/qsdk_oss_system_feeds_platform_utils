@@ -1,18 +1,27 @@
-From 6cb1ebc71eb091e59a9396b445233d2c9ff2311b Mon Sep 17 00:00:00 2001
+From 9f77bea901bbef5d26b9da2e886e09943a5c2809 Mon Sep 17 00:00:00 2001
 From: Gokul Sriram Palanisamy <quic_gokulsri@quicinc.com>
 Date: Sun, 24 Oct 2021 08:22:59 +0530
 Subject: [PATCH] qdl: Enable qdl device over MHI FIREHOSE channel
 
 Signed-off-by: Gokul Sriram Palanisamy <quic_gokulsri@quicinc.com>
 ---
- firehose.c |  2 ++
- qdl.c      | 68 +++++++++++++++++++++++++++++++++++++++++++++++++++++---------
- 2 files changed, 61 insertions(+), 9 deletions(-)
+ firehose.c |  4 +++-
+ qdl.c      | 68 ++++++++++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 62 insertions(+), 10 deletions(-)
 
 diff --git a/firehose.c b/firehose.c
-index 9e47f64..b9a15e1 100644
+index 9e47f64..09e692f 100644
 --- a/firehose.c
 +++ b/firehose.c
+@@ -130,7 +130,7 @@ static int firehose_read(struct qdl_device *qdl, int timeout_ms,
+ 	timeradd(&now, &delta, &timeout);
+ 
+ 	for (;;) {
+-		n = qdl_read(qdl, buf, sizeof(buf), 100);
++		n = qdl_read(qdl, buf, sizeof(buf), 1000);
+ 		if (n < 0) {
+ 			gettimeofday(&now, NULL);
+ 			if (timercmp(&now, &timeout, <))
 @@ -138,6 +138,8 @@ static int firehose_read(struct qdl_device *qdl, int timeout_ms,
  
  			warnx("firehose operation timed out");
@@ -131,5 +140,5 @@ index 256ca96..43fa65a 100644
  	ret = firehose_run(&qdl, incdir, storage);
  	if (ret < 0)
 -- 
-2.7.4
+2.34.1
 
