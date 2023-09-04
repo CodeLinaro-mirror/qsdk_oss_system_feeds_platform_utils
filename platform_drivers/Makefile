@@ -124,7 +124,7 @@ $(eval $(call KernelPackage,crypto-aes-internal))
 define KernelPackage/crypto-qce
   TITLE:=QTI Crypto Engine (QCE)
   KCONFIG:= \
-	CONFIG_CRYPTO_DEV_QCE \
+	CONFIG_CRYPTO_DEV_QCE=y \
 	CONFIG_CRYPTO_DEV_QCE_ENABLE_ALL=y \
 	CONFIG_CRYPTO_DEV_QCE_SKCIPHER=y \
 	CONFIG_CRYPTO_DEV_QCE_AEAD=y \
@@ -133,11 +133,7 @@ define KernelPackage/crypto-qce
 	CONFIG_CRYPTO_DEV_QCE_SW_MAX_LEN=0 \
 	CONFIG_CRYPTO_DEV_QCE_ENABLE_AEAD=n \
 	CONFIG_CRYPTO_DEV_QCE_SHA=y
-  FILES:= \
-	$(LINUX_DIR)/drivers/crypto/qce/qcrypto.ko
-  AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq54xx +kmod-crypto-manager +kmod-crypto-hash +kmod-crypto-authenc
-  $(call AddPlatformDepends/crypto)
+  DEPENDS:=@TARGET_ipq95xx +kmod-crypto-manager +kmod-crypto-hash +kmod-crypto-authenc
 endef
 
 $(eval $(call KernelPackage,crypto-qce))
