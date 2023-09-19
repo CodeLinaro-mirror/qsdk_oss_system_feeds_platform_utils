@@ -837,7 +837,7 @@ ipq9574_phy_power_on()
 	local board=$(ipq806x_board_name)
 	case "$board" in
 		ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2 | db-al01-c3 |\
-			db-al02-c1 | db-al02-c2)
+			db-al02-c1 | db-al02-c2 | ap-al02-c20)
 			ssdk_sh port poweron set 2
 			ssdk_sh port poweron set 3
 			ssdk_sh port poweron set 4
@@ -858,7 +858,7 @@ ipq9574_phy_power_off()
 	local board=$(ipq806x_board_name)
 	case "$board" in
 		ap-al01-c1 | ap-al02-c1 | ap-al02-c2 | db-al01-c1 | db-al01-c2 | db-al01-c3 |\
-			db-al02-c1 | db-al02-c2)
+			db-al02-c1 | db-al02-c2 | ap-al02-c20)
 			ssdk_sh port poweroff set 2
 			ssdk_sh port poweroff set 3
 			ssdk_sh port poweroff set 4
