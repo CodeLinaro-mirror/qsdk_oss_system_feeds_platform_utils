@@ -61,6 +61,9 @@ define Package/pm-utils/install
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/powerctl $(1)/etc/init.d
+
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/wifi_load.sh $(1)/usr/sbin
 endef
 
 $(eval $(call BuildPackage,pm-utils))
