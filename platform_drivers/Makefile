@@ -493,7 +493,7 @@ $(eval $(call KernelPackage,leds-tlc591xx))
 define KernelPackage/mhitest_mod
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
-  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx||TARGET_ipq53xx
+  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
   KCONFIG:=CONFIG_MHI_BUS_TEST
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/test/mhitest_mod.ko
 endef
