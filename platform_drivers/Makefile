@@ -46,6 +46,22 @@ endef
 
 $(eval $(call KernelPackage,qseecom))
 
+define KernelPackage/ks_bridge
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=USB KS bridge driver for SDX dump collection
+  DEPENDS:=+kmod-usb-core
+  KCONFIG:=CONFIG_USB_QCOM_KS_BRIDGE
+  FILES:=$(LINUX_DIR)/drivers/usb/misc/ks_bridge.ko
+  AUTOLOAD:=$(call AutoLoad,90,ks_bridge)
+endef
+
+define KernelPackage/ks_bridge/description
+ USB KS bridge driver for SDX dump collection
+endef
+
+$(eval $(call KernelPackage,ks_bridge))
+
+
 define KernelPackage/fw-auth-test
   CATEGORY:=Kernel modules
   SUBMENU:=$(OTHER_MENU)
