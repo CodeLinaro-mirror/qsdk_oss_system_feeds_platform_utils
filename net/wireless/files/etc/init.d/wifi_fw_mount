@@ -246,6 +246,7 @@ mount_wifi_fw (){
 		fi
 	fi
 
+	sym_bdf_file $arch
 	. /lib/read_caldata_to_fs.sh
 	do_load_ipq4019_board_bin
 
@@ -353,7 +354,6 @@ mount_wifi_fw (){
 
 	mkdir -p /vendor/firmware/$arch
 	cd /vendor/firmware/$arch && ln -s /lib/firmware/$arch/WIFI_FW/Data.msc .
-	sym_bdf_file $arch
 }
 
 mount_adsp_fw (){
