@@ -84,7 +84,7 @@ create_caldata_bin()
 			cp ${apdk}/qcn9224/caldata_1.bin /lib/firmware/qcn9224/caldata_1.bin
 			cp ${apdk}/qcn9224/caldata_2.bin /lib/firmware/qcn9224/caldata_2.bin
 		;;
-		ap-mi01.3*)
+		ap-mi01.3*|ap-mi04.1*)
 			[ -s /lib/firmware/IPQ5332/caldata.bin ] && return
 			MI_BD_FILENAME=/lib/firmware/IPQ5332/bdwlan.bin
 			mkdir -p ${apdk}/IPQ5332
