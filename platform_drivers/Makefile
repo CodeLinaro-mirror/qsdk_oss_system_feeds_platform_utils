@@ -197,7 +197,7 @@ define KernelPackage/crypto-qce
 	CONFIG_CRYPTO_DEV_QCE_SW_MAX_LEN=0@ge5.4 \
 	CONFIG_CRYPTO_DEV_QCE_ENABLE_AEAD=n \
 	CONFIG_CRYPTO_DEV_QCE_SHA=y
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx||TARGET_ipq50xx +kmod-crypto-manager +LINUX_4_4:kmod-crypto-aes-internal +kmod-crypto-hash +LINUX_4_4:kmod-crypto-des +kmod-crypto-authenc
+  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx||TARGET_ipq50xx||TARGET_ipq53xx +kmod-crypto-manager +LINUX_4_4:kmod-crypto-aes-internal +kmod-crypto-hash +LINUX_4_4:kmod-crypto-des +kmod-crypto-authenc
 endef
 
 $(eval $(call KernelPackage,crypto-qce))
