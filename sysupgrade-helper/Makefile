@@ -25,7 +25,7 @@ endef
 
 HOSTLDFLAGS = \
 	      -L$(STAGING_DIR)/usr/lib \
-	      -znow -zrelro -pie
+	      -znow -zrelro -pie -Werror
 
 SHA_FLAG = "-DUSE_SHA256"
 
