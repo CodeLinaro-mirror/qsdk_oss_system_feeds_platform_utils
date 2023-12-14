@@ -1,0 +1,42 @@
+From 415088b5d0d7c90be8a65cf8a907b6597e816cc7 Mon Sep 17 00:00:00 2001
+From: Adesh Keremane <quic_adeshk@quicinc.com>
+Date: Thu, 30 Nov 2023 12:57:09 -0800
+Subject: [PATCH] Adding Support for WebAssembly Micro Runtime
+
+Adding Support for WebAssembly Micro Runtime
+
+Change-Id: I405717e565525fe1ca8281204e0faa574a212415
+Signed-off-by: Adesh Keremane <quic_adeshk@quicinc.com>
+---
+
+--- a/product-mini/platforms/linux/CMakeLists.txt
++++ b/product-mini/platforms/linux/CMakeLists.txt
+@@ -83,7 +83,7 @@ endif ()
+ 
+ if (NOT DEFINED WAMR_BUILD_LIB_PTHREAD)
+   # Disable pthread library by default
+-  set (WAMR_BUILD_LIB_PTHREAD 0)
++  set (WAMR_BUILD_LIB_PTHREAD 1)
+ endif ()
+ 
+ if (NOT DEFINED WAMR_BUILD_LIB_WASI_THREADS)
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -82,7 +82,7 @@ endif ()
+ 
+ if (NOT DEFINED WAMR_BUILD_LIB_PTHREAD)
+   # Disable pthread library by default
+-  set (WAMR_BUILD_LIB_PTHREAD 0)
++  set (WAMR_BUILD_LIB_PTHREAD 1)
+ endif ()
+ 
+ if (NOT DEFINED WAMR_BUILD_LIB_WASI_THREADS)
+@@ -154,6 +154,8 @@ if (MINGW)
+   target_link_libraries (iwasm_shared -lWs2_32)
+ endif ()
+ 
++ADD_SUBDIRECTORY(product-mini/platforms/linux)
++
+ install (TARGETS iwasm_shared LIBRARY DESTINATION lib)
+ 
+ # HEADERS
