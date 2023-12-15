@@ -1,17 +1,7 @@
-From 415088b5d0d7c90be8a65cf8a907b6597e816cc7 Mon Sep 17 00:00:00 2001
-From: Adesh Keremane <quic_adeshk@quicinc.com>
-Date: Thu, 30 Nov 2023 12:57:09 -0800
-Subject: [PATCH] Adding Support for WebAssembly Micro Runtime
-
-Adding Support for WebAssembly Micro Runtime
-
-Change-Id: I405717e565525fe1ca8281204e0faa574a212415
-Signed-off-by: Adesh Keremane <quic_adeshk@quicinc.com>
----
-
---- a/product-mini/platforms/linux/CMakeLists.txt
-+++ b/product-mini/platforms/linux/CMakeLists.txt
-@@ -83,7 +83,7 @@ endif ()
+diff -ruN a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2023-12-09 16:02:07.844132306 -0800
++++ b/CMakeLists.txt	2023-12-14 20:24:28.394303012 -0800
+@@ -82,7 +82,7 @@
  
  if (NOT DEFINED WAMR_BUILD_LIB_PTHREAD)
    # Disable pthread library by default
@@ -20,18 +10,7 @@ Signed-off-by: Adesh Keremane <quic_adeshk@quicinc.com>
  endif ()
  
  if (NOT DEFINED WAMR_BUILD_LIB_WASI_THREADS)
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -82,7 +82,7 @@ endif ()
- 
- if (NOT DEFINED WAMR_BUILD_LIB_PTHREAD)
-   # Disable pthread library by default
--  set (WAMR_BUILD_LIB_PTHREAD 0)
-+  set (WAMR_BUILD_LIB_PTHREAD 1)
- endif ()
- 
- if (NOT DEFINED WAMR_BUILD_LIB_WASI_THREADS)
-@@ -154,6 +154,8 @@ if (MINGW)
+@@ -154,6 +154,8 @@
    target_link_libraries (iwasm_shared -lWs2_32)
  endif ()
  
@@ -40,3 +19,42 @@ Signed-off-by: Adesh Keremane <quic_adeshk@quicinc.com>
  install (TARGETS iwasm_shared LIBRARY DESTINATION lib)
  
  # HEADERS
+diff -ruN a/product-mini/platforms/linux/CMakeLists.txt b/product-mini/platforms/linux/CMakeLists.txt
+--- a/product-mini/platforms/linux/CMakeLists.txt	2023-12-09 16:02:07.948132547 -0800
++++ b/product-mini/platforms/linux/CMakeLists.txt	2023-12-14 20:30:18.119097962 -0800
+@@ -83,7 +83,7 @@
+ 
+ if (NOT DEFINED WAMR_BUILD_LIB_PTHREAD)
+   # Disable pthread library by default
+-  set (WAMR_BUILD_LIB_PTHREAD 0)
++  set (WAMR_BUILD_LIB_PTHREAD 1)
+ endif ()
+ 
+ if (NOT DEFINED WAMR_BUILD_LIB_WASI_THREADS)
+@@ -141,6 +141,11 @@
+   endif ()
+ endif ()
+ 
++set (RUNTIME_SOURCE_ALL
++    ${WAMR_ROOT_DIR}/product-mini/platforms/posix/main.c
++    ${UNCOMMON_SHARED_SOURCE}
++)
++
+ # The following flags are to enhance security, but it may impact performance,
+ # we disable them by default.
+ #if (WAMR_BUILD_TARGET MATCHES "X86_.*" OR WAMR_BUILD_TARGET STREQUAL "AMD_64")
+diff -ruN a/product-mini/platforms/posix/main.c b/product-mini/platforms/posix/main.c
+--- a/product-mini/platforms/posix/main.c	2023-12-09 16:02:07.952132556 -0800
++++ b/product-mini/platforms/posix/main.c	2023-12-14 14:43:01.173994072 -0800
+@@ -6,6 +6,11 @@
+ #ifndef _GNU_SOURCE
+ #define _GNU_SOURCE
+ #endif
++
++#if !defined(BH_HAS_DLFCN)
++#define BH_HAS_DLFCN 1
++#endif
++
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
