@@ -6,7 +6,7 @@ PKG_RELEASE:=1
 PKG_SOURCE:=WAMR-$(PKG_VERSION).tar.gz
 
 PKG_SOURCE_URL:=https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags
-PKG_HASH:=0305be96735e8aaa7beb81a78a59f601f608aa866d2da0db5b9efc0e7e4a64e0
+PKG_HASH:=d328fc1e19c54cfdb4248b861de54b62977b9b85c0a40eaaeb9cd9b628c0c788
 CMAKE_INSTALL:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/wasm-micro-runtime-WAMR-$(PKG_VERSION)
