@@ -913,15 +913,7 @@ ipq9574_ac_power()
 	ifup lan
 
 # Wifi Power-up Sequence
-	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
-		insmod ath11k
-		insmod ath11k_ahb
-		insmod ath11k_pci
-		sleep 2
-		wifi up
-	else
-		wifi load
-	fi
+	wifi_load.sh load
 
 # SD/MMC Power-UP sequence
 	local emmcblock="$(find_mmc_part "rootfs")"
@@ -943,16 +935,7 @@ ipq9574_battery_power()
 	echo "Entering Battery Mode..."
 
 # Wifi Power-down Sequence
-	lsmod | grep ath11k > /dev/null
-	if [ $? -eq 0 ]; then
-		wifi down
-		sleep 2
-		rmmod ath11k_pci
-		rmmod ath11k_ahb
-		rmmod ath11k
-	else
-		wifi unload
-	fi
+	wifi_load.sh unload
 
 # PCIe Power-Down Sequence
 	if [ -f /sys/bus/pci/rcremove ]
@@ -1128,13 +1111,7 @@ ipq5332_ac_power()
 	ifup lan
 
 # Wifi Power-up Sequence
-	if [ -f /lib/modules/$(uname -r)/ath12k.ko ]; then
-		insmod ath12k
-		sleep 2
-		wifi up
-	else
-		wifi load
-	fi
+	wifi_load.sh load
 
 # SD/MMC Power-UP sequence
 	local emmcblock="$(find_mmc_part "rootfs")"
@@ -1156,14 +1133,7 @@ ipq5332_battery_power()
 	echo "Entering Battery Mode..."
 
 # Wifi Power-down Sequence
-	lsmod | grep ath12k > /dev/null
-	if [ $? -eq 0 ]; then
-		wifi down
-		sleep 2
-		rmmod ath12k
-	else
-		wifi unload
-	fi
+	wifi_load.sh unload
 
 # PCIe Power-Down Sequence
 	if [ -f /sys/bus/pci/rcremove ]

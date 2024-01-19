@@ -22,42 +22,18 @@ type ipq_board_name &>/dev/null  || ipq_board_name() {
 
 . /lib/functions.sh
 
-ipq9574_wifi_load()
+ipq_wifi_load()
 {
 	if [ -f /lib/modules/$(uname -r)/ath11k.ko ]; then
 		insmod ath11k
 		insmod ath11k_ahb
 		insmod ath11k_pci
+		if [ -f /lib/modules/$(uname -r)/ath12k.ko ]; then
+			insmod ath12k
+		fi
 		sleep 2
 		wifi up
-	else
-		wifi load
-	fi
-}
-
-ipq9574_wifi_unload()
-{
-	lsmod | grep ath11k > /dev/null
-	if [ $? -eq 0 ]; then
-		wifi down
-		sleep 2
-		rmmod ath11k_pci
-		rmmod ath11k_ahb
-		rmmod ath11k
-	else
-		wifi unload
-	fi
-}
-
-ipq9574_wifi_reload()
-{
-	ipq9574_wifi_unload
-	ipq9574_wifi_load
-}
-
-ipq5332_wifi_load()
-{
-	if [ -f /lib/modules/$(uname -r)/ath12k.ko ]; then
+	elif [ -f /lib/modules/$(uname -r)/ath12k.ko ]; then
 		insmod ath12k
 		sleep 2
 		wifi up
@@ -66,10 +42,18 @@ ipq5332_wifi_load()
 	fi
 }
 
-ipq5332_wifi_unload()
+ipq_wifi_unload()
 {
-	lsmod | grep ath12k > /dev/null
-	if [ $? -eq 0 ]; then
+	if [ $(lsmod | grep ath11k | wc -l) -gt 0 ]; then
+		wifi down
+		sleep 2
+		rmmod ath11k_ahb
+		rmmod ath11k_pci
+		rmmod ath11k
+		if [ $(lsmod | grep ath12k | wc -l) -gt 0 ]; then
+			rmmod ath12k
+		fi
+	elif [ $(lsmod | grep ath12k | wc -l) -gt 0 ]; then
 		wifi down
 		sleep 2
 		rmmod ath12k
@@ -78,33 +62,27 @@ ipq5332_wifi_unload()
 	fi
 }
 
-ipq5332_wifi_reload()
+ipq_wifi_reload()
 {
-	ipq5332_wifi_unload
-	ipq5332_wifi_load
+	ipq_wifi_unload
+	ipq_wifi_load
 }
 
 board=$(ipq_board_name)
 case "$1" in
 	load)
 		case "$board" in
-		ap-al* | db-al*)
-			ipq9574_wifi_load ;;
-		ap-mi* | db-mi*)
-			ipq5332_wifi_load ;;
+		ap-al* | db-al* | ap-mi* | db-mi*)
+			ipq_wifi_load ;;
 		esac ;;
 	unload)
 		case "$board" in
-		ap-al* | db-al*)
-			ipq9574_wifi_unload ;;
-		ap-mi* | db-mi*)
-			ipq5332_wifi_unload ;;
+		ap-al* | db-al* | ap-mi* | db-mi*)
+			ipq_wifi_unload ;;
 		esac ;;
 	reload)
 		case "$board" in
-		ap-al* | db-al*)
-			ipq9574_wifi_reload ;;
-		ap-mi* | db-mi*)
-			ipq5332_wifi_reload ;;
+		ap-al* | db-al* | ap-mi* | db-mi*)
+			ipq_wifi_reload ;;
 		esac ;;
 esac
