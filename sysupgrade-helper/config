@@ -160,6 +160,7 @@ CONFIG_DM_SERIAL=y
 CONFIG_DM_GPIO=y
 # CONFIG_ARMV8_MULTIENTRY is not set
 # CONFIG_QCA_COMMON is not set
+# CONFIG_SKIP_RESET is not set
 
 #
 # ARM debug
