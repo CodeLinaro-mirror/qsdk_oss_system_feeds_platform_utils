@@ -27,6 +27,10 @@ HOSTLDFLAGS = \
 	      -L$(STAGING_DIR)/usr/lib \
 	      -znow -zrelro -pie -Werror
 
+ifneq ($(CONFIG_TARGET_ipq54xx),)
+  IMG_FLAG = "-DIPQ54XX"
+endif
+
 SHA_FLAG = "-DUSE_SHA256"
 
 ifneq ($(CONFIG_TARGET_ipq95xx)$(CONFIG_TARGET_ipq807x)$(CONFIG_TARGET_ipq50xx),)
@@ -50,7 +54,7 @@ endef
 
 MAKE_FLAGS += \
 	CROSS_BUILD_TOOLS=y \
-	HOSTCFLAGS="$(SHA_FLAG) -fPIC" \
+	HOSTCFLAGS="$(SHA_FLAG) $(IMG_FLAG) -fPIC" \
 	HOSTLDFLAGS="$(HOSTLDFLAGS) -lpthread -lcrypto -lssl" \
 	HOSTEXTRACFLAGS="$(HOST_EXTRACFLAGS)" \
 	no-dot-config-targets=tools-only \
