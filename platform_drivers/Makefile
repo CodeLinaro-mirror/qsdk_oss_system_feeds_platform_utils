@@ -687,3 +687,17 @@ define KernelPackage/usb-phy-ipq5018/description
 endef
 
 $(eval $(call KernelPackage,usb-phy-ipq5018))
+
+define KernelPackage/llcc_perfmon
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=LLCC Perfmon Driver
+  DEPENDS+=@TARGET_ipq54xx
+  KCONFIG:=CONFIG_QCOM_LLCC_PERFMON
+  FILES:=$(LINUX_DIR)/drivers/soc/qcom/llcc_perfmon.ko
+endef
+
+define KernelPackage/llcc_perfmon/description
+  LLCC Perfmonance driver support
+endef
+
+$(eval $(call KernelPackage,llcc_perfmon))
