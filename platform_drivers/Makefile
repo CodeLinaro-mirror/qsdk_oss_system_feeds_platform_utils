@@ -356,3 +356,17 @@ define KernelPackage/llcc_perfmon/description
 endef
 
 $(eval $(call KernelPackage,llcc_perfmon))
+
+define KernelPackage/qcom_eud
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=QCOM EUD Driver
+  DEPENDS+=@TARGET_ipq53xx +kmod-usb-gadget +kmod-usb-roles
+  KCONFIG:=CONFIG_USB_QCOM_EUD
+  FILES:=$(LINUX_DIR)/drivers/usb/misc/qcom_eud.ko
+endef
+
+define KernelPackage/qcom_eud/description
+  QCOM EUD driver support
+endef
+
+$(eval $(call KernelPackage,qcom_eud))
