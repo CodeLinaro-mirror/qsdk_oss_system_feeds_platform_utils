@@ -47,6 +47,10 @@ boot() {
 			. /etc/init.d/wifi_fw_mount
 			mount_wifi_fw "IPQ5332"
 			;;
+		*"DevSoC"*)
+			. /etc/init.d/wifi_fw_mount
+			mount_wifi_fw "devsoc"
+			;;
 		esac
 	fi
 
