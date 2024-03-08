@@ -524,3 +524,5 @@ CONFIG_REGEX=y
 # CONFIG_LZMA is not set
 # CONFIG_ERRNO_STR is not set
 # CONFIG_UNIT_TEST is not set
+
+# CONFIG_LIST_OF_CONFIG_NAMES_SUPPORT is not set
