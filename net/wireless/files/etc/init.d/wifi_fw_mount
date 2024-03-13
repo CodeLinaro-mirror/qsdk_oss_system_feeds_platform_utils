@@ -266,7 +266,7 @@ mount_wifi_fw (){
 		ln -s /lib/firmware/$arch/qdss_trace_config.bin .
 
 		case $board_name in
-			ap-mi01.3|ap-mi01.3-c3|ap-mi04.1|ap-mi01.2|ap-mi01.2-c2|ap-mi01.6|ap-mi01.12|ap-mi01.14)
+			ap-mi01.3|ap-mi01.3-c3|ap-mi01.3-c2|ap-mi04.1|ap-mi01.2|ap-mi01.2-c2|ap-mi01.6|ap-mi01.12|ap-mi01.14)
 				#caldata.bin --> ahb 2GHz
 				if [ -e /lib/firmware/IPQ5332/caldata.bin ]; then
 					ln -sf /lib/firmware/IPQ5332/caldata.bin cal-ahb-c000000.wifi.bin
@@ -319,7 +319,7 @@ mount_wifi_fw (){
 						ln -sf /lib/firmware/qcn6432/caldata_1.b00b0 cal-ahb-soc@0:wifi1@c0000000.bin
 					fi
 				;;
-				ap-mi01.14)
+				ap-mi01.14|ap-mi01.3-c2)
 					if [ -e /lib/firmware/qcn6432/caldata_1.b0060 ]; then
 						ln -sf /lib/firmware/qcn6432/caldata_1.b0060 cal-ahb-soc@0:wifi1@c0000000.bin
 					fi
