@@ -698,3 +698,19 @@ define KernelPackage/usb-phy-ipq5018/description
 endef
 
 $(eval $(call KernelPackage,usb-phy-ipq5018))
+
+define KernelPackage/coresight-stream-sock
+  TITLE:=Add Coresight network stream module
+  KCONFIG:=CONFIG_CORESIGHT_STREAM
+  DEPENDS:=\
+	+kmod-udptunnel4 \
+	+IPV6:kmod-udptunnel6
+  FILES:=$(LINUX_DIR)/drivers/hwtracing/coresight/coresight-stream.ko
+endef
+
+define KernelPackage/coresight-stream-sock/description
+  Add Coresight network stream module
+endef
+
+$(eval $(call KernelPackage,coresight-stream-sock))
+
