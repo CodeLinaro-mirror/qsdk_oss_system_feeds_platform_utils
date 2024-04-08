@@ -1,16 +1,16 @@
-From 6cb1ebc71eb091e59a9396b445233d2c9ff2311b Mon Sep 17 00:00:00 2001
+From 91ca4df0d5a7f8f1b4985ace2e52a5461d3c4352 Mon Sep 17 00:00:00 2001
 From: Gokul Sriram Palanisamy <quic_gokulsri@quicinc.com>
 Date: Sun, 24 Oct 2021 08:22:59 +0530
 Subject: [PATCH] qdl: Enable qdl device over MHI FIREHOSE channel
 
 Signed-off-by: Gokul Sriram Palanisamy <quic_gokulsri@quicinc.com>
 ---
- firehose.c |  2 ++
- qdl.c      | 68 +++++++++++++++++++++++++++++++++++++++++++++++++++++---------
- 2 files changed, 61 insertions(+), 9 deletions(-)
+ firehose.c |  4 +++-
+ qdl.c      | 68 ++++++++++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 62 insertions(+), 10 deletions(-)
 
 diff --git a/firehose.c b/firehose.c
-index 9e47f64..b9a15e1 100644
+index 9e47f64..c330654 100644
 --- a/firehose.c
 +++ b/firehose.c
 @@ -138,6 +138,8 @@ static int firehose_read(struct qdl_device *qdl, int timeout_ms,
@@ -22,6 +22,15 @@ index 9e47f64..b9a15e1 100644
  		}
  		buf[n] = '\0';
  
+@@ -417,7 +419,7 @@ static int firehose_program(struct qdl_device *qdl, struct program *program, int
+ 		fprintf(stderr, "[PROGRAM] failed\n");
+ 	} else if (t) {
+ 		fprintf(stderr,
+-			"[PROGRAM] flashed \"%s\" successfully at %ldkB/s\n",
++			"[PROGRAM] flashed \"%s\" successfully at %lldkB/s\n",
+ 			program->label,
+ 			program->sector_size * num_sectors / t / 1024);
+ 	} else {
 diff --git a/qdl.c b/qdl.c
 index 256ca96..43fa65a 100644
 --- a/qdl.c
@@ -131,5 +140,5 @@ index 256ca96..43fa65a 100644
  	ret = firehose_run(&qdl, incdir, storage);
  	if (ret < 0)
 -- 
-2.7.4
+2.34.1
 
