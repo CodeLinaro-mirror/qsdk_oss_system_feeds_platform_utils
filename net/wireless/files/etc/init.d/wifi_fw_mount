@@ -408,6 +408,12 @@ mount_wifi_fw (){
 				ap-mi01.14)
 					caldata_symlink_creation "$board_name" "3"
 				;;
+				ap-al02-c20)
+					caldata_symlink_creation "$board_name" "1"
+					caldata_symlink_creation "$board_name" "2"
+					caldata_symlink_creation "$board_name" "3"
+					caldata_symlink_creation "$board_name" "4"
+				;;
 				*)
 					#No sym links
 				;;
