@@ -1,12 +1,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libwamr
-PKG_VERSION:=1.2.2
+PKG_VERSION:=1.3.2
 PKG_RELEASE:=1
 PKG_SOURCE:=WAMR-$(PKG_VERSION).tar.gz
 
 PKG_SOURCE_URL:=https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags
-PKG_HASH:=d328fc1e19c54cfdb4248b861de54b62977b9b85c0a40eaaeb9cd9b628c0c788
+PKG_HASH:=58961ba387ed66ace2dd903597f1670a42b8154a409757ae6f06f43fe867a98c
 CMAKE_INSTALL:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/wasm-micro-runtime-WAMR-$(PKG_VERSION)
