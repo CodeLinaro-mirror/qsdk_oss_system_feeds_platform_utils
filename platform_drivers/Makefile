@@ -397,7 +397,7 @@ $(eval $(call KernelPackage,usb-phy-ipq807x))
 
 define KernelPackage/usb-dwc3-internal
   TITLE:=DWC3 USB controller driver
-  DEPENDS:=+USB_GADGET_SUPPORT:kmod-usb-gadget
+  DEPENDS:=+USB_GADGET_SUPPORT:kmod-usb-gadget +USB_GADGET_SUPPORT:kmod-usb-roles
   KCONFIG:= \
 	CONFIG_USB_DWC3 \
 	CONFIG_USB_DWC3_HOST=n \
