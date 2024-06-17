@@ -19,7 +19,11 @@
 [ -e /lib/ipq806x.sh ] && . /lib/ipq806x.sh
 
 type ipq806x_board_name &>/dev/null  || ipq806x_board_name() {
-	echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g'
+	local board="$(echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g')"
+	if [[ "$board" == *rdp* ]]; then
+		board=$(cat /tmp/sysinfo/board_name | awk -F, '{print $2}')
+	fi
+	echo "$board"
 }
 
 . /lib/functions.sh
