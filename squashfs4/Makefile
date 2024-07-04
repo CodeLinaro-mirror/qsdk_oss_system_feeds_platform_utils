@@ -7,14 +7,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=squashfs4
-PKG_VERSION:=4.2
+PKG_CPE_ID:=cpe:/a:phillip_lougher:squashfs
+PKG_VERSION:=4.6.1
+PKG_RELEASE=3
 
-PKG_SOURCE:=squashfs$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/squashfs
-PKG_MD5SUM:=1b7a781fb4cf8938842279bd3e8ee852
-PKG_CAT:=zcat
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/plougher/squashfs-tools
+PKG_SOURCE_DATE:=2023-03-26
+PKG_SOURCE_VERSION:=d8cb82d9840330f9344ec37b992595b5d7b44184
+PKG_MIRROR_HASH:=e84026de1ab187f3f76d1b781a29259d818f887e1651225f850a62d6f90b1b9e
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/squashfs$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 
 
