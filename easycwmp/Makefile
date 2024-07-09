@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easycwmp
-PKG_VERSION:=1.6.0
+PKG_VERSION:=1.8.6
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://easycwmp.org/download/
-PKG_MD5SUM:=18fb7f850ae9cf8c9d909921275119ae
+PKG_MD5SUM:=d25db6ff57e12034b36fec3d43ce2566
 
 PKG_FIXUP:=autoreconf
 
