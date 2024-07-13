@@ -76,7 +76,7 @@ board=$(ipq_board_name)
 case "$1" in
 	load)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
 			ipq_wifi_load ;;
 		esac ;;
 	unload)
@@ -86,7 +86,7 @@ case "$1" in
 		esac ;;
 	reload)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
 			ipq_wifi_reload ;;
 		esac ;;
 esac
