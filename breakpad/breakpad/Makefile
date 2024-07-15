@@ -9,6 +9,7 @@ PKG_SOURCE_URL:=https://chromium.googlesource.com/breakpad/breakpad
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=c46151db0ffd1a8dae914e45f1212ef427f61ed3
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_SUBMODULES:=skip
 PKG_MD5SUM:=skip
 
 PKG_BUILD_DEPENDS:=breakpad/host
@@ -34,6 +35,8 @@ define Download/lss
   URL=https://chromium.googlesource.com/linux-syscall-support
   SUBDIR=lss-1.0
   FILE=lss-1.0.tar.gz
+  SUBMODULES:=skip
+  SOURCE_VERSION=8048ece6c16c91acfe0d36d1d3cc0890ab6e945c
   VERSION=8048ece6c16c91acfe0d36d1d3cc0890ab6e945c
 endef
 
