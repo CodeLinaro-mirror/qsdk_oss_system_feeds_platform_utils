@@ -20,6 +20,7 @@ OTHER_MENU:=Other modules
 define KernelPackage/bootconfig
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Bootconfig partition for failsafe
+  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx
   KCONFIG:=CONFIG_BOOTCONFIG_PARTITION
   FILES:=$(LINUX_DIR)/drivers/platform/msm/bootconfig.ko@lt4.4 \
 	$(LINUX_DIR)/drivers/platform/ipq/bootconfig.ko@ge4.4
