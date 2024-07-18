@@ -19,7 +19,7 @@ define Package/$(PKG_NAME)
   CATEGORY:= Libraries
   MAINTAINER:=Confluent
   TITLE:=Library implementing the client protocol for Kafka
-  DEPENDS:= +libpthread +libcurl +zlib +libopenssl +libstdcpp
+  DEPENDS:= +libpthread +libcurl +zlib +libopenssl +libstdcpp +liblz4
 endef
 
 define Package/$(PKG_NAME)/description
