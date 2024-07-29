@@ -17,7 +17,11 @@
 #
 
 type ipq_board_name &>/dev/null  || ipq_board_name() {
-	echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g'
+	local board="$(echo $(board_name) | sed 's/^\([^-]*-\)\{1\}//g')"
+	if [[ "$board" == *rdp* ]]; then
+		board=$(cat /tmp/sysinfo/board_name | awk -F, '{print$2}')
+	fi
+	echo "$board"
 }
 
 . /lib/functions.sh
@@ -72,7 +76,7 @@ board=$(ipq_board_name)
 case "$1" in
 	load)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
 			ipq_wifi_load ;;
 		esac ;;
 	unload)
@@ -82,7 +86,7 @@ case "$1" in
 		esac ;;
 	reload)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
 			ipq_wifi_reload ;;
 		esac ;;
 esac
