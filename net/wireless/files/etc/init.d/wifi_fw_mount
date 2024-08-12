@@ -255,7 +255,8 @@ mount_wifi_fw (){
 	if [ -e /lib/firmware/$arch/WIFI_FW/board-2.bin ]; then
 
 		case "$arch" in
-			IPQ5332)
+			IPQ5332 |\
+			IPQ5424)
 				mkdir -p /lib/firmware/ath12k/$arch/$hw
 				cd /lib/firmware/ath12k/$arch/$hw/
 				;;
