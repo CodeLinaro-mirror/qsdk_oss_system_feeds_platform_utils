@@ -81,7 +81,7 @@ case "$1" in
 		esac ;;
 	unload)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
 			ipq_wifi_unload ;;
 		esac ;;
 	reload)
