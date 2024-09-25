@@ -12,7 +12,7 @@ Index: wasm-micro-runtime-WAMR-1.3.2/CMakeLists.txt
 ===================================================================
 --- wasm-micro-runtime-WAMR-1.3.2.orig/CMakeLists.txt
 +++ wasm-micro-runtime-WAMR-1.3.2/CMakeLists.txt
-@@ -17,6 +17,10 @@
+@@ -17,6 +17,10 @@ set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS
  
  set (CMAKE_C_STANDARD 99)
  
@@ -23,7 +23,7 @@ Index: wasm-micro-runtime-WAMR-1.3.2/CMakeLists.txt
  # Set WAMR_BUILD_TARGET, currently values supported:
  # "X86_64", "AMD_64", "X86_32", "AARCH64[sub]", "ARM[sub]", "THUMB[sub]",
  # "MIPS", "XTENSA", "RISCV64[sub]", "RISCV32[sub]"
-@@ -82,7 +86,7 @@
+@@ -82,7 +86,7 @@ endif ()
  
  if (NOT DEFINED WAMR_BUILD_LIB_PTHREAD)
    # Disable pthread library by default
@@ -32,7 +32,7 @@ Index: wasm-micro-runtime-WAMR-1.3.2/CMakeLists.txt
  endif ()
  
  if (NOT DEFINED WAMR_BUILD_LIB_WASI_THREADS)
-@@ -154,6 +158,8 @@
+@@ -154,6 +158,8 @@ if (MINGW)
    target_link_libraries (iwasm_shared -lWs2_32)
  endif ()
  
@@ -91,3 +91,18 @@ Index: wasm-micro-runtime-WAMR-1.3.2/product-mini/platforms/posix/main.c
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
+Index: wasm-micro-runtime-WAMR-1.3.2/wamr-compiler/build_llvm.sh
+===================================================================
+--- wasm-micro-runtime-WAMR-1.3.2.orig/wamr-compiler/build_llvm.sh
++++ wasm-micro-runtime-WAMR-1.3.2/wamr-compiler/build_llvm.sh
+@@ -3,5 +3,8 @@
+ # Copyright (C) 2020 Intel Corporation. All rights reserved.
+ # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ 
+-/usr/bin/env python3 -m pip install --user -r ../build-scripts/requirements.txt
+-/usr/bin/env python3 ../build-scripts/build_llvm.py "$@"
++which python3
++python3 -V
++python3 -m pip install -r ../build-scripts/requirements.txt
++python3 ../build-scripts/build_llvm.py "$@"
++
