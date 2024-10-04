@@ -129,6 +129,13 @@ mount_wifi_fw (){
 		if [ "$board_name" == "ap" ]; then
 			board_name=$(cat /tmp/sysinfo/board_name | awk -F, '{print$2}')
 		fi
+
+		case $board_name in
+                        *rdp*)
+                        board_name=$(echo $board_name | cut -f2 -d-)
+                        ;;
+                esac
+
 	}
 
 	[ -e /sys/firmware/devicetree/base/AUTO_MOUNT ] && {
@@ -330,6 +337,21 @@ mount_wifi_fw (){
 				#No sym links
 			;;
 		esac
+
+		case $board_name in
+                        rdp466 |\
+			rdp487)
+                                #caldata.bin --> ahb 2GHz
+                                if [ -e /lib/firmware/IPQ5424/caldata.bin ]; then
+                                        ln -sf /lib/firmware/IPQ5424/caldata.bin cal-ahb-c000000.wifi.bin
+                                fi
+                        ;;
+                        *)
+
+                                #No sym links
+                        ;;
+                esac
+
 	fi
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn6432 ]; then
@@ -484,6 +506,19 @@ mount_wifi_fw (){
 					#No sym links
 				;;
 			esac
+
+			case $board_name in
+                                rdp466)
+                                        caldata_symlink_creation "$board_name" "2"
+                                        caldata_symlink_creation "$board_name" "3"
+				;;
+                                rdp487)
+                                        caldata_symlink_creation "$board_name" "2"
+				;;
+				*)
+					#No sm links
+				;;
+                        esac
 		fi
 	fi
 
