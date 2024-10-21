@@ -19,7 +19,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sysupgrade-helper
   SECTION:=boot
   CATEGORY:=Boot Loaders
-  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx +losetup +libopenssl
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx +losetup +libopenssl
   TITLE:=U-boot images tools (dumpimage, mkimage)
 endef
 
@@ -43,12 +43,14 @@ define Build/Configure
 	echo "CONFIG_FIT_PRINT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
 	echo "CONFIG_TOOLS_FIT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
 	echo "CONFIG_TOOLS_FIT_PRINT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_SYSUPGRADE_HELPER=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
 	touch $(PKG_BUILD_DIR)/include/config/auto.conf
 	mkdir -p $(PKG_BUILD_DIR)/include/generated
 	echo "#define CONFIG_FIT_PRINT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
 	echo "#define CONFIG_FIT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
 	echo "#define CONFIG_TOOLS_FIT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
 	echo "#define CONFIG_TOOLS_FIT_PRINT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_SYSUPGRADE_HELPER 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
 	touch $(PKG_BUILD_DIR)/include/generated/autoconf.h
 endef
 

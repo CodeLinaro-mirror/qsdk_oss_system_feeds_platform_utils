@@ -13,6 +13,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/wasm-micro-runtime-WAMR-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
+include $(INCLUDE_DIR)/host-build.mk
 
 define Package/$(PKG_NAME)
   SECTION:=libs
@@ -41,4 +42,23 @@ define Package/${PKG_NAME}/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libiwasm.so $(1)/usr/lib
 endef
 
+define Host/Prepare
+	@echo "Building in Makefile..."
+	cd $(PKG_BUILD_DIR)/wamr-compiler && \
+	mkdir -p build && \
+	./build_llvm.sh && cd build && cmake ..
+endef
+
+TARGET_CFLAGS += -DCMAKE_C_COMPILER=$(HOSTCC) -DCMAKE_CXX_COMPILER=$(HOSTCXX)
+
+define Host/Compile
+	$(MAKE) -C $(PKG_BUILD_DIR)/wamr-compiler/build CFLAGS="$(TARGET_CFLAGS)"
+endef
+
+define Host/Install
+	$(INSTALL_DIR) $(STAGING_DIR_HOSTPKG)/bin/
+	$(CP) $(PKG_BUILD_DIR)/wamr-compiler/build/wamrc $(STAGING_DIR_HOSTPKG)/bin/
+endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call HostBuild))
