@@ -1,6 +1,7 @@
 #!/bin/sh /etc/rc.common
 #
 # Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
+# Copyright (c) 2024, Qualcomm Innovation Center, Inc. All rights reserved.
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
@@ -325,6 +326,8 @@ mount_wifi_fw (){
 		esac
 		ln -s /lib/firmware/$arch/WIFI_FW/board-2.bin .
 		ln -s /lib/firmware/$arch/qdss_trace_config.bin .
+		ln -s /lib/firmware/$arch/WIFI_FW/q6_fw*  .
+		ln -s /lib/firmware/$arch/WIFI_FW/iu_fw*  .
 
 		case $board_name in
 			ap-mi01.3|ap-mi01.3-c3|ap-mi01.3-c2|ap-mi04.1|ap-mi04.1-c2|ap-mi01.2|ap-mi01.2-c2|ap-mi01.6|ap-mi01.12|ap-mi01.14|ap-mi04.3)
@@ -360,6 +363,8 @@ mount_wifi_fw (){
 			cd /lib/firmware/ath12k/QCN6432/hw1.0/
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/board-2.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/qdss_trace_config.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn6432/iu_fw* .
+			ln -s /lib/firmware/$arch/WIFI_FW/q6_fw* .
 
 			case $board_name in
 				ap-mi01.3)
