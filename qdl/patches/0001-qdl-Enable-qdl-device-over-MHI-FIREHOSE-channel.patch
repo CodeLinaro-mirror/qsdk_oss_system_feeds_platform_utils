@@ -59,7 +59,7 @@ index 256ca96..43fa65a 100644
  
 +static int mhifirehosedev_open(struct qdl_device *qdl)
 +{
-+	qdl->fd = open("/dev/wwan0p1FIREHOSE", O_RDWR | O_NOCTTY | O_NONBLOCK);
++	qdl->fd = open("/dev/wwan0firehose0", O_RDWR | O_NOCTTY | O_NONBLOCK);
 +	return 0;
 +}
 +
