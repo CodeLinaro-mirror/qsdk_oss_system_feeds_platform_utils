@@ -350,7 +350,8 @@ mount_wifi_fw (){
 
 		case $board_name in
                         rdp466 |\
-			rdp487)
+			rdp487 |\
+			rdp464)
                                 #caldata.bin --> ahb 2GHz
                                 if [ -e /lib/firmware/IPQ5424/caldata.bin ]; then
                                         ln -sf /lib/firmware/IPQ5424/caldata.bin cal-ahb-c000000.wifi.bin
@@ -526,6 +527,11 @@ mount_wifi_fw (){
 				;;
                                 rdp487)
                                         caldata_symlink_creation "$board_name" "2"
+				;;
+				rdp464)
+					caldata_symlink_creation "$board_name" "2"
+					caldata_symlink_creation "$board_name" "3"
+					caldata_symlink_creation "$board_name" "4"
 				;;
 				*)
 					#No sm links
