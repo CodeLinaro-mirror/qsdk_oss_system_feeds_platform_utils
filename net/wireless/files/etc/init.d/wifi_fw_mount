@@ -634,7 +634,7 @@ mount_bt_fw (){
 
 boot() {
  . /lib/functions/system.sh
-	local platform=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $1}')
+	local platform=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F[' '/] '{print $1}')
 	local board=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $2}')
 
 	if [[ "$platform" == *IPQ807x* ]]; then
@@ -763,7 +763,7 @@ stop_bt_fw() {
 }
 
 stop() {
-	local platform=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $1}')
+	local platform=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F[' '/] '{print $1}')
 	local board=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $2}')
 
 	if [ "$platform" == "IPQ807x" ]; then
