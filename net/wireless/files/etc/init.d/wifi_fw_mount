@@ -774,25 +774,25 @@ stop() {
 	local platform=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F[' '/] '{print $1}')
 	local board=$(grep -o "IPQ.*" /proc/device-tree/model | awk -F/ '{print $2}')
 
-	if [ "$platform" == "IPQ807x" ]; then
+	if [[ "$platform" == *IPQ807x* ]]; then
 		stop_wifi_fw "IPQ8074"
-	elif [ "$platform" == "IPQ8074" ]; then
+	elif [[ "$platform" == *IPQ8074* ]]; then
 		stop_wifi_fw "IPQ8074"
-	elif [ "$platform" == "IPQ9574" ]; then
+	elif [[ "$platform" == *IPQ9574* ]]; then
 		stop_wifi_fw "IPQ9574"
-	elif [ "$platform" == "IPQ6018" ]; then
+	elif [[ "$platform" == *IPQ6018* ]]; then
 		stop_wifi_fw "IPQ6018"
 		case "$board" in
 			AP-CP01*)
 				stop_adsp_fw "IPQ6018"
 				;;
 		esac
-	elif [ "$platform" == "IPQ5018" ]; then
+	elif [[ "$platform" == *IPQ5018* ]]; then
 		stop_wifi_fw "IPQ5018"
 		stop_bt_fw "IPQ5018"
-	elif [ "$platform" == "IPQ5332" ]; then
+	elif [[ "$platform" == *IPQ5332* ]]; then
 		stop_wifi_fw "IPQ5332"
-	elif [ "$platform" == "IPQ5424" ]; then
+	elif [[ "$platform" == *IPQ5424* ]]; then
 		stop_wifi_fw "IPQ5424"
 	else
 		local emu=$(grep -o "EMULATION" /proc/device-tree/model)
