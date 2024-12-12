@@ -41,7 +41,7 @@ endef
 TARGET_CFLAGS += -D_GNU_SOURCE \
 		-fstack-protector \
 		-Wno-error=int-conversion \
-		-Wno-error=format-security"
+		-Wno-error=format-security
 
 CONFIGURE_ARGS = \
         --host=$(GNU_HOST_NAME) \
