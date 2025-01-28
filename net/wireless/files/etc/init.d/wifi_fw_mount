@@ -67,12 +67,11 @@ get_partname() {
 	fi
 
 	local boot_set=$(grep "Boot-set" /tmp/bootconfig_members.txt | awk -F: '{print $2}')
-	local image_status_A=$(grep "Image-set-status-A" /tmp/bootconfig_members.txt | awk -F: '{print $2}')
-	local image_status_B=$(grep "Image-set-status-B" /tmp/bootconfig_members.txt | awk -F: '{print $2}')
+	local image_status=$(grep "Image-set-status" /tmp/bootconfig_members.txt | awk -F: '{print $2}')
 
-	if [ "$boot_set" -eq 0 ] && [ "$image_status_A" -ne 0 ]; then
+	if [ "$boot_set" -eq 0 ] && [ "$image_status" -eq 1 ]; then
 		part_name="1"
-	elif [ "$boot_set" -eq 1 ] && [ "$image_status_B" -eq 0 ]; then
+	elif [ "$boot_set" -eq 1 ] && [ "$image_status" -ne 2 ]; then
 		part_name="1"
 	fi
 
