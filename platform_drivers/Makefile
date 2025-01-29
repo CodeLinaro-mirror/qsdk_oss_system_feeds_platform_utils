@@ -375,18 +375,15 @@ $(eval $(call KernelPackage,usb-f_ss_lb))
 
 define KernelPackage/usb-phy-ipq807x
   TITLE:=DWC3 USB QTI PHY drivers for IPQ807x based targets
-  DEPENDS:=@TARGET_ipq||TARGET_ipq807x||TARGET_ipq95xx||TARGET_ipq60xx||TARGET_ipq54xx
+  DEPENDS:=@TARGET_ipq||TARGET_ipq95xx||TARGET_ipq54xx
   KCONFIG:= \
 	CONFIG_PHY_QCOM_QUSB2 \
 	CONFIG_PHY_QCOM_QMP=y \
-	CONFIG_PHY_QCOM_QMP_USB=y \
-	CONFIG_USB_QCOM_QUSB_PHY \
-	CONFIG_USB_QCOM_QMP_PHY
+	CONFIG_PHY_QCOM_QMP_USB
   FILES:= \
-	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-qusb2.ko@ge5.4 \
-	$(LINUX_DIR)/drivers/usb/phy/phy-msm-qusb.ko@le4.4 \
-	$(LINUX_DIR)/drivers/usb/phy/phy-msm-ssusb-qmp.ko@le4.4
-  AUTOLOAD:=$(call AutoLoad,85,phy-qcom-qusb2 phy-msm-qusb phy-msm-ssusb-qmp)
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-qusb2.ko \
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-qmp-usb.ko
+  AUTOLOAD:=$(call AutoLoad,85,phy-qcom-qusb2 phy-qcom-qmp-usb)
   $(call AddPlatformDepends/usb)
 endef
 
