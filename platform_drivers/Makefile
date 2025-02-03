@@ -47,21 +47,6 @@ endef
 
 $(eval $(call KernelPackage,qseecom))
 
-define KernelPackage/fw-auth-test
-  CATEGORY:=Kernel modules
-  SUBMENU:=$(OTHER_MENU)
-  TITLE:=Test module for Wifi FW Authentication
-  KCONFIG:=CONFIG_FW_AUTH_TEST
-  FILES:=$(LINUX_DIR)/drivers/misc/fw_auth_test.ko
-endef
-
-define KernelPackage/fw-auth-test/description
-  This test module provides sysfs interface to provide data to test
-the FW authentication API and display the results.
-endef
-
-$(eval $(call KernelPackage,fw-auth-test))
-
 define KernelPackage/test-udelay
   CATEGORY:=Kernel modules
   SUBMENU:=$(OTHER_MENU)
@@ -107,19 +92,6 @@ $(eval $(call KernelPackage,sound-soc-ipq))
 
 VIDEO_MENU:=Video Support
 
-define KernelPackage/qpic_panel_ili_qvga
-  SUBMENU:=$(VIDEO_MENU)
-  TITLE:=ILI QVGA Panel support
-  KCONFIG:=CONFIG_FB_MSM_QPIC_ILI_QVGA_PANEL
-  FILES:=$(LINUX_DIR)/drivers/video/msm/mdss/qpic_panel_ili_qvga.ko
-endef
-
-define KernelPackage/qpic_panel_ili_qvga/description
- Kernel support for qpic_panel_ili_qvga  lcd panel
-endef
-
-$(eval $(call KernelPackage,qpic_panel_ili_qvga))
-
 define KernelPackage/qpic_panel_ertft
   SUBMENU:=$(VIDEO_MENU)
   TITLE:=ERT TFT  Panel support
@@ -153,22 +125,6 @@ define KernelPackage/crypto-aes-internal
 endef
 
 $(eval $(call KernelPackage,crypto-aes-internal))
-
-
-define KernelPackage/crypto-qcrypto
-  TITLE:=QTI crypto CE engine
-  KCONFIG:= \
-	CONFIG_CRYPTO_DEV_QCRYPTO \
-	CONFIG_CRYPTO_DEV_QCEDEV
-  FILES:= \
-	$(LINUX_DIR)/drivers/crypto/msm/qcrypto.ko \
-	$(LINUX_DIR)/drivers/crypto/msm/qcedev.ko
-  AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq806x||TARGET_ipq40xx||TARGET_ipq_ipq40xx +kmod-crypto-manager +kmod-crypto-aes +kmod-crypto-hash +kmod-crypto-des
-  $(call AddPlatformDepends/crypto)
-endef
-
-$(eval $(call KernelPackage,crypto-qcrypto))
 
 define KernelPackage/crypto-qce
   TITLE:=QTI Crypto Engine (QCE)
@@ -211,22 +167,6 @@ define AddPlatformDepends/usb
   DEPENDS+=+kmod-usb-core $(1)
 endef
 
-define KernelPackage/usb-ath79
-  TITLE:=ATH79 USB driver
-  DEPENDS:=@TARGET_ar71xx +kmod-usb2
-  KCONFIG:=CONFIG_USB_EHCI_HCD_ATH79
-  FILES:=$(LINUX_DIR)/drivers/usb/host/ehci-ath79.ko
-  AUTOLOAD:=$(call AutoLoad,80,ehci-ath79)
-  $(call AddPlatformDepends/usb)
-endef
-
-define KernelPackage/usb-ath79/description
- This driver provides USB Device Controller support for the
- ATH79 EHCI USB
-endef
-
-$(eval $(call KernelPackage,usb-ath79))
-
 define KernelPackage/usb-configfs
  TITLE:= USB functions
   KCONFIG:=CONFIG_USB_CONFIGFS \
@@ -255,23 +195,6 @@ define KernelPackage/usb-configfs/description
 endef
 
 $(eval $(call KernelPackage,usb-configfs))
-
-define KernelPackage/usb-f-diag
-  TITLE:=USB DIAG
-  KCONFIG:=CONFIG_USB_F_DIAG \
-	CONFIG_USB_CONFIGFS_F_DIAG=y \
-	CONFIG_DIAG_OVER_USB=y
-  DEPENDS:=+kmod-usb-lib-composite +kmod-usb-configfs
-  FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_diag.ko
-  AUTOLOAD:=$(call AutoLoad,52,usb_f_diag)
-  $(call AddPlatformDepends/usb)
-endef
-
-define KernelPackage/usb-f-diag/description
- USB DIAG
-endef
-
-$(eval $(call KernelPackage,usb-f-diag))
 
 define KernelPackage/usb-uas
   TITLE:=USB Attched SCSI support
@@ -309,69 +232,6 @@ define KernelPackage/usb-chipidea-msm/description
 endef
 
 $(eval $(call KernelPackage,usb-chipidea-qti))
-
-
-define KernelPackage/usb-phy-ci-qti
-  TITLE:=Chipidea USB PHY driver
-  DEPENDS:=+kmod-usb-chipidea-qti @TARGET_ipq_ipq806x
-  KCONFIG:=CONFIG_USB_MSM_OTG
-  FILES:=$(LINUX_DIR)/drivers/usb/phy/phy-msm-usb.ko
-  AUTOLOAD:=$(call AutoLoad,50,phy-msm-usb)
-  $(call AddPlatformDepends/usb)
-endef
-
-define KernelPackage/usb-phy-ci-qti/description
-  Kernel support for qti chipidea USB PHY
-endef
-
-$(eval $(call KernelPackage,usb-phy-ci-qti))
-define KernelPackage/usb-gzero
-  TITLE:=USB GZERO support
-  KCONFIG:=CONFIG_USB_ZERO
-  FILES:=\
-       $(LINUX_DIR)/drivers/usb/gadget/g_zero.ko
-  AUTOLOAD:=$(call AutoLoad,45,g_zero)
-  DEPENDS:=+kmod-usb-lib-composite +kmod-usb-configfs +kmod-lib-crc-ccitt
-  $(call AddPlatformDepends/usb)
-endef
-
-define KernelPackage/usb-gzero/description
- Kernel support for USB gzero mode
-endef
-
-$(eval $(call KernelPackage,usb-gzero))
-
-define KernelPackage/usb-gdiag
-  TITLE:=USB GDIAG support
-  KCONFIG:=CONFIG_USB_G_DIAG
-  FILES:=\
-       $(LINUX_DIR)/drivers/usb/gadget/legacy/g_diag.ko
-  AUTOLOAD:=$(call AutoLoad,52,g_diag)
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq50xx||TARGET_ipq53xx +kmod-usb-gadget +kmod-usb-lib-composite
-  $(call AddPlatformDepends/usb)
-endef
-
-define KernelPackage/usb-gdiag/description
- Kernel support for USB gdiag mode
-endef
-
-$(eval $(call KernelPackage,usb-gdiag))
-
-define KernelPackage/usb-f_ss_lb
-  TITLE:=USB F_SS_LB support
-  KCONFIG:=CONFIG_USB_F_SS_LB
-  FILES:=\
-        $(LINUX_DIR)/drivers/usb/gadget/usb_f_ss_lb.ko
-  AUTOLOAD:=$(call AutoLoad,45,usb_f_ss_lb)
-  DEPENDS:=+kmod-usb-lib-composite +kmod-usb-configfs +kmod-lib-crc-ccitt
-  $(call AddPlatformDepends/usb)
-endef
-
-define KernelPackage/usb-f_ss_lb/description
- Kernel support for USB f_ss_lb mode
-endef
-
-$(eval $(call KernelPackage,usb-f_ss_lb))
 
 define KernelPackage/usb-phy-ipq807x
   TITLE:=DWC3 USB QTI PHY drivers for IPQ807x based targets
@@ -433,28 +293,6 @@ endef
 
 $(eval $(call KernelPackage,usb-dwc3-qcom-internal))
 
-
-define KernelPackage/diag-char
-  TITLE:=CHAR DIAG
-  KCONFIG:= CONFIG_DIAG_MHI=y@ge5.4 \
-	  CONFIG_DIAG_OVER_PCIE=n@ge5.4 \
-	  CONFIG_DIAGFWD_BRIDGE_CODE=y \
-	  CONFIG_DIAG_CHAR
-  DEPENDS:=+kmod-lib-crc-ccitt +USB_CONFIGFS_F_DIAG:kmod-usb-f-diag +USB_CONFIGFS_F_DIAG:kmod-usb-core
-  FILES:=$(LINUX_DIR)/drivers/char/diag/diagchar.ko
-ifneq (,$(findstring $(CONFIG_KERNEL_IPQ_MEM_PROFILE), 256)$(CONFIG_LOWMEM_FLASH))
-   AUTOLOAD:=
-else
-   AUTOLOAD:=$(call AutoLoad,52,diagchar)
-endif
-endef
-
-define KernelPackage/diag-char/description
- CHAR DIAG
-endef
-
-$(eval $(call KernelPackage,diag-char))
-
 define KernelPackage/usb-f-qdss
   TITLE:=USB QDSS
   KCONFIG:=CONFIG_USB_F_QDSS \
@@ -515,64 +353,6 @@ endef
 
 $(eval $(call KernelPackage,mhi_fuse_blower_mod))
 
-#Add in these flags for kernel specific configs
-#@le4.4 - kernel version less than 4.4
-#@ge5.4 - kernel version greater than 5.4
-#@eq5.4 - kernel version equal to 5.4
-define KernelPackage/msm-mproc
-  SUBMENU:=$(OTHER_MENU)
-  TITLE:= Default kernel configs
-  DEPENDS+= @TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
-  KCONFIG:= \
-	  CONFIG_DIAG_OVER_QRTR=y \
-	  CONFIG_IPQ_SUBSYSTEM_RESTART=y \
-	  CONFIG_MAILBOX=y \
-	  CONFIG_MSM_RPM_RPMSG=y \
-	  CONFIG_QCOM_APCS_IPC=y \
-	  CONFIG_QCOM_GLINK_SSR=y \
-	  CONFIG_QCOM_Q6V5_WCSS=y \
-	  CONFIG_QCOM_QMI_HELPERS=y \
-	  CONFIG_QCOM_SYSMON=y \
-	  CONFIG_QRTR=y \
-	  CONFIG_QRTR_SMD=y \
-	  CONFIG_QTI_Q6V5_ADSP=y \
-	  CONFIG_REGULATOR_RPM_GLINK=y \
-	  CONFIG_RPMSG=y \
-	  CONFIG_RPMSG_CHAR=y \
-	  CONFIG_RPMSG_QCOM_GLINK_RPM=y \
-	  CONFIG_RPMSG_QCOM_GLINK_SMEM=y \
-	  CONFIG_RPMSG_QCOM_SMD=y \
-	  CONFIG_SAMPLES=y \
-	  CONFIG_SAMPLE_CONFIGFS=n \
-	  CONFIG_SAMPLE_HW_BREAKPOINT=n \
-	  CONFIG_SAMPLE_KFIFO=n \
-	  CONFIG_SAMPLE_KOBJECT=n \
-	  CONFIG_SAMPLE_KPROBES=n \
-	  CONFIG_SAMPLE_KRETPROBES=n \
-	  CONFIG_SAMPLE_QMI_CLIENT=m \
-	  CONFIG_SAMPLE_RPMSG_CLIENT=n \
-	  CONFIG_SAMPLE_TRACE_EVENTS=n
-endef
-
-define KernelPackage/msm-mproc/description
-Default kernel configs.
-endef
-
-$(eval $(call KernelPackage,msm-mproc))
-
-define KernelPackage/clk-test
-  TITLE:=CLK-TEST driver
-  KCONFIG:=CONFIG_CLK_TEST_5018
-  DEPENDS:=@TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
-  FILES:= $(LINUX_DIR)/drivers/clk/qcom/clk_test_ipq5018.ko
-endef
-
-define KernelPackage/clk-test/description
-This driver provides support for the testing of GCC clocks and resets.
-endef
-
-$(eval $(call KernelPackage,clk-test))
-
 define KernelPackage/qmi_sample_client
   SUBMENU:=$(OTHER_MENU)
   TITLE:= Sample qmi test application.
@@ -590,76 +370,6 @@ Add QMI ping_pong test application
 endef
 
 $(eval $(call KernelPackage,qmi_sample_client))
-
-define KernelPackage/ipq-thermal
-  TITLE:= IPQ thermal driver.
-  DEPENDS+= @TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
-
-  KCONFIG:= \
-	  CONFIG_THERMAL=y \
-	  CONFIG_THERMAL_DEFAULT_GOV_STEP_WISE=y \
-	  CONFIG_THERMAL_GOV_STEP_WISE=y \
-	  CONFIG_THERMAL_GOV_USER_SPACE=y \
-	  CONFIG_THERMAL_HWMON=y \
-	  CONFIG_THERMAL_OF=y \
-	  CONFIG_THERMAL_WRITABLE_TRIPS=y \
-	  CONFIG_NVMEM=y
-endef
-
-define KernelPackage/ipq-thermal/description
-Add IPQ Thermal driver
-endef
-
-$(eval $(call KernelPackage,ipq-thermal))
-
-define KernelPackage/ipq-coresight
-  TITLE:= IPQ CoreSight Tracing Support Driver.
-  DEPENDS:= @TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
-  KCONFIG:= \
-	CONFIG_CORESIGHT=y \
-	CONFIG_CORESIGHT_CSR=y \
-	CONFIG_CORESIGHT_CTI=y \
-	CONFIG_CORESIGHT_EVENT=y \
-	CONFIG_CORESIGHT_HWEVENT=y \
-	CONFIG_CORESIGHT_LINKS_AND_SINKS=y \
-	CONFIG_CORESIGHT_LINK_AND_SINK_TMC=y \
-	CONFIG_CORESIGHT_QCOM_REPLICATOR=y \
-	CONFIG_CORESIGHT_SINK_TPIU=y \
-	CONFIG_CORESIGHT_SOURCE_ETM3X=y \
-	CONFIG_CORESIGHT_SOURCE_ETM4X=y \
-	CONFIG_CORESIGHT_STM=y \
-	CONFIG_CORESIGHT_TPDA=y \
-	CONFIG_CORESIGHT_TPDM=y \
-	CONFIG_SPS=y \
-	CONFIG_SPS_SUPPORT_NDP_BAM=y
-endef
-
-define KernelPackage/ipq-coresight/description
-Add IPQ CoreSight Tracing Support
-endef
-
-$(eval $(call KernelPackage,ipq-coresight))
-
-define KernelPackage/bt_tty
-  TITLE:= BT Inter-processor Communication
-  DEPENDS+= @TARGET_ipq50xx||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64
-  KCONFIG:= \
-	CONFIG_QTI_BT_INTERFACE \
-	CONFIG_QTI_BT_PIL \
-	CONFIG_QTI_BT_TTY \
-	CONFIG_QCOM_MDT_LOADER=y
-  FILES:= $(LINUX_DIR)/drivers/soc/qcom/bt_interface.ko@ge5.4 \
-	$(LINUX_DIR)/drivers/remoteproc/bt_rproc.ko@ge5.4 \
-	$(LINUX_DIR)/drivers/soc/qcom/bt/bt_rproc.ko@le4.4 \
-	$(LINUX_DIR)/drivers/soc/qcom/bt/bt_interface.ko@le4.4
-  AUTOLOAD:=$(call AutoLoad,53,bt_interface bt_rproc)
-endef
-
-define KernelPackage/bt_tty/description
-BT Interprocessor Communication support specific to IPQ50xx
-endef
-
-$(eval $(call KernelPackage,bt_tty))
 
 define KernelPackage/usb-phy-ipq5018
   TITLE:=DWC3 USB PHY driver for IPQ5018
