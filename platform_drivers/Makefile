@@ -22,8 +22,7 @@ define KernelPackage/bootconfig
   TITLE:=Bootconfig partition for failsafe
   DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx
   KCONFIG:=CONFIG_BOOTCONFIG_PARTITION
-  FILES:=$(LINUX_DIR)/drivers/platform/msm/bootconfig.ko@lt4.4 \
-	$(LINUX_DIR)/drivers/platform/ipq/bootconfig.ko@ge4.4
+  FILES:=$(LINUX_DIR)/drivers/platform/ipq/bootconfig.ko
   AUTOLOAD:=$(call AutoLoad,56,bootconfig,1)
 endef
 
@@ -71,16 +70,14 @@ endef
 
 define KernelPackage/sound-soc-ipq
   TITLE:=Qualcomm-Atheros IPQ board soundcard support
-  DEPENDS:=@TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq @!TARGET_ipq_ipq60xx @!TARGET_ipq_ipq60xx_64 +kmod-sound-soc-core
+  DEPENDS:=+kmod-sound-soc-core
   KCONFIG:= \
 	CONFIG_SND_QCA_SOC \
-	CONFIG_SND_QCA_SOC_IPQ40XX \
 	CONFIG_SND_SOC_QCOM=y \
 	CONFIG_SND_SOC_IPQ=y \
 	CONFIG_SND_SOC_IPQ_CODEC=y
   FILES:= \
-	$(LINUX_DIR)/sound/soc/qca/snd-soc-ipq40xx-codec.ko@lt4.4 \
-	$(LINUX_DIR)/sound/soc/qcom/ipq/snd-soc-ipq-codec.ko@ge4.4
+	$(LINUX_DIR)/sound/soc/qcom/ipq/snd-soc-ipq-codec.ko
   $(call AddPlatformDepends/sound)
 endef
 
@@ -95,12 +92,10 @@ VIDEO_MENU:=Video Support
 define KernelPackage/qpic_panel_ertft
   SUBMENU:=$(VIDEO_MENU)
   TITLE:=ERT TFT  Panel support
-  KCONFIG:=CONFIG_FB_MSM_QPIC_ER_SSD1963_PANEL@lt4.4 \
-	CONFIG_FB_QCOM_QPIC_ER_SSD1963_PANEL@le4.4 \
-	CONFIG_FB_QTI_QPIC_ER_SSD1963_PANEL@ge5.4
-  FILES:=$(LINUX_DIR)/drivers/video/msm/mdss/qpic_panel_er_ssd1963.ko@lt4.4 \
-	$(LINUX_DIR)/drivers/video/fbdev/qcom/qpic_panel_er_ssd1963.ko@le4.4 \
-	$(LINUX_DIR)/drivers/video/fbdev/qti/qpic_panel_er_ssd1963.ko@ge5.4
+  KCONFIG:=CONFIG_FB_QCOM_QPIC_ER_SSD1963_PANEL \
+	CONFIG_FB_QTI_QPIC_ER_SSD1963_PANEL
+  FILES:=$(LINUX_DIR)/drivers/video/fbdev/qcom/qpic_panel_er_ssd1963.ko \
+	$(LINUX_DIR)/drivers/video/fbdev/qti/qpic_panel_er_ssd1963.ko
 endef
 
 define KernelPackage/qpic_panel_ertft/description
@@ -130,18 +125,18 @@ define KernelPackage/crypto-qce
   TITLE:=QTI Crypto Engine (QCE)
   KCONFIG:= \
 	CONFIG_CRYPTO_DEV_QCE \
-	CONFIG_CRYPTO_DEV_QCE_ENABLE_ALL=y@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_ALL=y \
 	CONFIG_CRYPTO_DEV_QCE_SKCIPHER=y \
 	CONFIG_CRYPTO_DEV_QCE_AEAD=y \
-	CONFIG_CRYPTO_DEV_QCE_ENABLE_SKCIPHER=n@ge5.4 \
-	CONFIG_CRYPTO_DEV_QCE_ENABLE_SHA=n@ge5.4 \
-	CONFIG_CRYPTO_DEV_QCE_SW_MAX_LEN=0@ge5.4 \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_SKCIPHER=n \
+	CONFIG_CRYPTO_DEV_QCE_ENABLE_SHA=n \
+	CONFIG_CRYPTO_DEV_QCE_SW_MAX_LEN=0 \
 	CONFIG_CRYPTO_DEV_QCE_ENABLE_AEAD=n \
 	CONFIG_CRYPTO_DEV_QCE_SHA=y
   FILES:= \
 	$(LINUX_DIR)/drivers/crypto/qce/qcrypto.ko
   AUTOLOAD:=$(call AutoLoad,09,qcrypto)
-  DEPENDS:=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx||TARGET_ipq50xx||TARGET_ipq54xx +kmod-crypto-manager +LINUX_4_4:kmod-crypto-aes-internal +kmod-crypto-hash +LINUX_4_4:kmod-crypto-des +kmod-crypto-authenc
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq54xx +kmod-crypto-manager +kmod-crypto-hash +kmod-crypto-authenc
   $(call AddPlatformDepends/crypto)
 endef
 
@@ -211,31 +206,9 @@ endef
 
 $(eval $(call KernelPackage,usb-uas))
 
-define KernelPackage/usb-chipidea-qti
-  TITLE:=ChipIdea controllers support
-  DEPENDS:= +kmod-usb2 +USB_GADGET_SUPPORT:kmod-usb-gadget @TARGET_ipq_ipq806x
-  KCONFIG:=\
-	CONFIG_USB_CHIPIDEA \
-	CONFIG_USB_CHIPIDEA_HOST=y \
-	CONFIG_USB_CHIPIDEA_UDC=y \
-	CONFIG_USB_CHIPIDEA_DEBUG=y
-	FILES:=\
-	  $(LINUX_DIR)/drivers/extcon/extcon.ko@ge4.3 \
-	  $(LINUX_DIR)/drivers/usb/chipidea/ci_hdrc.ko \
-	  $(LINUX_DIR)/drivers/usb/chipidea/ci_hdrc_msm.ko
-  AUTOLOAD :=$(call AutoLoad,51,extcon ci_hdrc ci_hdrc_msm)
-  $(call AddPlatformDepends/usb)
-endef
-
-define KernelPackage/usb-chipidea-msm/description
-  Kernel support for USB ChipIdea controllers
-endef
-
-$(eval $(call KernelPackage,usb-chipidea-qti))
-
 define KernelPackage/usb-phy-ipq807x
   TITLE:=DWC3 USB QTI PHY drivers for IPQ807x based targets
-  DEPENDS:=@TARGET_ipq||TARGET_ipq95xx||TARGET_ipq54xx
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq54xx
   KCONFIG:= \
 	CONFIG_PHY_QCOM_QUSB2 \
 	CONFIG_PHY_QCOM_QMP=y \
@@ -278,7 +251,7 @@ $(eval $(call KernelPackage,usb-dwc3-internal))
 
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 QTI USB driver
-  DEPENDS:=@!LINUX_4_14 @(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq95xx||TARGET_ipq50xx||TARGET_ipq53xx||TARGET_ipq54xx) +kmod-usb-dwc3-internal
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,83,dwc3-qcom)
@@ -328,7 +301,7 @@ $(eval $(call KernelPackage,leds-tlc591xx))
 define KernelPackage/mhitest_mod
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
-  DEPENDS+=@TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq50xx||TARGET_ipq807x||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
+  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
   KCONFIG:=CONFIG_MHI_BUS_TEST
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/test/mhitest_mod.ko
 endef
@@ -356,7 +329,7 @@ $(eval $(call KernelPackage,mhi_fuse_blower_mod))
 define KernelPackage/qmi_sample_client
   SUBMENU:=$(OTHER_MENU)
   TITLE:= Sample qmi test application.
-  DEPENDS+=@TARGET_ipq807x||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq60xx||TARGET_ipq_ipq60xx||TARGET_ipq_ipq60xx_64||TARGET_ipq50xx||TARGET_ipq_ipq50xx||TARGET_ipq_ipq50xx_64||TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
+  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
 
   KCONFIG:= \
 	  CONFIG_SAMPLE_QMI_CLIENT
@@ -373,17 +346,14 @@ $(eval $(call KernelPackage,qmi_sample_client))
 
 define KernelPackage/usb-phy-ipq5018
   TITLE:=DWC3 USB PHY driver for IPQ5018
-  DEPENDS:=@TARGET_ipq50xx||TARGET_ipq53xx
+  DEPENDS:=@TARGET_ipq53xx
   KCONFIG:= \
-	CONFIG_USB_QCA_M31_PHY \
 	CONFIG_PHY_QCOM_M31_USB \
 	CONFIG_PHY_IPQ_UNIPHY_USB
   FILES:= \
-	$(LINUX_DIR)/drivers/usb/phy/phy-qca-m31.ko@lt6.1 \
-	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-m31.ko@ge6.1 \
-	$(LINUX_DIR)/drivers/phy/phy-qca-uniphy.ko@le4.4 \
-	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qca-uniphy.ko@ge5.4
-  AUTOLOAD:=$(call AutoLoad,85,phy-qca-m31 phy-qcom-m31 phy-qca-uniphy)
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-m31.ko \
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qca-uniphy.ko
+  AUTOLOAD:=$(call AutoLoad,85,phy-qcom-m31 phy-qca-uniphy)
   $(call AddDepends/usb)
 endef
 
