@@ -33,7 +33,7 @@ endif
 
 SHA_FLAG = "-DUSE_SHA256"
 
-ifneq ($(CONFIG_TARGET_ipq95xx)$(CONFIG_TARGET_ipq807x)$(CONFIG_TARGET_ipq50xx),)
+ifneq ($(CONFIG_TARGET_ipq95xx)$(CONFIG_TARGET_ipq54xx),)
   SHA_FLAG = "-DUSE_SHA384"
 endif
 
