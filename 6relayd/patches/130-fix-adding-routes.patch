@@ -17,8 +17,8 @@ errno code 14 is EFAULT. The child process was crashing at
 since IPCommandArgs list was not NULL-pointer terminated.
 
 Fixes: 61bcbeb5 ("Register route: Use 'ip' command instead of RTNETLINK")
---- a/src/ndp.c
-+++ b/src/ndp.c
+--- a/src/6relayd/ndp.c
++++ b/src/6relayd/ndp.c
 @@ -377,7 +377,7 @@ void relayd_setup_route(const struct in6_addr *addr, int prefixlen,
  // Use rtnetlink to modify kernel routes
  // Use 'ip' command to modify kernel routes (rtnetlink method is not working...)

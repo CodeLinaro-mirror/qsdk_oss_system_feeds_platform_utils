@@ -1,14 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=6relayd
-PKG_VERSION:=1.00
+PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
 # Downloaded from: github release tag:
-#     https://github.com/HikaruDY/6relayd/archive/refs/tags/v1.00.tar.gz
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/HikaruDY/6relayd/archive/refs/tags/v1.00.tar.gz?
-PKG_MD5SUM:=7331a9cc1acdbfc878ed255be10a3987
+PKG_SOURCE_URL:=https://github.com/HikaruDY/6relayd/releases/download/v1.0.0/
+PKG_MD5SUM:=0f66f0dac968ec6c71a265e015dc7088
 
 PKG_BUILD_PARALLEL=0
 PKG_LICENSE:=GPL-2.0
@@ -45,16 +44,27 @@ TARGET_CFLAGS += -D_GNU_SOURCE \
 
 CONFIGURE_ARGS = \
         --host=$(GNU_HOST_NAME) \
-        LDFLAGS="$(TARGET_LDFLAGS) -lresolv"
+        CFLAGS="$(TARGET_CFLAGS)"
+        LDFLAGS="$(TARGET_LDFLAGS) -lresolv \
+        DCFG_SSMODE_STATIC=0"
+
+
+CONFIGURE_PATH = build
+CONFIGURE_CMD = ../configure
+
+define Build/Prepare
+	mkdir -p $(PKG_BUILD_DIR)/build
+	$(Build/Prepare/Default)
+endef
 
 # In the submake unset $CONFIG as it may conflict with 6relayd:
 define Build/Compile
-	$(MAKE) CONFIG="" -C $(PKG_BUILD_DIR)
+	$(MAKE) CONFIG="" -C $(PKG_BUILD_DIR)/build
 endef
 
 define Package/6relayd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/6relayd $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/build/bin/6relayd $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,6relayd))
