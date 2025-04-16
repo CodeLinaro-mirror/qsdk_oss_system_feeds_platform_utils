@@ -8,11 +8,11 @@ Signed-off-by: Sohan Madhav Bangaru <quic_sbangaru@quicinc.com>
  src/processor/basic_source_line_resolver.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/src/processor/basic_source_line_resolver.cc b/src/processor/basic_source_line_resolver.cc
-index e525d4f..cf9d96b 100644
---- a/src/processor/basic_source_line_resolver.cc
-+++ b/src/processor/basic_source_line_resolver.cc
-@@ -450,7 +450,7 @@ bool BasicSourceLineResolver::Module::ParseInlineOrigin(
+Index: breakpad-0.1/src/processor/basic_source_line_resolver.cc
+===================================================================
+--- breakpad-0.1.orig/src/processor/basic_source_line_resolver.cc       2025-04-14 10:39:13.831725992 +0530
++++ breakpad-0.1/src/processor/basic_source_line_resolver.cc    2025-04-14 10:39:13.827726027 +0530
+@@ -450,7 +450,7 @@
                                             &origin_name)) {
      inline_origins_.insert(make_pair(
          origin_id,
@@ -21,6 +21,17 @@ index e525d4f..cf9d96b 100644
      return true;
    }
    return false;
--- 
-2.7.4
+Index: breakpad-0.1/src/processor/exploitability_linux.cc
+===================================================================
+--- breakpad-0.1.orig/src/processor/exploitability_linux.cc     2022-06-04 01:42:57.000000000 +0530
++++ breakpad-0.1/src/processor/exploitability_linux.cc  2025-04-14 10:40:23.207128776 +0530
+@@ -514,7 +515,7 @@
+            raw_bytes_tmpfile);
+   FILE* objdump_fp = popen(cmd, "r");
+   if (!objdump_fp) {
+-    fclose(objdump_fp);
++
+     unlink(raw_bytes_tmpfile);
+     BPLOG(ERROR) << "Failed to call objdump.";
+     return false;
 
