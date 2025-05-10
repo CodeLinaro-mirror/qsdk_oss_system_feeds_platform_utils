@@ -349,7 +349,7 @@ mount_wifi_fw (){
 
 		case $board_name in
                         rdp466* |\
-			rdp487 |\
+			rdp487* |\
 			rdp464* |\
 			rdp485* |\
 			rdp496)
@@ -526,7 +526,7 @@ mount_wifi_fw (){
                                         caldata_symlink_creation "$board_name" "2"
                                         caldata_symlink_creation "$board_name" "3"
 				;;
-                                rdp487)
+                                rdp487* )
                                         caldata_symlink_creation "$board_name" "2"
 				;;
 				rdp464*)
