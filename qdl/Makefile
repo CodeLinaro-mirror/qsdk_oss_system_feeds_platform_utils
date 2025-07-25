@@ -8,8 +8,8 @@ PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://git.codelinaro.org/clo/qsdk/oss/tools/qdl
 PKG_SOURCE_SUBMODULES:=skip
-PKG_SOURCE_VERSION:=0fcf944ab5b8903249d888230ef2e68e83286256
-PKG_SOURCE_BRANCH:=qdl/scorching/master
+PKG_SOURCE_VERSION:=cd3272350328185b1d4f7de08fdecf38f8fd31be
+PKG_SOURCE_BRANCH:=master
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_MD5SUM:=skip
@@ -20,7 +20,7 @@ define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=qdl software
-  DEPENDS:=@TARGET_ipq54xx||TARGET_ipq95xx||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq807x||TARGET_ipq50xx +libudev-zero +libxml2
+  DEPENDS:=@TARGET_ipq54xx||TARGET_ipq95xx||TARGET_ipq_ipq807x||TARGET_ipq_ipq807x_64||TARGET_ipq807x||TARGET_ipq50xx +libudev-zero +libxml2 +libusb-1.0
 endef
 
 define Package/$(PKG_NAME)/Description
