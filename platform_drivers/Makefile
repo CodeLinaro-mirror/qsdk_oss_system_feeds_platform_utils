@@ -280,7 +280,7 @@ $(eval $(call KernelPackage,leds-tlc591xx))
 define KernelPackage/mhitest_mod
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Test Module for qcn9000.
-  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
+  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq96xx
   KCONFIG:=CONFIG_MHI_BUS_TEST
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/test/mhitest_mod.ko
 endef
@@ -294,7 +294,7 @@ $(eval $(call KernelPackage,mhitest_mod))
 define KernelPackage/mhi_fuse_blower_mod
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MHI Fuse Blower Module for qcn9224.
-  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
+  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq96xx
   KCONFIG:=
   FILES:=$(LINUX_DIR)/drivers/bus/mhi/fuse_blower/mhi_fuse_blower_mod.ko
 endef
@@ -308,7 +308,7 @@ $(eval $(call KernelPackage,mhi_fuse_blower_mod))
 define KernelPackage/qmi_sample_client
   SUBMENU:=$(OTHER_MENU)
   TITLE:= Sample qmi test application.
-  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx
+  DEPENDS+=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq96xx
 
   KCONFIG:= \
 	  CONFIG_SAMPLE_QMI_CLIENT
