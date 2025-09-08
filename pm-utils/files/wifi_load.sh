@@ -34,11 +34,45 @@ ipq_wifi_load()
 		insmod ath11k_pci
 		if [ -f /lib/modules/$(uname -r)/ath12k.ko ]; then
 			insmod ath12k
+
+			#check new modules are present and insmod it
+			if [ -f /lib/modules/$(uname -r)/ath12k_wifi7.ko ]; then
+				insmod qca-wifi-nss-plugins
+				insmod ath12k_wifi7
+				if [ "$(ls -1 /sys/kernel/debug/ath11k/ | wc -l)" -gt 0 ]; then
+					#wait for two phy entries
+					while [ "$(iw dev | grep -c '^phy')" -lt 2 ]; do
+						sleep 1
+					done
+				else
+					#wait for one phy entry
+					while ! iw dev | grep -q phy; do
+						sleep 1
+					done
+				fi
+			fi
 		fi
 		sleep 2
 		wifi up
 	elif [ -f /lib/modules/$(uname -r)/ath12k.ko ]; then
 		insmod ath12k
+
+		#check new modules are present and insmod it
+		if [ -f /lib/modules/$(uname -r)/ath12k_wifi7.ko ]; then
+			insmod qca-wifi-nss-plugins
+			insmod ath12k_wifi7
+			if [ "$(ls -1 /sys/kernel/debug/ath11k/ | wc -l)" -gt 0 ]; then
+				#wait for two phy entries
+				while [ "$(iw dev | grep -c '^phy')" -lt 2 ]; do
+					sleep 1
+				done
+			else
+				#wait for one phy entry
+				while ! iw dev | grep -q phy; do
+					sleep 1
+				done
+			fi
+		fi
 		sleep 2
 		wifi up
 	else
@@ -55,11 +89,21 @@ ipq_wifi_unload()
 		rmmod ath11k_pci
 		rmmod ath11k
 		if [ $(lsmod | grep ath12k | wc -l) -gt 0 ]; then
+			#check new modules are present and rmmod it
+			if [ $(lsmod | grep ath12k_wifi7 | wc -l) -gt 0 ]; then
+				rmmod ath12k_wifi7
+				rmmod qca-wifi-nss-plugins
+			fi
 			rmmod ath12k
 		fi
 	elif [ $(lsmod | grep ath12k | wc -l) -gt 0 ]; then
 		wifi down
 		sleep 2
+		#check new modules are present and rmmod it
+		if [  $(lsmod | grep ath12k_wifi7 | wc -l) -gt 0 ]; then
+			rmmod ath12k_wifi7
+			rmmod qca-wifi-nss-plugins
+		fi
 		rmmod ath12k
 	else
 		wifi unload
