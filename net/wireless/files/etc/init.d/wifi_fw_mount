@@ -455,8 +455,14 @@ mount_wifi_fw (){
 
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
 		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin ]; then
-			mkdir -p /lib/firmware/ath11k/QCN9074/hw1.0/
-			cd /lib/firmware/ath11k/QCN9074/hw1.0/
+			if [[ "$board_name" == "ap-al02-c13" ]]; then
+				mkdir -p /lib/firmware/ath12k/QCN9074/hw1.0/
+				cd /lib/firmware/ath12k/QCN9074/hw1.0/
+			else
+				mkdir -p /lib/firmware/ath11k/QCN9074/hw1.0/
+				cd /lib/firmware/ath11k/QCN9074/hw1.0/
+			fi
+
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin .
 			ln -s /tmp/qcn9000/caldata*.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9000/m3.bin .
