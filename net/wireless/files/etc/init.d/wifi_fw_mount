@@ -556,6 +556,35 @@ mount_wifi_fw (){
 				;;
                         esac
 		fi
+	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9625 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath12k/QCN9625/hw1.0/
+			cd /lib/firmware/ath12k/QCN9625/hw1.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/m3.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/amss.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/board-2.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/regdb.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/regdb.bin .
+			fi
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/qdss_trace_config.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/aux.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/aux.bin .
+			fi
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/mcss.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/mcss.bin .
+			fi
+
+			case $board_name in
+				rdp464*)
+					caldata_symlink_creation "$board_name" "2"
+					caldata_symlink_creation "$board_name" "3"
+					caldata_symlink_creation "$board_name" "4"
+				;;
+				*)
+					#No sm links
+				;;
+                        esac
+		fi
 	fi
 
 	mkdir -p /vendor/firmware/$arch
