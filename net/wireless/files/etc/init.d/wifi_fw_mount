@@ -21,7 +21,7 @@ create_soft_link()
 {
 	if [ -e /sys/firmware/devicetree/base/MP_256 ]; then
 		cp -f $*
-	elif [ ! -e /sys/firmware/devicetree/base/MP_256 ]; then
+	else
 		ln -s $*
 	fi
 }
@@ -282,6 +282,14 @@ mount_wifi_fw (){
 		cd /vendor/firmware/qcn6432 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn6432/Data.msc .
 		mkdir -p /lib/firmware/qcn6432 && cd /lib/firmware/qcn6432 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn6432/qdss* .
         fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9625 ]; then
+		cd  $fwfolder && mkdir -p qcn9625 && mkdir -p /vendor/firmware/qcn9625
+		cd qcn9625 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/*.* .
+		cd /vendor/firmware/qcn9625 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625/Data.msc .
+		create_soft_link Data.msc Data_dualmac.msc
+		mkdir -p /lib/firmware/qcn9625 && cd /lib/firmware/qcn9625 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625/qdss* .
+	fi
 
 	mkdir -p $fwfolder/$arch
 	cd  $fwfolder/$arch && ln -s /lib/firmware/$arch/WIFI_FW/*.* .
@@ -587,7 +595,7 @@ mount_wifi_fw (){
 			fi
 
 			case $board_name in
-				rdp464*)
+				rdp464* | rdp492*)
 					caldata_symlink_creation "$board_name" "2"
 					caldata_symlink_creation "$board_name" "3"
 					caldata_symlink_creation "$board_name" "4"
