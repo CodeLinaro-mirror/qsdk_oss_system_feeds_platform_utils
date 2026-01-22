@@ -371,3 +371,17 @@ define KernelPackage/qcom_eud/description
 endef
 
 $(eval $(call KernelPackage,qcom_eud))
+
+define KernelPackage/updtest_mod
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=User PD Test Module
+  DEPENDS+=@TARGET_ipq53xx||TARGET_ipq54xx
+  KCONFIG:=CONFIG_QCOM_Q6V5_UPD
+  FILES:=$(LINUX_DIR)/drivers/remoteproc/qcom_q6v5_upd.ko
+endef
+
+define KernelPackage/updtest_mod/description
+  User PD test module
+endef
+
+$(eval $(call KernelPackage,updtest_mod))
