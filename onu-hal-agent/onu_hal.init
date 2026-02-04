@@ -6,8 +6,8 @@
 #
 #
 
-START=70
+START=99
 
 boot() {
-	/usr/bin/onu_hal_agent
+	/usr/bin/onu_hal_agent -d
 }

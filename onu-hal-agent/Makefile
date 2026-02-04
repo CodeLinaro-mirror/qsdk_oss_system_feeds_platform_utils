@@ -32,8 +32,9 @@ define Build/Configure
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/init.d
 	$(CP) $(PKG_BUILD_DIR)/onu_hal_agent $(1)/usr/bin/onu_hal_agent
+	$(INSTALL_BIN) ./onu_hal.init $(1)/etc/init.d/onu_hal
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
