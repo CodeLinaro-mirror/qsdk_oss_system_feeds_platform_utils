@@ -187,7 +187,7 @@ $(eval $(call KernelPackage,usb-uas))
 
 define KernelPackage/usb-phy-ipq807x
   TITLE:=DWC3 USB QTI PHY drivers for IPQ807x based targets
-  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq54xx||TARGET_ipq52xx
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq54xx||TARGET_ipq52xx||TARGET_ipq96xx
   KCONFIG:= \
 	CONFIG_PHY_QCOM_QUSB2 \
 	CONFIG_PHY_QCOM_QMP=y \
@@ -230,7 +230,7 @@ $(eval $(call KernelPackage,usb-dwc3-internal))
 
 define KernelPackage/usb-dwc3-qcom-internal
   TITLE:=DWC3 QTI USB driver
-  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq52xx +kmod-usb-dwc3-internal
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq52xx||TARGET_ipq96xx +kmod-usb-dwc3-internal
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,83,dwc3-qcom)
