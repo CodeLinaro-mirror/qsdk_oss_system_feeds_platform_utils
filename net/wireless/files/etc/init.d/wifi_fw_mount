@@ -42,8 +42,12 @@ caldata_symlink_creation(){
 		fi
 	done < /lib/firmware/ftm.conf
 
-	if [ -e /lib/firmware/qcn9224/caldata_$art_slot.b$brdid ]; then
-			ln -sf /lib/firmware/qcn9224/caldata_$art_slot.b$brdid cal-pci-000$pciid:01:00.0.bin
+	if [ -e "/lib/firmware/qcn9224/caldata_${art_slot}.b${brdid}" ]; then
+		ln -sf "/lib/firmware/qcn9224/caldata_${art_slot}.b${brdid}" \
+			"cal-pci-000${pciid}:01:00.0.bin"
+	elif [ -e "/lib/firmware/qcn9625/caldata_${art_slot}.b${brdid}" ]; then
+		ln -sf "/lib/firmware/qcn9625/caldata_${art_slot}.b${brdid}" \
+			"cal-pci-000${pciid}:01:00.0.bin"
 	fi
 }
 
@@ -595,10 +599,10 @@ mount_wifi_fw (){
 			fi
 
 			case $board_name in
-				rdp464* | rdp492*)
+				rdp492*)
+					caldata_symlink_creation "$board_name" "1"
 					caldata_symlink_creation "$board_name" "2"
 					caldata_symlink_creation "$board_name" "3"
-					caldata_symlink_creation "$board_name" "4"
 				;;
 				*)
 					#No sm links
