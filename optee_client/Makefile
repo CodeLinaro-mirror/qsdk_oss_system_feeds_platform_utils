@@ -17,7 +17,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/optee-client
 	SECTION:=utils
 	CATEGORY:=Utilities
-	DEPENDS:=@TARGET_ipq96xx +libuuid
+	DEPENDS:=@TARGET_ipq96xx||TARGET_ipq52xx +libuuid
 	TITLE:=Normal World Client side of the TEE
 	URL:=https://github.com/OP-TEE/optee_client
 endef
