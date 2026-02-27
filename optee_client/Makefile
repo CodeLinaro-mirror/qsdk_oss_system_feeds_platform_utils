@@ -32,6 +32,8 @@ define Package/optee-client/install
 	$(CP) $(PKG_BUILD_DIR)/out/libseteec/libseteec.so* $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/out/tee-supplicant/tee-supplicant $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/tee-supplicant.init $(1)/etc/init.d/tee-supplicant
 endef
 
 $(eval $(call BuildPackage,optee-client))
