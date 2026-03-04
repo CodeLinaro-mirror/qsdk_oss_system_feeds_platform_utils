@@ -112,7 +112,7 @@ static ssize_t read_file(const char *path, void **buffer)
     size = st.st_size;
 
     if (size <= 0) {
-        fprintf(stderr, "Invalid file size: %ld\n", size);
+        fprintf(stderr, "Invalid file size: %zu\n", size);
         close(fd);
         return -1;
     }
@@ -120,7 +120,7 @@ static ssize_t read_file(const char *path, void **buffer)
     /* Allocate buffer */
     buf = malloc(size);
     if (!buf) {
-        fprintf(stderr, "Failed to allocate %ld bytes\n", size);
+        fprintf(stderr, "Failed to allocate %zu bytes\n", size);
         close(fd);
         return -1;
     }
@@ -128,7 +128,7 @@ static ssize_t read_file(const char *path, void **buffer)
     /* Read file contents */
     bytes_read = read(fd, buf, size);
     if (bytes_read != size) {
-        fprintf(stderr, "Failed to read file: expected %ld, got %ld\n",
+        fprintf(stderr, "Failed to read file: expected %zu, got %zu\n",
                 size, bytes_read);
         free(buf);
         close(fd);
@@ -167,7 +167,7 @@ static int fuseipq_blow_fuse(const char *sec_elf_path)
         return -1;
     }
 
-    printf("File size: %ld bytes\n", file_size);
+    printf("File size: %zu bytes\n", file_size);
 
     /* Allocate shared memory for the file content */
     shm.size = file_size;
