@@ -187,7 +187,7 @@ $(eval $(call KernelPackage,usb-uas))
 
 define KernelPackage/usb-phy-ipq807x
   TITLE:=DWC3 USB QTI PHY drivers for IPQ807x based targets
-  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq54xx||TARGET_ipq52xx||TARGET_ipq96xx
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq54xx||TARGET_ipq52xx
   KCONFIG:= \
 	CONFIG_PHY_QCOM_QUSB2 \
 	CONFIG_PHY_QCOM_QMP=y \
@@ -204,6 +204,26 @@ define KernelPackage/usb-phy-ipq807x/description
 endef
 
 $(eval $(call KernelPackage,usb-phy-ipq807x))
+
+define KernelPackage/usb-phy-ipq96xx
+  TITLE:=DWC3 USB QTI PHY drivers for IPQ96xx based targets
+  DEPENDS:=@TARGET_ipq96xx
+  KCONFIG:= \
+	CONFIG_PHY_QCOM_USB_FEMTO_HS \
+	CONFIG_PHY_QCOM_QMP=y \
+	CONFIG_PHY_QCOM_QMP_USB
+  FILES:= \
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-usb-femto-hs.ko \
+	$(LINUX_DIR)/drivers/phy/qualcomm/phy-qcom-qmp-usb.ko
+  AUTOLOAD:=$(call AutoLoad,85,phy-qcom-usb-femto-hs phy-qcom-qmp-usb)
+  $(call AddPlatformDepends/usb)
+endef
+
+define KernelPackage/usb-phy-ipq96xx/description
+  Support for USB PHY drivers in IPQ96xx based SoCs.
+endef
+
+$(eval $(call KernelPackage,usb-phy-ipq96xx))
 
 define KernelPackage/usb-dwc3-internal
   TITLE:=DWC3 USB controller driver
