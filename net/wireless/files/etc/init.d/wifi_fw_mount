@@ -42,8 +42,12 @@ caldata_symlink_creation(){
 		fi
 	done < /lib/firmware/ftm.conf
 
-	if [ -e /lib/firmware/qcn9224/caldata_$art_slot.b$brdid ]; then
-			ln -sf /lib/firmware/qcn9224/caldata_$art_slot.b$brdid cal-pci-000$pciid:01:00.0.bin
+	if [ -e "/lib/firmware/qcn9224/caldata_${art_slot}.b${brdid}" ]; then
+		ln -sf "/lib/firmware/qcn9224/caldata_${art_slot}.b${brdid}" \
+			"cal-pci-000${pciid}:01:00.0.bin"
+	elif [ -e "/lib/firmware/qcn9625/caldata_${art_slot}.b${brdid}" ]; then
+		ln -sf "/lib/firmware/qcn9625/caldata_${art_slot}.b${brdid}" \
+			"cal-pci-000${pciid}:01:00.0.bin"
 	fi
 }
 
@@ -171,7 +175,7 @@ mount_wifi_fw (){
 	;;
 	esac
 
-	if [ "$arch" == "IPQ5424" ]; then
+	if [["$arch" == "IPQ5424"]] || [[ "$arch" == "IPQ5210" ]] || [[ "$arch" == "IPQ9650" ]]; then
 		local index=$(get_partname $part_name $arch)
 		if [ "$index" == "1" ]; then
 			part_name=${part_name}_${index}
@@ -181,7 +185,7 @@ mount_wifi_fw (){
 		part_name=$(get_partname_legacy $part_name)
 	fi
 
-	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]] || [[ "$arch" == "IPQ5332" ]] || [[ "$arch" == "IPQ5424" ]] || [[ "$arch" == "devsoc" ]]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]] || [[ "$arch" == "IPQ5332" ]] || [[ "$arch" == "IPQ5424" ]] || [[ "$arch" == "IPQ5210" ]] || [[ "$arch" == "IPQ9650" ]] || [[ "$arch" == "devsoc" ]]; then
 		wifi_on_rootfs="1"
 	fi
 
@@ -331,12 +335,16 @@ mount_wifi_fw (){
 			IPQ5424)
 				mkdir -p /lib/firmware/ath12k/$arch/$hw
 				cd /lib/firmware/ath12k/$arch/$hw/
-				;;
+			;;
+			IPQ5210 |\
+			IPQ9650)
+				:   # no operation
+			;;
 			*)
 				mkdir -p /lib/firmware/ath11k/$arch/$hw
 				cd /lib/firmware/ath11k/$arch/$hw/
 				ln -s /lib/firmware/$arch/caldata.bin .
-				;;
+			;;
 		esac
 		ln -s /lib/firmware/$arch/WIFI_FW/board-2.bin .
 		ln -s /lib/firmware/$arch/qdss_trace_config.bin .
@@ -595,10 +603,10 @@ mount_wifi_fw (){
 			fi
 
 			case $board_name in
-				rdp464* | rdp492*)
+				rdp492*)
+					caldata_symlink_creation "$board_name" "1"
 					caldata_symlink_creation "$board_name" "2"
 					caldata_symlink_creation "$board_name" "3"
-					caldata_symlink_creation "$board_name" "4"
 				;;
 				*)
 					#No sm links
@@ -730,6 +738,10 @@ boot() {
 		mount_wifi_fw "IPQ5332"
 	elif [[ "$platform" == *IPQ5424* ]]; then
 		mount_wifi_fw "IPQ5424"
+	elif [[ "$platform" == *IPQ5210* ]]; then
+                mount_wifi_fw "IPQ5210"
+	elif [[ "$platform" == *IPQ9650* ]]; then
+		mount_wifi_fw "IPQ9650"
 	else
 		local emu=$(grep -o "EMULATION" /proc/device-tree/model)
 		if [ "$emu" == "EMULATION" ]; then
@@ -750,12 +762,12 @@ stop_wifi_fw() {
 	local nor_flash=""
 	arch=$1
 
-	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]] || [[ "$arch" == "IPQ5332" ]] || [[ "$arch" == "IPQ5424" ]]; then
+	if [[ "$arch" == "IPQ6018" ]] || [[ "$arch" == "IPQ5018" ]] || [[ "$arch" == "IPQ9574" ]] || [[ "$arch" == "IPQ5332" ]] || [[ "$arch" == "IPQ5424" ]] || [[ "$arch" == "IPQ5210" ]] || [[ "$arch" == "IPQ9650" ]]; then
 		part_name="rootfs"
 		wifi_on_rootfs="1"
 	fi
 
-	if [ "$arch" == "IPQ5424" ]; then
+	if [[ "$arch" == "IPQ5424" ]] || [[ "$arch" == "IPQ5210" ]] || [[ "$arch" == "IPQ9650" ]]; then
                 local index=$(get_partname $part_name $arch)
                 if [ "$index" == "1" ]; then
                         part_name=${part_name}_${index}
@@ -859,6 +871,10 @@ stop() {
 		stop_wifi_fw "IPQ5332"
 	elif [[ "$platform" == *IPQ5424* ]]; then
 		stop_wifi_fw "IPQ5424"
+	elif [[ "$platform" == *IPQ5210* ]]; then
+                stop_wifi_fw "IPQ5210"
+	elif [[ "$platform" == *IPQ9650* ]]; then
+		stop_wifi_fw "IPQ9650"
 	else
 		local emu=$(grep -o "EMULATION" /proc/device-tree/model)
 		if [ "$emu" == "EMULATION" ]; then
