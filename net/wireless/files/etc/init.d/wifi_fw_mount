@@ -562,22 +562,25 @@ mount_wifi_fw (){
 			esac
 
 			case $board_name in
-                                rdp466* | rdp485* | rdp496)
-                                        caldata_symlink_creation "$board_name" "2"
-                                        caldata_symlink_creation "$board_name" "3"
+				rdp466* | rdp485* | rdp496)
+					caldata_symlink_creation "$board_name" "2"
+					caldata_symlink_creation "$board_name" "3"
 				;;
-                                rdp487* )
-                                        caldata_symlink_creation "$board_name" "2"
+				rdp487* )
+					caldata_symlink_creation "$board_name" "2"
 				;;
 				rdp464*)
 					caldata_symlink_creation "$board_name" "2"
 					caldata_symlink_creation "$board_name" "3"
 					caldata_symlink_creation "$board_name" "4"
 				;;
+				rdp498* | rdp500* | rdp501*)
+					caldata_symlink_creation "$board_name" "0"
+				;;
 				*)
 					#No sm links
 				;;
-                        esac
+			esac
 		fi
 	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9625 ]; then
 		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/board-2.bin ]; then
@@ -602,6 +605,13 @@ mount_wifi_fw (){
 					caldata_symlink_creation "$board_name" "2"
 					caldata_symlink_creation "$board_name" "3"
 					caldata_symlink_creation "$board_name" "4"
+				;;
+				rdp499* | rdp502* | rdp505*)
+					caldata_symlink_creation "$board_name" "0"
+				;;
+				rdp503* | rdp504*)
+					caldata_symlink_creation "$board_name" "0"
+					caldata_symlink_creation "$board_name" "1"
 				;;
 				*)
 					#No sm links
