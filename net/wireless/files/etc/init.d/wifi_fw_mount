@@ -175,7 +175,7 @@ mount_wifi_fw (){
 	;;
 	esac
 
-	if [["$arch" == "IPQ5424"]] || [[ "$arch" == "IPQ5210" ]] || [[ "$arch" == "IPQ9650" ]]; then
+	if [[ "$arch" == "IPQ5424" ]] || [[ "$arch" == "IPQ5210" ]] || [[ "$arch" == "IPQ9650" ]]; then
 		local index=$(get_partname $part_name $arch)
 		if [ "$index" == "1" ]; then
 			part_name=${part_name}_${index}
