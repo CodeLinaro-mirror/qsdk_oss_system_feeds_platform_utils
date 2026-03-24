@@ -33,6 +33,7 @@ caldata_symlink_creation(){
 		board=$(echo $line | cut -f1 -d',')
 		if [[ "$board" == "$1" ]]; then
 			var=$((var+1))
+			#$2 passed as an argument should be ftm.conf line index within the ftm.conf for a given board/RDP
 			if [[ $var == $2 ]]; then
 				local brdid=$(echo $line | cut -f2 -d',')
 				local art_slot=$(echo $line | cut -f3 -d',')
@@ -580,7 +581,7 @@ mount_wifi_fw (){
 					caldata_symlink_creation "$board_name" "4"
 				;;
 				rdp498* | rdp500* | rdp501*)
-					caldata_symlink_creation "$board_name" "0"
+					caldata_symlink_creation "$board_name" "1"
 				;;
 				*)
 					#No sm links
@@ -612,11 +613,11 @@ mount_wifi_fw (){
 					caldata_symlink_creation "$board_name" "3"
 				;;
 				rdp499* | rdp502* | rdp505*)
-					caldata_symlink_creation "$board_name" "0"
+					caldata_symlink_creation "$board_name" "1"
 				;;
 				rdp503* | rdp504*)
-					caldata_symlink_creation "$board_name" "0"
 					caldata_symlink_creation "$board_name" "1"
+					caldata_symlink_creation "$board_name" "2"
 				;;
 				*)
 					#No sm links
