@@ -405,3 +405,21 @@ define KernelPackage/updtest_mod/description
 endef
 
 $(eval $(call KernelPackage,updtest_mod))
+
+define Package/rproc-fw-mount
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=Remote Processor Firmware Mount Script
+  DEPENDS:=@TARGET_ipq96xx
+endef
+
+define Package/rproc-fw-mount/description
+  Init script to mount CDSP and Prime firmware partitions for IPQ9650
+endef
+
+define Package/rproc-fw-mount/install
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/etc/init.d/rproc_fw_mount $(1)/etc/init.d/
+endef
+
+$(eval $(call BuildPackage,rproc-fw-mount))
