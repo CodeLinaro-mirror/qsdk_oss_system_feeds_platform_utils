@@ -140,17 +140,17 @@ board=$(ipq_board_name)
 case "$1" in
 	load)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424* | ipq5210*)
 			ipq_wifi_load ;;
 		esac ;;
 	unload)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424* | ipq5210*)
 			ipq_wifi_unload ;;
 		esac ;;
 	reload)
 		case "$board" in
-		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424*)
+		ap-al* | db-al* | ap-mi* | db-mi* | ipq5424* | ipq5210*)
 			ipq_wifi_reload ;;
 		esac ;;
 esac
