@@ -296,6 +296,14 @@ mount_wifi_fw (){
 		mkdir -p /lib/firmware/qcn9625 && cd /lib/firmware/qcn9625 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625/qdss* .
 	fi
 
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9589 ]; then
+		cd  $fwfolder && mkdir -p qcn9589 && mkdir -p /vendor/firmware/qcn9589
+		cd qcn9589 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/*.* .
+		cd /vendor/firmware/qcn9589 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589/Data.msc .
+		create_soft_link Data.msc Data_dualmac.msc
+		mkdir -p /lib/firmware/qcn9589 && cd /lib/firmware/qcn9589 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589/qdss* .
+	fi
+
 	mkdir -p $fwfolder/$arch
 	cd  $fwfolder/$arch && ln -s /lib/firmware/$arch/WIFI_FW/*.* .
 	cd  /lib/firmware/$arch && create_soft_link /lib/firmware/$arch/WIFI_FW/qdss* .
@@ -588,7 +596,9 @@ mount_wifi_fw (){
 				;;
 			esac
 		fi
-	elif [ -d /lib/firmware/$arch/WIFI_FW/qcn9625 ]; then
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9625 ]; then
 		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/board-2.bin ]; then
 			mkdir -p /lib/firmware/ath12k/QCN9625/hw1.0/
 			cd /lib/firmware/ath12k/QCN9625/hw1.0/
@@ -618,6 +628,37 @@ mount_wifi_fw (){
 				rdp503* | rdp504*)
 					caldata_symlink_creation "$board_name" "1"
 					caldata_symlink_creation "$board_name" "2"
+				;;
+				*)
+					#No sm links
+				;;
+                        esac
+		fi
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9589 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath12k/QCN9589/hw1.0/
+			cd /lib/firmware/ath12k/QCN9589/hw1.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/m3.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/amss.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/board-2.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589/regdb.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/regdb.bin .
+			fi
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/qdss_trace_config.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589/aux.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/aux.bin .
+			fi
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589/mcss.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/mcss.bin .
+			fi
+
+			case $board_name in
+				rdp464*)
+					caldata_symlink_creation "$board_name" "1"
+					caldata_symlink_creation "$board_name" "2"
+					caldata_symlink_creation "$board_name" "3"
 				;;
 				*)
 					#No sm links
