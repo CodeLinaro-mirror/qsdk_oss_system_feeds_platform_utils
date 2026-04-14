@@ -98,7 +98,7 @@ mount_cdsp_fw() {
 		# Attach UBI device if not already attached (suppress error if already attached)
 		ubiattach -p /dev/$PART 2>/dev/null || true
 		sync
-		local ubi_part=$(find_mtd_part cdsp 2> /dev/null)
+		local ubi_part=$(find_mtd_part cdsp_fw 2> /dev/null)
 		if [ -n "$ubi_part" ]; then
 			/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/CDSP_FW > /dev/kmsg 2>&1
 			if [ $? -ne 0 ]; then
@@ -180,7 +180,7 @@ mount_prime_fw() {
 		# Attach UBI device if not already attached (suppress error if already attached)
 		ubiattach -p /dev/$PART 2>/dev/null || true
 		sync
-		local ubi_part=$(find_mtd_part prime 2> /dev/null)
+		local ubi_part=$(find_mtd_part prime_fw 2> /dev/null)
 		if [ -n "$ubi_part" ]; then
 			/bin/mount -t squashfs $ubi_part /lib/firmware/$arch/PRIME_FW > /dev/kmsg 2>&1
 			if [ $? -ne 0 ]; then
