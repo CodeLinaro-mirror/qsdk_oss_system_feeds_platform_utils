@@ -21,7 +21,7 @@ define Package/$(PKG_NAME)
   MAINTAINER:=Bytecode Alliance
   TITLE:=Library implementing the WebAssembly Micro Runtime
   LICENSE:=Apache License v2.0 with LLVM Exceptions
-  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx +libstdcpp
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq52xx||TARGET_ipq96xx +libstdcpp
 endef
 
 define Package/$(PKG_NAME)/description
