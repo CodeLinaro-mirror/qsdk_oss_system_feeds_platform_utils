@@ -380,7 +380,7 @@ $(eval $(call KernelPackage,llcc_perfmon))
 define KernelPackage/qcom_eud
   SUBMENU:=$(OTHER_MENU)
   TITLE:=QCOM EUD Driver
-  DEPENDS+=@TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq95xx +kmod-usb-gadget +kmod-usb-roles
+  DEPENDS+=@TARGET_ipq52xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq95xx||TARGET_ipq96xx +kmod-usb-gadget +kmod-usb-roles
   KCONFIG:=CONFIG_USB_QCOM_EUD
   FILES:=$(LINUX_DIR)/drivers/usb/misc/qcom_eud.ko
   AUTOLOAD:=$(call AutoLoad,80,qcom_eud)
