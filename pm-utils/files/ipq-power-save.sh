@@ -564,7 +564,7 @@ ipq9650_battery_power()
 
 # Cortex Power-down Sequence
 	echo "powersave" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-
+	echo "powersave" > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
 }
 
 ipq5332_phy_power_on()
