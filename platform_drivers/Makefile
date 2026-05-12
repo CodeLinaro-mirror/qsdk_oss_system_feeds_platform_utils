@@ -128,7 +128,7 @@ define KernelPackage/crypto-seccrypt
   FILES:= \
 	$(LINUX_DIR)/drivers/crypto/seccrypt.ko
   AUTOLOAD:=$(call AutoLoad,09,seccrypt)
-  DEPENDS:=@TARGET_ipq53xx||TARGET_ipq54xx
+  DEPENDS:=@TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq96xx||TARGET_ipq52xx
   $(call AddPlatformDepends/crypto)
 endef
 
