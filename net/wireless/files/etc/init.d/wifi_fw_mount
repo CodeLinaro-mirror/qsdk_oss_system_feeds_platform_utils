@@ -605,6 +605,9 @@ mount_wifi_fw (){
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/m3.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/amss.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/board-2.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/fw_ini_cfg.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/fw_ini_cfg.bin .
+			fi
 			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625/regdb.bin ]; then
 				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/regdb.bin .
 			fi
@@ -643,6 +646,9 @@ mount_wifi_fw (){
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/m3.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/amss.bin .
 			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/board-2.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589/fw_ini_cfg.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/fw_ini_cfg.bin .
+			fi
 			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589/regdb.bin ]; then
 				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/regdb.bin .
 			fi
