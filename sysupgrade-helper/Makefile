@@ -45,6 +45,17 @@ define Build/Configure
 	echo "CONFIG_TOOLS_FIT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
 	echo "CONFIG_TOOLS_FIT_PRINT=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
 	echo "CONFIG_SYSUPGRADE_HELPER=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_LIBCRYPTO=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_FIT_SIGNATURE=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_FIT_SIGNATURE_MAX_SIZE=0xffffffff" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_FIT_RSASSA_PSS=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_FIT_FULL_CHECK=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_FIT_VERBOSE=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_MD5=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_SHA1=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_SHA256=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_SHA384=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
+	echo "CONFIG_TOOLS_SHA512=y" >> $(PKG_BUILD_DIR)/include/config/auto.conf
 	touch $(PKG_BUILD_DIR)/include/config/auto.conf
 	mkdir -p $(PKG_BUILD_DIR)/include/generated
 	echo "#define CONFIG_FIT_PRINT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
@@ -52,13 +63,24 @@ define Build/Configure
 	echo "#define CONFIG_TOOLS_FIT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
 	echo "#define CONFIG_TOOLS_FIT_PRINT 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
 	echo "#define CONFIG_SYSUPGRADE_HELPER 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_FIT_SIGNATURE 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_FIT_SIGNATURE 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_FIT_SIGNATURE_MAX_SIZE 0xffffffff" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_FIT_RSASSA_PSS 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_FIT_FULL_CHECK 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_FIT_VERBOSE 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_MD5 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_SHA1 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_SHA256 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_SHA384 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
+	echo "#define CONFIG_TOOLS_SHA512 1" >> $(PKG_BUILD_DIR)/include/generated/autoconf.h
 	touch $(PKG_BUILD_DIR)/include/generated/autoconf.h
 endef
 
 MAKE_FLAGS += \
 	CROSS_BUILD_TOOLS=y \
 	HOSTCFLAGS="$(SHA_FLAG) $(IMG_FLAG) -fPIC" \
-	HOSTLDFLAGS="$(HOSTLDFLAGS) -lpthread -lcrypto -lssl" \
+	HOSTLDFLAGS="$(HOSTLDFLAGS) " \
 	HOSTEXTRACFLAGS="$(HOST_EXTRACFLAGS)" \
 	no-dot-config-targets=tools-only \
 	tools-only
