@@ -478,6 +478,46 @@ mount_wifi_fw (){
 		fi
 	fi
 
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9160 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath12k/QCN9160/hw1.0/
+			cd /lib/firmware/ath12k/QCN9160/hw1.0/
+
+			ln -s /lib/firmware/$arch/WIFI_FW/q6_fw* .
+
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.b00 ]; then
+			    ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.b00 iu_fw.b00
+			fi
+
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.b01 ]; then
+			    ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.b01 iu_fw.b01
+			fi
+
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.b02 ]; then
+			    ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.b02 iu_fw.b02
+			fi
+
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.flist ]; then
+			    ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.flist iu_fw.flist
+			fi
+
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.mdt ]; then
+			    ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/m3_fw.mdt iu_fw.mdt
+			fi
+
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/qdss_trace_config.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/qdss_trace_config.bin qdss_trace_config.bin
+			fi
+
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9160/Data.msc ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/Data.msc Data.msc
+			fi
+
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9160/board-2.bin board-2.bin
+		fi
+	fi
+
+
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9000 ]; then
 		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9000/board-2.bin ]; then
 			if [[ "$board_name" == "ap-al02-c13" ]]; then
