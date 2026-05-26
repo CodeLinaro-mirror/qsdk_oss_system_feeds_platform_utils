@@ -55,10 +55,17 @@ caldata_symlink_creation(){
 get_partname() {
 	local part_name=""
 	local parse_value=4
+	local mmcblock
 	local mtdpart=$(grep "\"0:BOOTCONFIG\"" /proc/mtd | awk -F: '{print $1}')
 	local trymode_inprogress=$(cat /sys/devices/platform/firmware:scm/trymode_inprogress)
 
-	dd if=/dev/${mtdpart} of=/tmp/bootconfig.bin
+	if [ -n "$mtdpart" ]; then
+		dd if=/dev/${mtdpart} of=/tmp/bootconfig.bin
+	else
+		mtdpart=0:BOOTCONFIG
+		mmcblock="$(find_mmc_part "$mtdpart")"
+		dd if=${mmcblock} of=/tmp/bootconfig.bin
+	fi
 
 	dumpimage -b $parse_value &> /dev/null
 	if [[ "$?" == 1 ]];then
