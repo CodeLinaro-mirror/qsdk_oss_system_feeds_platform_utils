@@ -20,7 +20,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/sysupgrade-helper
   SECTION:=boot
   CATEGORY:=Boot Loaders
-  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx +losetup +libopenssl
+  DEPENDS:=@TARGET_ipq95xx||TARGET_ipq53xx||TARGET_ipq54xx||TARGET_ipq52xx||TARGET_ipq96xx +losetup +libopenssl
   TITLE:=U-boot images tools (dumpimage, mkimage)
 endef
 

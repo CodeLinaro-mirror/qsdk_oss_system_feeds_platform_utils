@@ -9,51 +9,14 @@
 START=00
 STOP=95
 
-get_partname() {
-	local part_name=""
-	local parse_value=4
-	local mtdpart=$(grep "\"0:BOOTCONFIG\"" /proc/mtd | awk -F: '{print $1}')
-
-	# Check if BOOTCONFIG partition exists
-	if [ -z "$mtdpart" ]; then
-		echo "BOOTCONFIG partition not found, using primary partition" > /dev/console 2>&1
-		echo ""
-		return 0
-	fi
-
-	local trymode_inprogress=$(cat /sys/devices/platform/firmware:scm/trymode_inprogress 2>/dev/null)
-
-	dd if=/dev/${mtdpart} of=/tmp/bootconfig.bin 2>/dev/null
-
-	dumpimage -b $parse_value &> /dev/null
-	if [[ "$?" == 1 ]];then
-		echo "Unable to read bootconfig" > /dev/console 2>&1
-		return 1
-	fi
-
-	if [ ! -e /tmp/bootconfig_members.txt ]; then
-		echo " Parsed bootconfig info not available " > /dev/console 2>&1
-		return 1
-	fi
-
-	local boot_set=$(grep "Boot-set" /tmp/bootconfig_members.txt | awk -F: '{print $2}')
-	local image_status=$(grep "Image-set-status" /tmp/bootconfig_members.txt | awk -F: '{print $2}')
-
-	if [ "$boot_set" -eq 0 ] && [ "$image_status" -eq 1 ]; then
-		part_name="1"
-	elif [ "$boot_set" -eq 1 ] && [ "$image_status" -ne 2 ]; then
-		part_name="1"
-	fi
-
-	if [ "$trymode_inprogress" -eq 1 ]; then
-		if [ "$part_name" -eq "1" ]; then
-			part_name=""
-		else
-			part_name="1"
-		fi
-	fi
-
-	echo $part_name
+# get_partname_new() - determines partition to mount based on the booted bank.
+get_partname_new() {
+	local partlabel
+	partlabel=$(cat /proc/cmdline 2>/dev/null | grep -o 'PARTLABEL=[^ ]*' | cut -d= -f2)
+	case "$partlabel" in
+		rootfs-inactive) echo "1" ;;
+		*)               echo "" ;;
+	esac
 }
 
 mount_cdsp_fw() {
@@ -69,16 +32,19 @@ mount_cdsp_fw() {
 		return 0
 	fi
 
-	# Handle dual-boot partition naming for IPQ9650
-	local index=$(get_partname $part_name $arch)
+	# ipq52xx/ipq96xx: use DT booted-bank info to select partition for mount
+	local index=$(get_partname_new)
 	if [ "$index" == "1" ]; then
 		part_name=${part_name}_${index}
 		ubi_part_name=${ubi_part_name}_${index}
 	fi
 
-	# Detect partition type
+	# Detect partition based on flashtype
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
 	nand_part=$(find_mtd_part $ubi_part_name 2> /dev/null)
+	if [ -n "$nand_part" ]; then
+		emmc_part=""
+	fi
 
 	# Create mount point
 	mkdir -p /lib/firmware/$arch/CDSP_FW
@@ -151,16 +117,18 @@ mount_prime_fw() {
 		return 0
 	fi
 
-	# Handle dual-boot partition naming for IPQ9650
-	local index=$(get_partname $part_name $arch)
+	# ipq52xx/ipq96xx: use DT booted-bank info to select partition for mount
+	local index=$(get_partname_new)
 	if [ "$index" == "1" ]; then
 		part_name=${part_name}_${index}
 		ubi_part_name=${ubi_part_name}_${index}
 	fi
-
-	# Detect partition type
+	# Detect partition type based on flash
 	emmc_part=$(find_mmc_part $part_name 2> /dev/null)
 	nand_part=$(find_mtd_part $ubi_part_name 2> /dev/null)
+	if [ -n "$nand_part" ]; then
+		emmc_part=""
+	fi
 
 	# Create mount point
 	mkdir -p /lib/firmware/$arch/PRIME_FW
@@ -221,8 +189,8 @@ stop_cdsp_fw() {
 	local part_name="0:CDSPFW"
 	local ubi_part_name="rootfs"
 
-	# Handle dual-boot partition naming
-	local index=$(get_partname $part_name $arch)
+	# ipq52xx/ipq96xx: use DT booted-bank info to select partition for mount
+	local index=$(get_partname_new)
 	if [ "$index" == "1" ]; then
 		part_name=${part_name}_${index}
 		ubi_part_name=${ubi_part_name}_${index}
@@ -250,8 +218,8 @@ stop_prime_fw() {
 	local part_name="0:PRIMEFW"
 	local ubi_part_name="rootfs"
 
-	# Handle dual-boot partition naming
-	local index=$(get_partname $part_name $arch)
+	# ipq52xx/ipq96xx: use DT booted-bank info to select partition for mount
+	local index=$(get_partname_new)
 	if [ "$index" == "1" ]; then
 		part_name=${part_name}_${index}
 		ubi_part_name=${ubi_part_name}_${index}
