@@ -45,7 +45,7 @@ insmod_ath12k_wifi8()
 		[ -d "$pci_dev" ] || continue
 
 		ID=$(cat "$pci_dev/device" 2>/dev/null) || continue
-		if [ "xx${ID}" = "xx0x1113" ]; then
+		if [ "xx${ID}" = "xx0x1113" ] || [ "xx${ID}" = "xx0x1114" ]; then
 			insmod ath12k_wifi8
 			break
 		fi
