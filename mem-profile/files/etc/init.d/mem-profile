@@ -1,0 +1,163 @@
+#!/bin/sh /etc/rc.common
+# mem-profile — Boot-time memory profile validator
+# START=00 | Validates mem-profile= bootarg against physical MemTotal
+
+START=00
+#STOP=99
+
+LOG_TAG="mem-profile"
+GUARD_FLAG="/etc/.mem_profile_corrected"
+
+# Mirror to /dev/kmsg so messages appear in dmesg at START=00
+_kmsg() { echo "<$1>$LOG_TAG: $2" > /dev/kmsg 2>/dev/null; }
+log_info() { logger -t "$LOG_TAG" -p daemon.info  "$1"; _kmsg 6 "$1"; }
+log_warn() { logger -t "$LOG_TAG" -p daemon.warn  "$1"; _kmsg 4 "$1"; }
+log_err()  { logger -t "$LOG_TAG" -p daemon.error "$1"; _kmsg 3 "$1"; }
+
+# MemTotal in MB from /proc/meminfo
+get_memtotal_mb() {
+    awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo
+}
+
+# Max allowed profile for a given MemTotal (MB).
+# Reads [min_ddr, max_ddr] ranges from /etc/config/mem-profile (UCI).
+# Falls back to optimized if no range matches.
+get_max_profile() {
+    local mem_mb="$1"
+    local profile min max
+    for profile in high balanced optimized; do
+        min=$(uci get mem-profile."${profile}".min_ddr 2>/dev/null)
+        max=$(uci get mem-profile."${profile}".max_ddr 2>/dev/null)
+        [ -z "$min" ] || [ -z "$max" ] && continue
+        if [ "$mem_mb" -ge "$min" ] && [ "$mem_mb" -le "$max" ]; then
+            echo "$profile"
+            return
+        fi
+    done
+    echo "optimized"
+}
+
+# Numeric level for profile comparison (higher = more resources)
+profile_level() {
+    case "$1" in
+        optimized) echo 1 ;;
+        balanced)  echo 2 ;;
+        high)      echo 3 ;;
+        *)         echo 0 ;;  # unknown / invalid
+    esac
+}
+
+# First mem-profile= token from /proc/cmdline
+get_cmdline_profile() {
+    grep -o 'mem-profile=[^ ]*' /proc/cmdline 2>/dev/null | head -1 | cut -d= -f2
+}
+
+# Replace/append mem-profile= in u-boot bootargs (removes duplicates)
+update_bootargs() {
+    local profile="$1"
+    if ! command -v fw_setenv >/dev/null 2>&1 || \
+       ! command -v fw_printenv >/dev/null 2>&1; then
+        log_warn "fw_setenv unavailable — set mem-profile=${profile} in bootargs manually"
+        return 1
+    fi
+    local cur new
+    cur=$(fw_printenv bootargs 2>/dev/null | cut -d= -f2-)
+    [ -z "$cur" ] && log_warn "fw_printenv: could not read bootargs" && return 1
+    new=$(echo "$cur" | sed 's/mem-profile=[^ ]*//g' \
+                      | sed 's/  */ /g' \
+                      | sed 's/^ //;s/ $//')
+    new="${new} mem-profile=${profile}"
+    fw_setenv bootargs "$new" 2>/dev/null && \
+        log_info "fw_setenv: bootargs set — mem-profile=${profile}" && return 0
+    log_warn "fw_setenv: failed to update bootargs"
+    return 1
+}
+
+# Write UCI override + update bootargs + write guard flag + reboot.
+# Only reboots if bootargs were successfully updated.
+auto_correct() {
+    local bad="$1" good="$2"
+
+    if [ -f "$GUARD_FLAG" ]; then
+        log_err "Guard flag active (${GUARD_FLAG}) — halting auto-correction"
+        log_err "Manual intervention required: set mem-profile=${good} in bootargs"
+        return 1
+    fi
+
+    log_warn "Auto-correcting: '${bad}' → '${good}'"
+    uci set system.@system[0].mem_profile="$good"
+    uci commit system
+
+    if update_bootargs "$good"; then
+        echo "$(date) — corrected '${bad}' to '${good}'" > "$GUARD_FLAG"
+        log_warn "Rebooting in 2 seconds..."
+        sleep 2; sync; reboot
+    else
+        log_warn "Bootargs not updated (fw_setenv unavailable) — UCI override set, continuing boot"
+    fi
+}
+
+start() {
+    local mem_mb max_profile
+    mem_mb=$(get_memtotal_mb)
+    max_profile=$(get_max_profile "$mem_mb")
+    log_info "MemTotal=${mem_mb}MB  max_allowed=${max_profile}"
+
+    local profile
+    profile=$(get_cmdline_profile)
+
+    local plvl mlvl
+    plvl=$(profile_level "$profile")
+    mlvl=$(profile_level "$max_profile")
+
+    # ── Valid cmdline profile: boot normally ──────────────────────────
+    # A profile is valid if it is a known name AND its level ≤ max_allowed.
+    # Lower profiles (e.g. optimized on a 1GB board) are always allowed.
+    # Clear any stale UCI override — it is no longer needed.
+    if [ -n "$profile" ] && [ "$plvl" -gt 0 ] && [ "$plvl" -le "$mlvl" ]; then
+        uci delete system.@system[0].mem_profile 2>/dev/null
+        uci commit system 2>/dev/null
+        rm -f "$GUARD_FLAG"
+        log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
+        return 0
+    fi
+
+    # ── Invalid cmdline profile ───────────────────────────────────────
+    # Check for a UCI override written by a previous auto-correction.
+    # Use it only if the cmdline is invalid and the override is valid.
+    local uci_profile
+    uci_profile=$(uci get system.@system[0].mem_profile 2>/dev/null)
+    if [ -n "$uci_profile" ]; then
+        local ulvl
+        ulvl=$(profile_level "$uci_profile")
+        if [ "$ulvl" -gt 0 ] && [ "$ulvl" -le "$mlvl" ]; then
+            log_info "UCI override '${uci_profile}' valid — syncing bootargs"
+            if update_bootargs "$uci_profile"; then
+                log_warn "Rebooting to apply synced bootargs..."
+                sleep 2; sync; reboot; sleep 30
+            fi
+            log_warn "Could not sync bootargs — continuing with UCI override '${uci_profile}'"
+            rm -f "$GUARD_FLAG"
+            log_info "=== mem-profile: '${uci_profile}' — boot OK ==="
+            return 0
+        else
+            log_warn "UCI override '${uci_profile}' invalid for ${mem_mb}MB — clearing"
+            uci delete system.@system[0].mem_profile 2>/dev/null
+            uci commit system 2>/dev/null
+        fi
+    fi
+
+    # ── Auto-correct ──────────────────────────────────────────────────
+    if [ -z "$profile" ]; then
+        log_warn "No mem-profile in cmdline — auto-setting to '${max_profile}'"
+        auto_correct "none" "$max_profile"
+    elif [ "$plvl" -eq 0 ]; then
+        log_err "Unknown profile '${profile}' — auto-correcting to '${max_profile}'"
+        auto_correct "$profile" "$max_profile"
+    else
+        log_err "Profile '${profile}' exceeds hardware limit (max='${max_profile}' for ${mem_mb}MB)"
+        auto_correct "$profile" "$max_profile"
+    fi
+}
+
+stop() { return 0; }
