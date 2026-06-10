@@ -14,27 +14,48 @@ log_info() { logger -t "$LOG_TAG" -p daemon.info  "$1"; _kmsg 6 "$1"; }
 log_warn() { logger -t "$LOG_TAG" -p daemon.warn  "$1"; _kmsg 4 "$1"; }
 log_err()  { logger -t "$LOG_TAG" -p daemon.error "$1"; _kmsg 3 "$1"; }
 
-# MemTotal in MB from /proc/meminfo
-get_memtotal_mb() {
-    awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo
+# Physical DDR size in MB from device tree memory node.
+# Falls back to /proc/meminfo MemTotal if DT node is unavailable.
+get_physical_ddr_mb() {
+    local reg_file
+    reg_file=$(ls /sys/firmware/devicetree/base/memory@*/reg 2>/dev/null | head -1)
+
+    if [ -z "$reg_file" ]; then
+        log_warn "Memory DT node not found — falling back to /proc/meminfo"
+        awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo
+        return
+    fi
+
+    local vals size_high size_low size_hex size_dec size_mb
+    vals=$(hexdump -v -e '4/1 "%02x" "\n"' "$reg_file")
+
+    # reg layout: [addr_high][addr_low][size_high][size_low]
+    size_high=$(echo "$vals" | sed -n '3p')
+    size_low=$(echo "$vals"  | sed -n '4p')
+
+    size_hex="0x${size_high}${size_low}"
+    size_dec=$((size_hex))
+    size_mb=$((size_dec / 1024 / 1024))
+
+    echo "$size_mb"
 }
 
-# Max allowed profile for a given MemTotal (MB).
-# Reads [min_ddr, max_ddr] ranges from /etc/config/mem-profile (UCI).
-# Falls back to optimized if no range matches.
+# Max allowed profile for a given physical DDR size (MB).
+# Reads threshold from /etc/config/mem-profile (UCI).
+# Iterates optimized→balanced; returns the first profile whose
+# threshold >= mem_mb.  Falls back to high if none match.
 get_max_profile() {
     local mem_mb="$1"
-    local profile min max
-    for profile in high balanced optimized; do
-        min=$(uci get mem-profile."${profile}".min_ddr 2>/dev/null)
-        max=$(uci get mem-profile."${profile}".max_ddr 2>/dev/null)
-        [ -z "$min" ] || [ -z "$max" ] && continue
-        if [ "$mem_mb" -ge "$min" ] && [ "$mem_mb" -le "$max" ]; then
+    local profile threshold
+    for profile in optimized balanced; do
+        threshold=$(uci get mem-profile."${profile}".threshold 2>/dev/null)
+        [ -z "$threshold" ] && continue
+        if [ "$mem_mb" -le "$threshold" ]; then
             echo "$profile"
             return
         fi
     done
-    echo "optimized"
+    echo "high"
 }
 
 # Numeric level for profile comparison (higher = more resources)
@@ -61,7 +82,7 @@ update_bootargs() {
         return 1
     fi
     local cur new
-    cur=$(fw_printenv bootargs 2>/dev/null | cut -d= -f2-)
+    cur=$(fw_printenv 2>/dev/null | grep '^bootargs=' | cut -d= -f2-)
     [ -z "$cur" ] && log_warn "fw_printenv: could not read bootargs" && return 1
     new=$(echo "$cur" | sed 's/mem-profile=[^ ]*//g' \
                       | sed 's/  */ /g' \
@@ -87,7 +108,6 @@ auto_correct() {
     log_warn "Auto-correcting: '${bad}' → '${good}'"
     uci set system.@system[0].mem_profile="$good"
     uci commit system
-
     if update_bootargs "$good"; then
         echo "$(date) — corrected '${bad}' to '${good}'" > "$GUARD_FLAG"
         log_warn "Rebooting in 2 seconds..."
@@ -99,12 +119,13 @@ auto_correct() {
 
 start() {
     local mem_mb max_profile
-    mem_mb=$(get_memtotal_mb)
+    mem_mb=$(get_physical_ddr_mb)
     max_profile=$(get_max_profile "$mem_mb")
-    log_info "MemTotal=${mem_mb}MB  max_allowed=${max_profile}"
+    log_info "PhysicalDDR=${mem_mb}MB  max_allowed=${max_profile}"
 
     local profile
     profile=$(get_cmdline_profile)
+    log_info "Current mem-profile in cmdline: ${profile:-<not set>}"
 
     local plvl mlvl
     plvl=$(profile_level "$profile")

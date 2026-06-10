@@ -5,24 +5,15 @@
 # Supported platforms: IPQ5332, IPQ5424, IPQ9574, IPQ5210, IPQ9650
 # All platforms support 256 MB, 512 MB, and Open (1 GB+) DDR configs.
 #
-# Profile names match the mem_profile= kernel cmdline bootarg:
+# Profile names match the mem-profile= kernel cmdline bootarg:
 #   high       — 1 GB DDR   (Open config)
 #   balanced   — 512 MB DDR
 #   optimized  — 256 MB DDR
 #
-# DDR values are in MB as reported by /proc/meminfo MemTotal
-# (kernel-visible RAM — physical RAM minus reserved regions).
-#
-# Measured MemTotal values (real board data):
-#   high      : 825640 kB (~806 MB)  — IPQ9574, 1 GB physical
-#   balanced  : 362888 kB (~354 MB)  — 512 MB physical
-#   optimized : 195600 kB (~191 MB)  — 256 MB physical
-#
-# DDR ranges are set with ±50 MB tolerance around measured values,
-# with non-overlapping boundaries:
-#   optimized : 100 – 249 MB
-#   balanced  : 250 – 599 MB
-#   high      : 600 – 999999 MB
+# Default Profile : physical DDR upper bound (MB) for this profile.
+#   optimized     : physical DDR <= 256 MB
+#   balanced      : physical DDR <= 512 MB
+#   high          : physical DDR >  512 MB  (no threshold — catch-all)
 #
 # rdp_support : 'any' to skip the check, or a board_name string from
 #               /etc/board.json (e.g. 'qcom,ipq9574-ap-al02-c4') to
@@ -31,12 +22,11 @@
 # required_wifi_bands : minimum band count from 'iw list | grep -c "Band [0-9]*:"'
 # =============================================================
 
-# ── high — 1 GB DDR (default / safe fallback) ────────────────
+# ── optimized — 256 MB DDR ───────────────────────────────────
 
-config profile 'high'
-	option kernel_mem_profile  '0'
-	option min_ddr             '600'
-	option max_ddr             '999999'
+config profile 'optimized'
+	option kernel_mem_profile  '256'
+	option threshold           '256'
 	option rdp_support         'any'
 	option required_wifi_bands '3'
 
@@ -44,16 +34,13 @@ config profile 'high'
 
 config profile 'balanced'
 	option kernel_mem_profile  '512'
-	option min_ddr             '250'
-	option max_ddr             '599'
+	option threshold           '512'
 	option rdp_support         'any'
 	option required_wifi_bands '3'
 
-# ── optimized — 256 MB DDR ───────────────────────────────────
+# ── high — 1 GB DDR (catch-all for > 512 MB) ─────────────────
 
-config profile 'optimized'
-	option kernel_mem_profile  '256'
-	option min_ddr             '100'
-	option max_ddr             '249'
+config profile 'high'
+	option kernel_mem_profile  '0'
 	option rdp_support         'any'
 	option required_wifi_bands '3'
