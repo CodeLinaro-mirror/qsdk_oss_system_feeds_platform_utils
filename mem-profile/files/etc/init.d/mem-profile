@@ -118,6 +118,12 @@ auto_correct() {
 }
 
 start() {
+    # Skip validation on platforms with memory profiles (MP_512/MP_256).
+    if [ -e /proc/device-tree/MP_512 ] || [ -e /proc/device-tree/MP_256 ]; then
+        log_info "Detected Static LM512/LM256 profile - skipping mem-profile validation"
+        return 0
+    fi
+
     local mem_mb max_profile
     mem_mb=$(get_physical_ddr_mb)
     max_profile=$(get_max_profile "$mem_mb")
