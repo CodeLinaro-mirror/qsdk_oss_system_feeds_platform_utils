@@ -73,6 +73,19 @@ get_cmdline_profile() {
     grep -o 'mem-profile=[^ ]*' /proc/cmdline 2>/dev/null | head -1 | cut -d= -f2
 }
 
+# Ensure /etc/fw_env.config exists using the same process as /etc/init.d/boot:
+#   1. Run /bin/config_generate to create /etc/board.json (missing at START=00)
+#   2. Source 30_uboot-envtools — now board.json exists so it creates fw_env.config
+ensure_fw_env_config() {
+    [ -f /etc/fw_env.config ] && return 0
+    # Generate board.json if not yet available (normally done by /etc/init.d/boot)
+    [ ! -f /etc/board.json ] && [ -x /bin/config_generate ] && /bin/config_generate
+    # Source 30_uboot-envtools — board.json now exists so uboot-envtool check passes
+    [ -f /etc/uci-defaults/30_uboot-envtools ] && (. /etc/uci-defaults/30_uboot-envtools)
+    [ -f /etc/fw_env.config ] && log_info "fw_env.config created via uboot-envtools" && return 0
+    return 1
+}
+
 # Replace/append mem-profile= in u-boot bootargs (removes duplicates)
 update_bootargs() {
     local profile="$1"
@@ -81,6 +94,7 @@ update_bootargs() {
         log_warn "fw_setenv unavailable — set mem-profile=${profile} in bootargs manually"
         return 1
     fi
+    ensure_fw_env_config || log_warn "fw_env.config: could not be created"
     local cur new
     cur=$(fw_printenv 2>/dev/null | grep '^bootargs=' | cut -d= -f2-)
     [ -z "$cur" ] && log_warn "fw_printenv: could not read bootargs" && return 1
@@ -118,9 +132,16 @@ auto_correct() {
 }
 
 start() {
-    # Skip validation on platforms with memory profiles (MP_512/MP_256).
+    # Skip validation on platforms with fixed memory profiles.
+    # Primary:   device tree MP_512/MP_256 nodes.
+    # Secondary: kernel config CONFIG_IPQ_MEM_PROFILE (fallback when DT nodes absent).
     if [ -e /proc/device-tree/MP_512 ] || [ -e /proc/device-tree/MP_256 ]; then
-        log_info "Detected Static LM512/LM256 profile - skipping mem-profile validation"
+        log_info "Detected Static LM512/LM256 profile (DT node) - skipping mem-profile validation"
+        return 0
+    elif [ -f /proc/config.gz ] && \
+         { zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=512" || \
+           zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=256"; }; then
+        log_info "Detected Static LM512/LM256 profile (kernel config) - skipping mem-profile validation"
         return 0
     fi
 
