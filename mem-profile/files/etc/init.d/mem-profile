@@ -14,30 +14,35 @@ log_info() { logger -t "$LOG_TAG" -p daemon.info  "$1"; _kmsg 6 "$1"; }
 log_warn() { logger -t "$LOG_TAG" -p daemon.warn  "$1"; _kmsg 4 "$1"; }
 log_err()  { logger -t "$LOG_TAG" -p daemon.error "$1"; _kmsg 3 "$1"; }
 
-# Physical DDR size in MB from device tree memory node.
-# Falls back to /proc/meminfo MemTotal if DT node is unavailable.
+# Physical DDR size in MB from device tree memory nodes.
+# Iterates all memory@* nodes and sums all size cells to get total DDR.
+# Each reg entry is a 32-byte cell: [addr_hi:8][addr_lo:8][size_hi:8][size_lo:8]
+# Falls back to /proc/meminfo MemTotal if DT nodes are unavailable.
 get_physical_ddr_mb() {
-    local reg_file
-    reg_file=$(ls /sys/firmware/devicetree/base/memory@*/reg 2>/dev/null | head -1)
+    local total=0 found=0
 
-    if [ -z "$reg_file" ]; then
+    for mem in /sys/firmware/devicetree/base/memory@*/reg; do
+        [ -e "$mem" ] || continue
+        found=1
+        local hex cell size_hi size_lo size
+        hex=$(hexdump -v -e '1/1 "%02x"' "$mem" 2>/dev/null)
+        while [ ${#hex} -ge 32 ]; do
+            cell=${hex:0:32}
+            size_hi=${cell:16:8}
+            size_lo=${cell:24:8}
+            size=$(( 0x${size_hi}${size_lo} ))
+            total=$(( total + size ))
+            hex=${hex:32}
+        done
+    done
+
+    if [ "$found" -eq 0 ]; then
         log_warn "Memory DT node not found — falling back to /proc/meminfo"
         awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo
         return
     fi
 
-    local vals size_high size_low size_hex size_dec size_mb
-    vals=$(hexdump -v -e '4/1 "%02x" "\n"' "$reg_file")
-
-    # reg layout: [addr_high][addr_low][size_high][size_low]
-    size_high=$(echo "$vals" | sed -n '3p')
-    size_low=$(echo "$vals"  | sed -n '4p')
-
-    size_hex="0x${size_high}${size_low}"
-    size_dec=$((size_hex))
-    size_mb=$((size_dec / 1024 / 1024))
-
-    echo "$size_mb"
+    echo $(( total / 1024 / 1024 ))
 }
 
 # Max allowed profile for a given physical DDR size (MB).
@@ -124,8 +129,16 @@ auto_correct() {
     uci commit system
     if update_bootargs "$good"; then
         echo "$(date) — corrected '${bad}' to '${good}'" > "$GUARD_FLAG"
-        log_warn "Rebooting in 2 seconds..."
-        sleep 2; sync; reboot
+        # Skip reboot only when no profile was previously set (bad = "none").
+        # The kernel loaded with DEFAULT = max profile, so current boot is correct.
+        # All other cases (wrong profile, unknown profile) require a reboot to
+        # apply the corrected profile to drivers.
+        if [ "$bad" = "none" ]; then
+            log_warn "Bootargs set to '${good}' — takes effect on next boot (no reboot needed)"
+        else
+            log_warn "Rebooting in 2 seconds..."
+            sleep 2; sync; reboot
+        fi
     else
         log_warn "Bootargs not updated (fw_setenv unavailable) — UCI override set, continuing boot"
     fi
