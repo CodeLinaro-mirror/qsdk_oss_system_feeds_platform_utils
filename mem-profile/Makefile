@@ -30,6 +30,8 @@ endef
 define Package/mem-profile/install
 	$(INSTALL_DIR)  $(1)/etc/init.d
 	$(INSTALL_BIN)  ./files/etc/init.d/mem-profile  $(1)/etc/init.d/
+	$(INSTALL_DIR)  $(1)/etc/board.d
+	$(INSTALL_BIN)  ./files/etc/board.d/03_mem_profile  $(1)/etc/board.d/
 	$(INSTALL_DIR)  $(1)/etc/config
 	$(INSTALL_DATA) ./files/etc/config/mem-profile   $(1)/etc/config/mem-profile
 endef

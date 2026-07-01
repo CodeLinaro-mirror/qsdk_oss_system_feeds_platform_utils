@@ -1,0 +1,126 @@
+#!/bin/sh
+
+. /lib/functions/uci-defaults.sh
+
+# Write mem_profile object into board.json
+CFG="/etc/board.json"
+
+set_min_max_mem_profile() {
+	local min="${1}"
+	local max="${2:-high}"
+
+	json_init
+	[ -f ${CFG} ] && json_load "$(cat ${CFG})"
+	json_select_object mem_profile
+	json_add_string min "$min"
+	json_add_string max "$max"
+	json_select ..
+}
+
+# Physical DDR size in MB from device tree memory nodes.
+# Iterates all memory@* nodes and sums all size cells to get total DDR.
+# Each reg entry is a 32-byte cell: [addr_hi:8][addr_lo:8][size_hi:8][size_lo:8]
+# Falls back to /proc/meminfo MemTotal if DT nodes are unavailable.
+get_physical_ddr_mb() {
+	local total=0 found=0
+
+	for mem in /sys/firmware/devicetree/base/memory@*/reg; do
+		[ -e "$mem" ] || continue
+		found=1
+		local hex cell size_hi size_lo size
+		hex=$(hexdump -v -e '1/1 "%02x"' "$mem" 2>/dev/null)
+		while [ ${#hex} -ge 32 ]; do
+			cell=${hex:0:32}
+			size_hi=${cell:16:8}
+			size_lo=${cell:24:8}
+			size=$(( 0x${size_hi}${size_lo} ))
+			total=$(( total + size ))
+			hex=${hex:32}
+		done
+	done
+
+	if [ "$found" -eq 0 ]; then
+		log_warn "Memory DT node not found ... falling back to /proc/meminfo"
+		awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo
+		return
+	fi
+
+	echo $(( total / 1024 / 1024 ))
+}
+
+set_default_profile() {
+	mem_mb=$(get_physical_ddr_mb)
+	if [ "$mem_mb" -ge 1024 ]; then
+		set_min_max_mem_profile "high" "high"
+	elif [ "$mem_mb" -ge 512 ]; then
+		set_min_max_mem_profile "balanced" "balanced"
+	else
+		set_min_max_mem_profile "optimized" "optimized"
+	fi
+}
+ipq_setup_profile() {
+	local board="$1"
+
+	case "$board" in
+
+	# ── 256 MB fixed-DDR boards ──────────────────────────────────────
+	# Only 'optimized' profile is valid; balanced/high are disallowed.
+	qcom,ipq96*)
+		set_min_max_mem_profile "optimized" "high"
+		;;
+
+	# ── Standard IPQ5332 boards (8-chain / JR / BR / HR) ────────────
+	# Minimum 512 MB DDR (balanced); high profile also allowed.
+	qcom,ipq5210-rdp498 |\
+	qcom,ipq5210-rdp499 |\
+	qcom,ipq5210-rdp500 |\
+	qcom,ipq5210-rdp501 |\
+	qcom,ipq5210-rdp502 |\
+	qcom,ipq5210-rdp511 |\
+	qcom,ipq5210-rdp512)
+		set_min_max_mem_profile "optimized" "high"
+		;;
+	qcom,ipq5210-rdp503 |\
+	qcom,ipq5210-rdp504)
+		set_min_max_mem_profile "balanced" "high"
+		;;
+	qcom,ipq5210-rdp505)
+		set_min_max_mem_profile "optimized" "balanced"
+		;;
+	qcom,ipq5210-rdp497)
+		set_min_max_mem_profile "optimized" "optimized"
+		;;
+	*)
+		echo "mem-profile: board '${board}' — set default profile" >&2
+		set_default_profile
+		;;
+	esac
+}
+
+get_mem_profile_details() {
+	local JSON_FILE="/etc/board.json"
+	local info_value
+
+	json_load_file "$JSON_FILE"
+
+	case $1 in
+		"min")
+			json_select mem_profile
+			json_get_var info_value min
+			info_value=${info_value##*/}
+			;;
+		"max")
+			json_select mem_profile
+			json_get_var info_value max
+			info_value=${info_value##*/}
+			;;
+		*)
+			json_get_var info_value $1
+			;;
+	esac
+	echo $info_value
+}
+
+board=$(board_name)
+ipq_setup_profile "$board"
+board_config_flush
