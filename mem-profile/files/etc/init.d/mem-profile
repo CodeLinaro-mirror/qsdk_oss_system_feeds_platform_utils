@@ -6,7 +6,6 @@ START=00
 #STOP=99
 
 LOG_TAG="mem-profile"
-GUARD_FLAG="/etc/.mem_profile_corrected"
 
 # Mirror to /dev/kmsg so messages appear in dmesg at START=00
 _kmsg() { echo "<$1>$LOG_TAG: $2" > /dev/kmsg 2>/dev/null; }
@@ -14,35 +13,39 @@ log_info() { logger -t "$LOG_TAG" -p daemon.info  "$1"; _kmsg 6 "$1"; }
 log_warn() { logger -t "$LOG_TAG" -p daemon.warn  "$1"; _kmsg 4 "$1"; }
 log_err()  { logger -t "$LOG_TAG" -p daemon.error "$1"; _kmsg 3 "$1"; }
 
+board_name() {
+	[ -e /tmp/sysinfo/board_name ] && cat /tmp/sysinfo/board_name || echo "generic"
+}
+
 # Physical DDR size in MB from device tree memory nodes.
 # Iterates all memory@* nodes and sums all size cells to get total DDR.
 # Each reg entry is a 32-byte cell: [addr_hi:8][addr_lo:8][size_hi:8][size_lo:8]
 # Falls back to /proc/meminfo MemTotal if DT nodes are unavailable.
 get_physical_ddr_mb() {
-    local total=0 found=0
+	local total=0 found=0
 
-    for mem in /sys/firmware/devicetree/base/memory@*/reg; do
-        [ -e "$mem" ] || continue
-        found=1
-        local hex cell size_hi size_lo size
-        hex=$(hexdump -v -e '1/1 "%02x"' "$mem" 2>/dev/null)
-        while [ ${#hex} -ge 32 ]; do
-            cell=${hex:0:32}
-            size_hi=${cell:16:8}
-            size_lo=${cell:24:8}
-            size=$(( 0x${size_hi}${size_lo} ))
-            total=$(( total + size ))
-            hex=${hex:32}
-        done
-    done
+	for mem in /sys/firmware/devicetree/base/memory@*/reg; do
+		[ -e "$mem" ] || continue
+		found=1
+		local hex cell size_hi size_lo size
+		hex=$(hexdump -v -e '1/1 "%02x"' "$mem" 2>/dev/null)
+		while [ ${#hex} -ge 32 ]; do
+			cell=${hex:0:32}
+			size_hi=${cell:16:8}
+			size_lo=${cell:24:8}
+			size=$(( 0x${size_hi}${size_lo} ))
+			total=$(( total + size ))
+			hex=${hex:32}
+		done
+	done
 
-    if [ "$found" -eq 0 ]; then
-        log_warn "Memory DT node not found — falling back to /proc/meminfo"
-        awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo
-        return
-    fi
+	if [ "$found" -eq 0 ]; then
+		log_warn "Memory DT node not found — falling back to /proc/meminfo"
+		awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo
+		return
+	fi
 
-    echo $(( total / 1024 / 1024 ))
+	echo $(( total / 1024 / 1024 ))
 }
 
 # Max allowed profile for a given physical DDR size (MB).
@@ -50,175 +53,247 @@ get_physical_ddr_mb() {
 # Iterates optimized→balanced; returns the first profile whose
 # threshold >= mem_mb.  Falls back to high if none match.
 get_max_profile() {
-    local mem_mb="$1"
-    local profile threshold
-    for profile in optimized balanced; do
-        threshold=$(uci get mem-profile."${profile}".threshold 2>/dev/null)
-        [ -z "$threshold" ] && continue
-        if [ "$mem_mb" -le "$threshold" ]; then
-            echo "$profile"
-            return
-        fi
-    done
-    echo "high"
+	local mem_mb="$1"
+	local profile threshold
+
+	for profile in optimized balanced; do
+		threshold=$(uci get mem-profile."${profile}".threshold 2>/dev/null)
+		[ -z "$threshold" ] && continue
+		if [ "$mem_mb" -le "$threshold" ]; then
+			echo "$profile"
+			return
+		fi
+	done
+	echo "high"
+}
+
+get_mem_profile_details() {
+	local JSON_FILE="/etc/board.json"
+
+	case $1 in
+		"min")
+			info_value=$(jsonfilter -i $JSON_FILE -e '@.mem_profile.min')
+			;;
+		"max")
+			info_value=$(jsonfilter -i $JSON_FILE -e '@.mem_profile.max')
+			;;
+		*)
+			info_value=$(jsonfilter -i $JSON_FILE -e '@.$1')
+			;;
+	esac
+	echo $info_value
 }
 
 # Numeric level for profile comparison (higher = more resources)
 profile_level() {
-    case "$1" in
-        optimized) echo 1 ;;
-        balanced)  echo 2 ;;
-        high)      echo 3 ;;
-        *)         echo 0 ;;  # unknown / invalid
-    esac
+	case "$1" in
+		optimized) echo 1 ;;
+		balanced)  echo 2 ;;
+		high)      echo 3 ;;
+		"")        echo 0 ;;  # not set
+		*)         echo -1 ;; # unknown / invalid
+	esac
 }
 
 # First mem-profile= token from /proc/cmdline
 get_cmdline_profile() {
-    grep -o 'mem-profile=[^ ]*' /proc/cmdline 2>/dev/null | head -1 | cut -d= -f2
+	grep -o 'mem-profile=[^ ]*' /proc/cmdline 2>/dev/null | head -1 | cut -d= -f2
 }
 
 # Ensure /etc/fw_env.config exists using the same process as /etc/init.d/boot:
 #   1. Run /bin/config_generate to create /etc/board.json (missing at START=00)
 #   2. Source 30_uboot-envtools — now board.json exists so it creates fw_env.config
 ensure_fw_env_config() {
-    [ -f /etc/fw_env.config ] && return 0
-    # Generate board.json if not yet available (normally done by /etc/init.d/boot)
-    [ ! -f /etc/board.json ] && [ -x /bin/config_generate ] && /bin/config_generate
-    # Source 30_uboot-envtools — board.json now exists so uboot-envtool check passes
-    [ -f /etc/uci-defaults/30_uboot-envtools ] && (. /etc/uci-defaults/30_uboot-envtools)
-    [ -f /etc/fw_env.config ] && log_info "fw_env.config created via uboot-envtools" && return 0
-    return 1
+	[ -f /etc/fw_env.config ] && return 0
+	# Generate board.json if not yet available (normally done by /etc/init.d/boot)
+	[ ! -f /etc/board.json ] && [ -x /bin/config_generate ] && /bin/config_generate
+	# Source 30_uboot-envtools — board.json now exists so uboot-envtool check passes
+	[ -f /etc/uci-defaults/30_uboot-envtools ] && (. /etc/uci-defaults/30_uboot-envtools)
+	[ -f /etc/fw_env.config ] && log_info "fw_env.config created via uboot-envtools" && return 0
+	return 1
 }
 
 # Replace/append mem-profile= in u-boot bootargs (removes duplicates)
 update_bootargs() {
-    local profile="$1"
-    if ! command -v fw_setenv >/dev/null 2>&1 || \
-       ! command -v fw_printenv >/dev/null 2>&1; then
-        log_warn "fw_setenv unavailable — set mem-profile=${profile} in bootargs manually"
-        return 1
-    fi
-    ensure_fw_env_config || log_warn "fw_env.config: could not be created"
-    local cur new
-    cur=$(fw_printenv 2>/dev/null | grep '^bootargs=' | cut -d= -f2-)
-    [ -z "$cur" ] && log_warn "fw_printenv: could not read bootargs" && return 1
-    new=$(echo "$cur" | sed 's/mem-profile=[^ ]*//g' \
-                      | sed 's/  */ /g' \
-                      | sed 's/^ //;s/ $//')
-    new="${new} mem-profile=${profile}"
-    fw_setenv bootargs "$new" 2>/dev/null && \
-        log_info "fw_setenv: bootargs set — mem-profile=${profile}" && return 0
-    log_warn "fw_setenv: failed to update bootargs"
-    return 1
+	local profile="$1"
+	local cur new
+
+	if ! command -v fw_setenv >/dev/null 2>&1 || \
+	   ! command -v fw_printenv >/dev/null 2>&1; then
+		log_warn "fw_setenv unavailable — set mem-profile=${profile} in bootargs manually"
+		return 1
+	fi
+
+	ensure_fw_env_config || log_warn "fw_env.config: could not be created"
+
+	cur=$(fw_printenv 2>/dev/null | grep '^bootargs=' | cut -d= -f2-)
+	[ -z "$cur" ] && log_warn "fw_printenv: could not read bootargs" && return 1
+
+	new=$(echo "$cur" | sed 's/mem-profile=[^ ]*//g' \
+	                  | sed 's/  */ /g' \
+	                  | sed 's/^ //;s/ $//')
+	new="${new} mem-profile=${profile}"
+
+	fw_setenv bootargs "$new" 2>/dev/null && \
+		log_info "fw_setenv: bootargs set — mem-profile=${profile}" && return 0
+
+	log_warn "fw_setenv: failed to update bootargs"
+	return 1
 }
 
-# Write UCI override + update bootargs + write guard flag + reboot.
-# Only reboots if bootargs were successfully updated.
+# Update bootargs and reboot if needed.
+# bad = "none" → no reboot (kernel already at DEFAULT = correct level).
+# Any other wrong profile → reboot to apply corrected profile to drivers.
 auto_correct() {
-    local bad="$1" good="$2"
+	local bad="$1"
+	local good="$2"
 
-    if [ -f "$GUARD_FLAG" ]; then
-        log_err "Guard flag active (${GUARD_FLAG}) — halting auto-correction"
-        log_err "Manual intervention required: set mem-profile=${good} in bootargs"
-        return 1
-    fi
+	log_warn "Auto-correcting: '${bad}' → '${good}'"
+	uci set system.@system[0].mem_profile="$good"
+	uci commit system
 
-    log_warn "Auto-correcting: '${bad}' → '${good}'"
-    uci set system.@system[0].mem_profile="$good"
-    uci commit system
-    if update_bootargs "$good"; then
-        echo "$(date) — corrected '${bad}' to '${good}'" > "$GUARD_FLAG"
-        # Skip reboot only when no profile was previously set (bad = "none").
-        # The kernel loaded with DEFAULT = max profile, so current boot is correct.
-        # All other cases (wrong profile, unknown profile) require a reboot to
-        # apply the corrected profile to drivers.
-        if [ "$bad" = "none" ]; then
-            log_warn "Bootargs set to '${good}' — takes effect on next boot (no reboot needed)"
-        else
-            log_warn "Rebooting in 2 seconds..."
-            sleep 2; sync; reboot
-        fi
-    else
-        log_warn "Bootargs not updated (fw_setenv unavailable) — UCI override set, continuing boot"
-    fi
+	if update_bootargs "$good"; then
+		if [ "$bad" = "none" ]; then
+			log_warn "Bootargs set to '${good}' — takes effect on next boot (no reboot needed)"
+		else
+			log_warn "Rebooting in 2 seconds..."
+			sleep 2; sync; reboot
+		fi
+	else
+		log_warn "Bootargs not updated (fw_setenv unavailable) — UCI override set, continuing boot"
+	fi
+}
+
+legacy_board() {
+	local mem_mb max_profile profile plvl mlvl
+
+	mem_mb=$(get_physical_ddr_mb)
+	max_profile=$(get_max_profile "$mem_mb")
+	log_info "PhysicalDDR=${mem_mb}MB  max_allowed=${max_profile}"
+
+	profile=$(get_cmdline_profile)
+	log_info "Current mem-profile in cmdline: ${profile:-<not set>}"
+
+	plvl=$(profile_level "$profile")
+	mlvl=$(profile_level "$max_profile")
+
+	# ── Valid cmdline profile: boot normally ──────────────────────────
+	# A profile is valid if it is a known name AND its level ≤ max_allowed.
+	# Lower profiles (e.g. optimized on a 1GB board) are always allowed.
+	# Clear any stale UCI override — it is no longer needed.
+	if [ -n "$profile" ] && [ "$plvl" -gt 0 ] && [ "$plvl" -le "$mlvl" ]; then
+		uci delete system.@system[0].mem_profile 2>/dev/null
+		uci commit system 2>/dev/null
+		log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
+		return 0
+	fi
+
+	# ── Invalid cmdline profile ───────────────────────────────────────
+	# Check for a UCI override written by a previous auto-correction.
+	# Use it only if the cmdline is invalid and the override is valid.
+	local uci_profile ulvl
+	uci_profile=$(uci get system.@system[0].mem_profile 2>/dev/null)
+
+	if [ -n "$uci_profile" ]; then
+		ulvl=$(profile_level "$uci_profile")
+		if [ "$ulvl" -gt 0 ] && [ "$ulvl" -le "$mlvl" ]; then
+			log_info "UCI override '${uci_profile}' valid — syncing bootargs"
+			if update_bootargs "$uci_profile"; then
+				if [ "$uci_profile" = "$max_profile" ]; then
+					log_warn "Bootargs set to '${uci_profile}' — takes effect on next boot (no reboot needed)"
+				else
+					log_warn "Rebooting to apply synced bootargs..."
+					sleep 2; sync; reboot
+				fi
+			else
+				log_warn "Could not sync bootargs — continuing with UCI override '${uci_profile}'"
+			fi
+			uci delete system.@system[0].mem_profile 2>/dev/null
+			uci commit system 2>/dev/null
+			log_info "=== mem-profile: '${uci_profile}' — boot OK ==="
+			return 0
+		else
+			log_warn "UCI override '${uci_profile}' invalid for ${mem_mb}MB — clearing"
+			uci delete system.@system[0].mem_profile 2>/dev/null
+			uci commit system 2>/dev/null
+		fi
+	fi
+
+	# ── Auto-correct ──────────────────────────────────────────────────
+	if [ -z "$profile" ]; then
+		log_warn "No mem-profile in cmdline — auto-setting to '${max_profile}'"
+		auto_correct "none" "$max_profile"
+	elif [ "$plvl" -lt 1 ]; then
+		log_err "Unknown/Invalid profile '${profile}' — auto-correcting to '${max_profile}'"
+		auto_correct "$profile" "$max_profile"
+	else
+		log_err "Profile '${profile}' exceeds hardware limit (max='${max_profile}' for ${mem_mb}MB)"
+		auto_correct "$profile" "$max_profile"
+	fi
+}
+
+wifi8_mem_board() {
+	local profile min_profile max_profile
+	local cplval min_plval max_plval mem_mb
+
+	profile=$(get_cmdline_profile)
+	cplval=$(profile_level "$profile")
+
+	min_profile=$(get_mem_profile_details min)
+	max_profile=$(get_mem_profile_details max)
+
+	[ -z "$max_profile" ] && {
+		mem_mb=$(get_physical_ddr_mb)
+		max_profile=$(get_max_profile "$mem_mb")
+	}
+
+	min_plval=$(profile_level "$min_profile")
+	max_plval=$(profile_level "$max_profile")
+	mem_mb=$(get_physical_ddr_mb)
+
+	echo " *** profile min:$min_profile max:$max_profile cmdline:$profile"
+	echo " *** c:$cplval min:$min_plval max:$max_plval"
+
+	if [ -z "$profile" ]; then
+		log_warn "No mem-profile in cmdline — auto-setting to '${max_profile}'"
+		auto_correct "none" "$max_profile"
+	elif [ "$cplval" -ge "$min_plval" ] && [ "$cplval" -le "$max_plval" ]; then
+		log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
+		return 0
+	else
+		log_err "Profile '${profile}' exceeds hardware limit (max='${max_profile}' for ${mem_mb}MB)"
+		auto_correct "$profile" "$max_profile"
+	fi
 }
 
 start() {
-    # Skip validation on platforms with fixed memory profiles.
-    # Primary:   device tree MP_512/MP_256 nodes.
-    # Secondary: kernel config CONFIG_IPQ_MEM_PROFILE (fallback when DT nodes absent).
-    if [ -e /proc/device-tree/MP_512 ] || [ -e /proc/device-tree/MP_256 ]; then
-        log_info "Detected Static LM512/LM256 profile (DT node) - skipping mem-profile validation"
-        return 0
-    elif [ -f /proc/config.gz ] && \
-         { zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=512" || \
-           zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=256"; }; then
-        log_info "Detected Static LM512/LM256 profile (kernel config) - skipping mem-profile validation"
-        return 0
-    fi
+	# Skip validation on platforms with fixed memory profiles.
+	# Primary:   device tree MP_512/MP_256 nodes.
+	# Secondary: kernel config CONFIG_IPQ_MEM_PROFILE (fallback when DT nodes absent).
+	if [ -e /proc/device-tree/MP_512 ] || [ -e /proc/device-tree/MP_256 ]; then
+		log_info "Detected Static LM512/LM256 profile (DT node) - skipping mem-profile validation"
+		return 0
+	elif [ -f /proc/config.gz ] && \
+	     { zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=512" || \
+	       zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=256"; }; then
+		log_info "Detected Static LM512/LM256 profile (kernel config) - skipping mem-profile validation"
+		return 0
+	fi
 
-    local mem_mb max_profile
-    mem_mb=$(get_physical_ddr_mb)
-    max_profile=$(get_max_profile "$mem_mb")
-    log_info "PhysicalDDR=${mem_mb}MB  max_allowed=${max_profile}"
+	local board
+	board=$(board_name)
 
-    local profile
-    profile=$(get_cmdline_profile)
-    log_info "Current mem-profile in cmdline: ${profile:-<not set>}"
-
-    local plvl mlvl
-    plvl=$(profile_level "$profile")
-    mlvl=$(profile_level "$max_profile")
-
-    # ── Valid cmdline profile: boot normally ──────────────────────────
-    # A profile is valid if it is a known name AND its level ≤ max_allowed.
-    # Lower profiles (e.g. optimized on a 1GB board) are always allowed.
-    # Clear any stale UCI override — it is no longer needed.
-    if [ -n "$profile" ] && [ "$plvl" -gt 0 ] && [ "$plvl" -le "$mlvl" ]; then
-        uci delete system.@system[0].mem_profile 2>/dev/null
-        uci commit system 2>/dev/null
-        rm -f "$GUARD_FLAG"
-        log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
-        return 0
-    fi
-
-    # ── Invalid cmdline profile ───────────────────────────────────────
-    # Check for a UCI override written by a previous auto-correction.
-    # Use it only if the cmdline is invalid and the override is valid.
-    local uci_profile
-    uci_profile=$(uci get system.@system[0].mem_profile 2>/dev/null)
-    if [ -n "$uci_profile" ]; then
-        local ulvl
-        ulvl=$(profile_level "$uci_profile")
-        if [ "$ulvl" -gt 0 ] && [ "$ulvl" -le "$mlvl" ]; then
-            log_info "UCI override '${uci_profile}' valid — syncing bootargs"
-            if update_bootargs "$uci_profile"; then
-                log_warn "Rebooting to apply synced bootargs..."
-                sleep 2; sync; reboot; sleep 30
-            fi
-            log_warn "Could not sync bootargs — continuing with UCI override '${uci_profile}'"
-            rm -f "$GUARD_FLAG"
-            log_info "=== mem-profile: '${uci_profile}' — boot OK ==="
-            return 0
-        else
-            log_warn "UCI override '${uci_profile}' invalid for ${mem_mb}MB — clearing"
-            uci delete system.@system[0].mem_profile 2>/dev/null
-            uci commit system 2>/dev/null
-        fi
-    fi
-
-    # ── Auto-correct ──────────────────────────────────────────────────
-    if [ -z "$profile" ]; then
-        log_warn "No mem-profile in cmdline — auto-setting to '${max_profile}'"
-        auto_correct "none" "$max_profile"
-    elif [ "$plvl" -eq 0 ]; then
-        log_err "Unknown profile '${profile}' — auto-correcting to '${max_profile}'"
-        auto_correct "$profile" "$max_profile"
-    else
-        log_err "Profile '${profile}' exceeds hardware limit (max='${max_profile}' for ${mem_mb}MB)"
-        auto_correct "$profile" "$max_profile"
-    fi
+	case "$board" in
+		qcom,ipq95* |\
+		qcom,ipq53* |\
+		qcom,ipq54*)
+			legacy_board
+			;;
+		qcom,ipq96* |\
+		qcom,ipq52*)
+			wifi8_mem_board
+			;;
+	esac
 }
 
 stop() { return 0; }
