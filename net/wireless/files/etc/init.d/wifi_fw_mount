@@ -405,6 +405,9 @@ mount_wifi_fw (){
 		ln -s /lib/firmware/$arch/qdss_trace_config.bin .
 		ln -s /lib/firmware/$arch/WIFI_FW/q6_fw*  .
 		ln -s /lib/firmware/$arch/WIFI_FW/iu_fw*  .
+                if [ -e /lib/firmware/$arch/WIFI_FW/fw_ini_cfg.bin ]; then
+			ln -s /lib/firmware/$arch/WIFI_FW/fw_ini_cfg.bin .
+		fi
 
 		case $board_name in
 			ap-mi01.3|ap-mi01.3-c3|ap-mi01.3-c2|ap-mi04.1|ap-mi04.1-c2|ap-mi01.2|ap-mi01.2-c2|ap-mi01.6|ap-mi01.12|ap-mi01.14|ap-mi04.3|ap-mi04.5|ap-mi01.3-c5)
