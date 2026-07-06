@@ -51,7 +51,7 @@ get_physical_ddr_mb() {
 set_default_profile() {
 	mem_mb=$(get_physical_ddr_mb)
 	if [ "$mem_mb" -ge 1024 ]; then
-		set_min_max_mem_profile "high" "high"
+		set_min_max_mem_profile "balanced" "high"
 	elif [ "$mem_mb" -ge 512 ]; then
 		set_min_max_mem_profile "balanced" "balanced"
 	else
