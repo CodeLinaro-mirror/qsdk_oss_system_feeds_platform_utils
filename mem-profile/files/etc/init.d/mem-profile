@@ -100,6 +100,11 @@ get_cmdline_profile() {
 	grep -o 'mem-profile=[^ ]*' /proc/cmdline 2>/dev/null | head -1 | cut -d= -f2
 }
 
+# Write the active mem-profile to /etc/mem-profile
+export_active_profile() {
+	echo "$1" > /etc/mem-profile
+}
+
 # Ensure /etc/fw_env.config exists using the same process as /etc/init.d/boot:
 #   1. Run /bin/config_generate to create /etc/board.json (missing at START=00)
 #   2. Source 30_uboot-envtools — now board.json exists so it creates fw_env.config
@@ -154,6 +159,7 @@ auto_correct() {
 
 	if update_bootargs "$good"; then
 		if [ "$bad" = "none" ]; then
+			export_active_profile "$good"
 			log_warn "Bootargs set to '${good}' — takes effect on next boot (no reboot needed)"
 		else
 			log_warn "Rebooting in 2 seconds..."
@@ -182,6 +188,7 @@ legacy_board() {
 	# Lower profiles (e.g. optimized on a 1GB board) are always allowed.
 	# Clear any stale UCI override — it is no longer needed.
 	if [ -n "$profile" ] && [ "$plvl" -gt 0 ] && [ "$plvl" -le "$mlvl" ]; then
+		export_active_profile "$profile"
 		uci delete system.@system[0].mem_profile 2>/dev/null
 		uci commit system 2>/dev/null
 		log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
@@ -208,6 +215,7 @@ legacy_board() {
 			else
 				log_warn "Could not sync bootargs — continuing with UCI override '${uci_profile}'"
 			fi
+			export_active_profile "$uci_profile"
 			uci delete system.@system[0].mem_profile 2>/dev/null
 			uci commit system 2>/dev/null
 			log_info "=== mem-profile: '${uci_profile}' — boot OK ==="
@@ -258,6 +266,7 @@ wifi8_mem_board() {
 		log_warn "No mem-profile in cmdline — auto-setting to '${max_profile}'"
 		auto_correct "none" "$max_profile"
 	elif [ "$cplval" -ge "$min_plval" ] && [ "$cplval" -le "$max_plval" ]; then
+		export_active_profile "$profile"
 		log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
 		return 0
 	else
