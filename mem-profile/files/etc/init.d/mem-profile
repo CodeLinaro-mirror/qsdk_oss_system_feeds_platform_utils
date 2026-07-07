@@ -6,6 +6,7 @@ START=00
 #STOP=99
 
 LOG_TAG="mem-profile"
+MEM_PROFILE_JSON="/etc/mem-profile.json"
 
 # Mirror to /dev/kmsg so messages appear in dmesg at START=00
 _kmsg() { echo "<$1>$LOG_TAG: $2" > /dev/kmsg 2>/dev/null; }
@@ -57,7 +58,7 @@ get_max_profile() {
 	local profile threshold
 
 	for profile in optimized balanced; do
-		threshold=$(uci get mem-profile."${profile}".threshold 2>/dev/null)
+		threshold=$(jsonfilter -i "$MEM_PROFILE_JSON" -e "@.profiles.${profile}.threshold_mb")
 		[ -z "$threshold" ] && continue
 		if [ "$mem_mb" -le "$threshold" ]; then
 			echo "$profile"
@@ -68,7 +69,7 @@ get_max_profile() {
 }
 
 get_mem_profile_details() {
-	local JSON_FILE="/etc/board.json"
+	local JSON_FILE="$MEM_PROFILE_JSON"
 
 	case $1 in
 		"min")
@@ -154,8 +155,6 @@ auto_correct() {
 	local good="$2"
 
 	log_warn "Auto-correcting: '${bad}' → '${good}'"
-	uci set system.@system[0].mem_profile="$good"
-	uci commit system
 
 	if update_bootargs "$good"; then
 		if [ "$bad" = "none" ]; then
@@ -171,71 +170,47 @@ auto_correct() {
 }
 
 legacy_board() {
-	local mem_mb max_profile profile plvl mlvl
-
-	mem_mb=$(get_physical_ddr_mb)
-	max_profile=$(get_max_profile "$mem_mb")
-	log_info "PhysicalDDR=${mem_mb}MB  max_allowed=${max_profile}"
+	local profile min_profile max_profile
+	local cplval min_plval max_plval mem_mb
 
 	profile=$(get_cmdline_profile)
 	log_info "Current mem-profile in cmdline: ${profile:-<not set>}"
 
-	plvl=$(profile_level "$profile")
-	mlvl=$(profile_level "$max_profile")
+	cplval=$(profile_level "$profile")
 
-	# ── Valid cmdline profile: boot normally ──────────────────────────
-	# A profile is valid if it is a known name AND its level ≤ max_allowed.
-	# Lower profiles (e.g. optimized on a 1GB board) are always allowed.
-	# Clear any stale UCI override — it is no longer needed.
-	if [ -n "$profile" ] && [ "$plvl" -gt 0 ] && [ "$plvl" -le "$mlvl" ]; then
-		export_active_profile "$profile"
-		uci delete system.@system[0].mem_profile 2>/dev/null
-		uci commit system 2>/dev/null
-		log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
-		return 0
+	# Read min/max from board.json (set by 03_mem_profile during board_detect).
+	# Falls back to physical DDR if board.json has no mem_profile entry.
+	min_profile=$(get_mem_profile_details min)
+	max_profile=$(get_mem_profile_details max)
+
+	if [ -z "$max_profile" ]; then
+		mem_mb=$(get_physical_ddr_mb)
+		max_profile=$(get_max_profile "$mem_mb")
+		log_info "PhysicalDDR=${mem_mb}MB  max_allowed=${max_profile} (fallback)"
+	else
+		log_info "$MEM_PROFILE_JSON: min=${min_profile} max=${max_profile}"
 	fi
 
-	# ── Invalid cmdline profile ───────────────────────────────────────
-	# Check for a UCI override written by a previous auto-correction.
-	# Use it only if the cmdline is invalid and the override is valid.
-	local uci_profile ulvl
-	uci_profile=$(uci get system.@system[0].mem_profile 2>/dev/null)
+	min_plval=$(profile_level "$min_profile")
+	max_plval=$(profile_level "$max_profile")
 
-	if [ -n "$uci_profile" ]; then
-		ulvl=$(profile_level "$uci_profile")
-		if [ "$ulvl" -gt 0 ] && [ "$ulvl" -le "$mlvl" ]; then
-			log_info "UCI override '${uci_profile}' valid — syncing bootargs"
-			if update_bootargs "$uci_profile"; then
-				if [ "$uci_profile" = "$max_profile" ]; then
-					log_warn "Bootargs set to '${uci_profile}' — takes effect on next boot (no reboot needed)"
-				else
-					log_warn "Rebooting to apply synced bootargs..."
-					sleep 2; sync; reboot
-				fi
-			else
-				log_warn "Could not sync bootargs — continuing with UCI override '${uci_profile}'"
-			fi
-			export_active_profile "$uci_profile"
-			uci delete system.@system[0].mem_profile 2>/dev/null
-			uci commit system 2>/dev/null
-			log_info "=== mem-profile: '${uci_profile}' — boot OK ==="
-			return 0
-		else
-			log_warn "UCI override '${uci_profile}' invalid for ${mem_mb}MB — clearing"
-			uci delete system.@system[0].mem_profile 2>/dev/null
-			uci commit system 2>/dev/null
-		fi
+	# ── Valid cmdline profile: boot normally ──────────────────────────
+	# A profile is valid if min ≤ profile ≤ max.
+	if [ -n "$profile" ] && [ "$cplval" -ge "$min_plval" ] && [ "$cplval" -le "$max_plval" ]; then
+		export_active_profile "$profile"
+		log_info "Curent Profile: '${profile}' is within the supported range (min='${min_profile}' max='${max_profile}')— boot OK"
+		return 0
 	fi
 
 	# ── Auto-correct ──────────────────────────────────────────────────
 	if [ -z "$profile" ]; then
 		log_warn "No mem-profile in cmdline — auto-setting to '${max_profile}'"
 		auto_correct "none" "$max_profile"
-	elif [ "$plvl" -lt 1 ]; then
+	elif [ "$cplval" -lt 1 ]; then
 		log_err "Unknown/Invalid profile '${profile}' — auto-correcting to '${max_profile}'"
 		auto_correct "$profile" "$max_profile"
 	else
-		log_err "Profile '${profile}' exceeds hardware limit (max='${max_profile}' for ${mem_mb}MB)"
+		log_err "Profile '${profile}' out of range (min='${min_profile}' max='${max_profile}')"
 		auto_correct "$profile" "$max_profile"
 	fi
 }
@@ -265,8 +240,12 @@ wifi8_mem_board() {
 	if [ -z "$profile" ]; then
 		log_warn "No mem-profile in cmdline — auto-setting to '${max_profile}'"
 		auto_correct "none" "$max_profile"
+	elif [ "$cplval" -lt 1 ]; then
+		log_err "Unknown/Invalid profile '${profile}' — auto-correcting to '${max_profile}'"
+		auto_correct "$profile" "$max_profile"
 	elif [ "$cplval" -ge "$min_plval" ] && [ "$cplval" -le "$max_plval" ]; then
 		export_active_profile "$profile"
+		log_info "Curent Profile: '${profile}' is within the supported range (min='${min_profile}' max='${max_profile}')"
 		log_info "Profile '${profile}' valid for ${mem_mb}MB (max='${max_profile}') — boot OK"
 		return 0
 	else
@@ -288,6 +267,8 @@ start() {
 		log_info "Detected Static LM512/LM256 profile (kernel config) - skipping mem-profile validation"
 		return 0
 	fi
+
+	[ ! -f "$MEM_PROFILE_JSON" ] && [ -x /etc/board.d/03_mem_profile ] && /etc/board.d/03_mem_profile
 
 	local board
 	board=$(board_name)
