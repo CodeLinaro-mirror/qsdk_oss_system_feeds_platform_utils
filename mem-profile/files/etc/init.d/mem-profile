@@ -255,16 +255,38 @@ wifi8_mem_board() {
 }
 
 start() {
-	# Skip validation on platforms with fixed memory profiles.
-	# Primary:   device tree MP_512/MP_256 nodes.
-	# Secondary: kernel config CONFIG_IPQ_MEM_PROFILE (fallback when DT nodes absent).
-	if [ -e /proc/device-tree/MP_512 ] || [ -e /proc/device-tree/MP_256 ]; then
-		log_info "Detected Static LM512/LM256 profile (DT node) - skipping mem-profile validation"
-		return 0
-	elif [ -f /proc/config.gz ] && \
-	     { zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=512" || \
-	       zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=256"; }; then
-		log_info "Detected Static LM512/LM256 profile (kernel config) - skipping mem-profile validation"
+	# For static memory profile platforms, skip DDR validation but enforce
+	# the correct mem-profile in bootargs (no reboot — kernel already loaded
+	# with the correct static profile).
+	#   MP_512 / CONFIG_IPQ_MEM_PROFILE=512 → enforce balanced
+	#   MP_256 / CONFIG_IPQ_MEM_PROFILE=256 → enforce optimized
+	local static_profile=""
+	if [ -e /proc/device-tree/MP_512 ]; then
+		static_profile="balanced"
+	elif [ -e /proc/device-tree/MP_256 ]; then
+		static_profile="optimized"
+	elif [ -f /proc/config.gz ]; then
+		if zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=512"; then
+			static_profile="balanced"
+		elif zcat /proc/config.gz 2>/dev/null | grep -q "CONFIG_IPQ_MEM_PROFILE=256"; then
+			static_profile="optimized"
+		fi
+	fi
+
+	if [ -n "$static_profile" ]; then
+		local cur_profile
+		cur_profile=$(get_cmdline_profile)
+		if [ "$cur_profile" = "$static_profile" ]; then
+			log_info "Static platform: mem-profile=${static_profile} already set — boot OK"
+			export_active_profile "$static_profile"
+		else
+			if update_bootargs "$static_profile"; then
+				export_active_profile "$static_profile"
+				log_info "Static platform: bootargs updated to '${static_profile}' — takes effect on next boot"
+			else
+				log_warn "Static platform: bootargs not updated — continuing boot"
+			fi
+		fi
 		return 0
 	fi
 
