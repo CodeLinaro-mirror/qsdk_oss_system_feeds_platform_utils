@@ -157,7 +157,10 @@ auto_correct() {
 	log_warn "Auto-correcting: '${bad}' → '${good}'"
 
 	if update_bootargs "$good"; then
-		if [ "$bad" = "none" ]; then
+		# Skip reboot only when bad="none" AND good="high":
+		# kernel already loaded with DEFAULT = high, so current boot is correct.
+		# For balanced/optimized, kernel loaded with DEFAULT=high (wrong) → reboot needed.
+		if [ "$bad" = "none" ] && [ "$good" = "high" ]; then
 			export_active_profile "$good"
 			log_warn "Bootargs set to '${good}' — takes effect on next boot (no reboot needed)"
 		else
