@@ -26,6 +26,10 @@ endef
 TARGET_LDFLAGS += -L$(STAGING_DIR) \
 		  -lubox -lubus
 
+ifeq ($(CONFIG_TARGET_ipq52xx),y)
+	TARGET_CFLAGS += -DBOARD_HERMOSA
+endif
+
 define Build/Configure
 	mkdir -p $(PKG_BUILD_DIR)
 	$(CP) $(LOCAL_SRC)/* $(PKG_BUILD_DIR)/
