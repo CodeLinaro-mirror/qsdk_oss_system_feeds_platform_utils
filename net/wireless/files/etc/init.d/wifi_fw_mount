@@ -342,6 +342,14 @@ mount_wifi_fw (){
 		mkdir -p /lib/firmware/qcn9625 && cd /lib/firmware/qcn9625 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625/qdss* .
 	fi
 
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9625_v2 ]; then
+		cd  $fwfolder && mkdir -p qcn9625_v2 && mkdir -p /vendor/firmware/qcn9625_v2
+		cd qcn9625_v2 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/*.* .
+		cd /vendor/firmware/qcn9625_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625_v2/Data.msc .
+		create_soft_link Data.msc Data_dualmac.msc
+		mkdir -p /lib/firmware/qcn9625_v2 && cd /lib/firmware/qcn9625_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625_v2/qdss* .
+	fi
+
 	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9589 ]; then
 		cd  $fwfolder && mkdir -p qcn9589 && mkdir -p /vendor/firmware/qcn9589
 		cd qcn9589 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/*.* .
@@ -710,6 +718,51 @@ mount_wifi_fw (){
 
 			case $board_name in
 				rdp492*|rdp488*|rdp489*)
+					caldata_symlink_creation_mr "$board_name" "1"
+					caldata_symlink_creation_mr "$board_name" "2"
+					caldata_symlink_creation_mr "$board_name" "3"
+				;;
+				rdp499* | rdp502* | rdp505*)
+					caldata_symlink_creation_mr "$board_name" "1"
+				;;
+				rdp503* | rdp504*|rdp506*)
+					caldata_symlink_creation_mr "$board_name" "1"
+					caldata_symlink_creation_mr "$board_name" "2"
+				;;
+				rdp507* | rdp490* | rdp491*)
+				# qcn9625 is the 2nd ftm.conf entry for dual-radio Rimini RDPs
+					caldata_symlink_creation_mr "$board_name" "2"
+				;;
+				*)
+					#No sm links
+				;;
+                        esac
+		fi
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9625_v2 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625_v2/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath12k/QCN9625/hw2.0/
+			cd /lib/firmware/ath12k/QCN9625/hw2.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/m3.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/amss.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/board-2.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625_v2/fw_ini_cfg.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/fw_ini_cfg.bin .
+			fi
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625_v2/regdb.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/regdb.bin .
+			fi
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/qdss_trace_config.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625_v2/aux.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/aux.bin .
+			fi
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9625_v2/mcss.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/mcss.bin .
+			fi
+
+			case $board_name in
+				rdp488*|rdp489*)
 					caldata_symlink_creation_mr "$board_name" "1"
 					caldata_symlink_creation_mr "$board_name" "2"
 					caldata_symlink_creation_mr "$board_name" "3"
