@@ -46,13 +46,11 @@ define Host/Prepare
 	@echo "Building in Makefile..."
 	cd $(PKG_BUILD_DIR)/wamr-compiler && \
 	mkdir -p build && \
-	./build_llvm.sh && cd build && cmake ..
+	./build_llvm.sh && cd build && CC="$(HOSTCC)" CXX="$(HOSTCXX)" cmake ..
 endef
 
-TARGET_CFLAGS += -DCMAKE_C_COMPILER=$(HOSTCC) -DCMAKE_CXX_COMPILER=$(HOSTCXX)
-
 define Host/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR)/wamr-compiler/build CFLAGS="$(TARGET_CFLAGS)"
+	$(MAKE) -C $(PKG_BUILD_DIR)/wamr-compiler/build
 endef
 
 define Host/Install
