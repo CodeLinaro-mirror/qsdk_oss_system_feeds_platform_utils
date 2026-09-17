@@ -4,7 +4,8 @@ PKG_NAME:=optee-client
 PKG_RELEASE:=1
 PKG_VERSION:=4.6.0
 
-PKG_SOURCE:=$(PKG_VERSION).tar.gz
+PKG_SOURCE:=optee_client-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL_FILE:=$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/OP-TEE/optee_client/archive/refs/tags
 PKG_HASH:=a970338c9f69861901336716d89684646e4480b9970996a5b3581ae7d49fdaa3
 
@@ -23,6 +24,23 @@ define Package/optee-client
 endef
 
 MAKE_FLAGS += EXPORT_DIR=$(STAGING_DIR)
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include
+	$(CP) $(PKG_BUILD_DIR)/libteec/include/*.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libckteec/include/*.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libteeacl/include/*.h $(1)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libseteec/include/*.h $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/out/libteec/libteec.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/out/libteec/libteec.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/out/libckteec/libckteec.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/out/libckteec/libckteec.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/out/libteeacl/libteeacl.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/out/libteeacl/libteeacl.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/out/libseteec/libseteec.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/out/libseteec/libseteec.a $(1)/usr/lib/
+endef
 
 define Package/optee-client/install
 	$(INSTALL_DIR) $(1)/usr/lib/
