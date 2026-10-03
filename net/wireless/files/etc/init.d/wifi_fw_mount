@@ -100,7 +100,7 @@ rdp_caldata_symlinks_11bn() {
 				;;
 			esac
 		;;
-		qcn9589)
+		qcn9589|qcn9589_v2)
 			case $board_name in
 				rdp507* | rdp490* | rdp491* | rdp525*)
 					# qcn9589 is the 1st ftm.conf entry for dual-radio Rimini RDPs
@@ -423,6 +423,14 @@ mount_wifi_fw (){
 		cd /vendor/firmware/qcn9589 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589/Data.msc .
 		create_soft_link Data.msc Data_dualmac.msc
 		mkdir -p /lib/firmware/qcn9589 && cd /lib/firmware/qcn9589 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589/qdss* .
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9589_v2 ]; then
+		cd  $fwfolder && mkdir -p qcn9589_v2 && mkdir -p /vendor/firmware/qcn9589_v2
+		cd qcn9589_v2 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/*.* .
+		cd /vendor/firmware/qcn9589_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589_v2/Data.msc .
+		create_soft_link Data.msc Data_dualmac.msc
+		mkdir -p /lib/firmware/qcn9589_v2 && cd /lib/firmware/qcn9589_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589_v2/qdss* .
 	fi
 
 	mkdir -p $fwfolder/$arch
@@ -834,6 +842,31 @@ mount_wifi_fw (){
 			fi
 
 			rdp_caldata_symlinks_11bn "$board_name" "qcn9589"
+		fi
+	fi
+
+	if [ -d /lib/firmware/$arch/WIFI_FW/qcn9589_v2 ]; then
+		if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589_v2/board-2.bin ]; then
+			mkdir -p /lib/firmware/ath12k/QCN9589/hw2.0/
+			cd /lib/firmware/ath12k/QCN9589/hw2.0/
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/m3.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/amss.bin .
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/board-2.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589_v2/fw_ini_cfg.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/fw_ini_cfg.bin .
+			fi
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589_v2/regdb.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/regdb.bin .
+			fi
+			ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/qdss_trace_config.bin .
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589_v2/aux.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/aux.bin .
+			fi
+			if [ -e /lib/firmware/$arch/WIFI_FW/qcn9589_v2/mcss.bin ]; then
+				ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/mcss.bin .
+			fi
+
+			rdp_caldata_symlinks_11bn "$board_name" "qcn9589_v2"
 		fi
 	fi
 
