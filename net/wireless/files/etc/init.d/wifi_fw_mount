@@ -405,7 +405,6 @@ mount_wifi_fw (){
 		cd  $fwfolder && mkdir -p qcn9625 && mkdir -p /vendor/firmware/qcn9625
 		cd qcn9625 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9625/*.* .
 		cd /vendor/firmware/qcn9625 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625/Data.msc .
-		create_soft_link Data.msc Data_dualmac.msc
 		mkdir -p /lib/firmware/qcn9625 && cd /lib/firmware/qcn9625 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625/qdss* .
 	fi
 
@@ -413,7 +412,6 @@ mount_wifi_fw (){
 		cd  $fwfolder && mkdir -p qcn9625_v2 && mkdir -p /vendor/firmware/qcn9625_v2
 		cd qcn9625_v2 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9625_v2/*.* .
 		cd /vendor/firmware/qcn9625_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625_v2/Data.msc .
-		create_soft_link Data.msc Data_dualmac.msc
 		mkdir -p /lib/firmware/qcn9625_v2 && cd /lib/firmware/qcn9625_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9625_v2/qdss* .
 	fi
 
@@ -421,7 +419,6 @@ mount_wifi_fw (){
 		cd  $fwfolder && mkdir -p qcn9589 && mkdir -p /vendor/firmware/qcn9589
 		cd qcn9589 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9589/*.* .
 		cd /vendor/firmware/qcn9589 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589/Data.msc .
-		create_soft_link Data.msc Data_dualmac.msc
 		mkdir -p /lib/firmware/qcn9589 && cd /lib/firmware/qcn9589 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589/qdss* .
 	fi
 
@@ -429,7 +426,6 @@ mount_wifi_fw (){
 		cd  $fwfolder && mkdir -p qcn9589_v2 && mkdir -p /vendor/firmware/qcn9589_v2
 		cd qcn9589_v2 && ln -s /lib/firmware/$arch/WIFI_FW/qcn9589_v2/*.* .
 		cd /vendor/firmware/qcn9589_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589_v2/Data.msc .
-		create_soft_link Data.msc Data_dualmac.msc
 		mkdir -p /lib/firmware/qcn9589_v2 && cd /lib/firmware/qcn9589_v2 && create_soft_link /lib/firmware/$arch/WIFI_FW/qcn9589_v2/qdss* .
 	fi
 

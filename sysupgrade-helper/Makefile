@@ -12,7 +12,7 @@ ifeq ($(DUMP)$(PKG_VERSION),)
   PKG_VERSION:=g$(PKG_REV)
 endif
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_DISTNAME)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_DISTNAME)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)
 SRC_DIR:=$(TOPDIR)/qca/src/$(PKG_NAME)
 $(shell cp -fp $(TOPDIR)/qca/feeds/bootloader/u-boot/files/tools/*.* $(SRC_DIR)/tools)
 include $(INCLUDE_DIR)/package.mk
